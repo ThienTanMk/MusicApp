@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="8dp"
+    android:gravity="center_vertical">
+
+    <!-- Ảnh đại diện -->
+    <ImageView
+        android:id="@+id/iv_user_image"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:scaleType="centerCrop"
+        android:background="@drawable/custom_avatar_follow"
+        android:clipToOutline="true"
+        android:outlineProvider="background"
+        android:src="@android:drawable/ic_menu_gallery"
+        android:focusable="false"
+        android:focusableInTouchMode="false"/>
+
+    <!-- Thông tin người dùng -->
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:layout_marginStart="12dp"
+        android:orientation="vertical">
+
+        <!-- Tên người dùng -->
+        <TextView
+            android:id="@+id/tv_user_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="User Name"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:focusable="false"
+            android:focusableInTouchMode="false"/>
+
+        <!-- Vị trí-->
+        <TextView
+            android:id="@+id/tv_user_from"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="VietNam"
+            android:textColor="#BBBBBB"
+            android:textSize="12sp"
+            android:focusable="false"
+            android:focusableInTouchMode="false"/>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:src="@drawable/ic_person"
+                app:tint="#FFFFFF"
+                android:contentDescription="People icon"
+                android:focusable="false"
+                android:focusableInTouchMode="false"/>
+
+            <!-- số người theo dõi -->
+            <TextView
+                android:id="@+id/tv_user_details"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Followers"
+                android:textColor="#BBBBBB"
+                android:textSize="12sp"
+                android:focusable="false"
+                android:focusableInTouchMode="false"/>
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <!-- Nút Following -->
+    <Button
+        android:id="@+id/btn_following"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Following"
+        android:textColor="#FFFFFF"
+        android:background="@drawable/custom_button_gray"
+        app:backgroundTint="@null"
+        android:textSize="15sp"
+        android:textStyle="bold"
+        android:padding="6dp"
+        android:focusable="false"
+        android:focusableInTouchMode="false"/>
+</LinearLayout>

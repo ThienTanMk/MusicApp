@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+xmlns:app="http://schemas.android.com/apk/res-auto"
+xmlns:tools="http://schemas.android.com/tools"
+android:id="@+id/main"
+android:layout_width="match_parent"
+android:layout_height="match_parent"
+android:fitsSystemWindows="true"
+tools:context=".view.activity.SplashActivity">
+
+<ImageView
+    android:id="@+id/imageView"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:scaleType="centerCrop"
+    app:srcCompat="@drawable/login" />
+
+<ImageView
+    android:id="@+id/imageView2"
+    android:layout_width="164dp"
+    android:layout_height="115dp"
+    android:layout_gravity="center_horizontal"
+    android:layout_marginTop="50dp"
+    app:srcCompat="@drawable/soundcloud" />
+
+<TextView
+    android:id="@+id/textView"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center_horizontal"
+    android:layout_marginTop="400dp"
+    android:text="Find music you love.\nDiscover new artists."
+    android:textColor="@color/white"
+    android:textSize="24sp"
+    android:lineSpacingExtra="8dp"
+    android:gravity="center"
+    android:textStyle="italic"/>
+
+<Button
+    android:layout_width="300dp"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center_horizontal"
+    android:layout_marginTop="500dp"
+    android:background="@drawable/custom_button_orange"
+    app:backgroundTint="@null"
+    android:onClick="signIn"
+    android:text="Create an account"
+    android:textColor="@android:color/white"
+    android:textSize="16sp" />
+
+<Button
+    android:id="@+id/button2"
+    android:layout_width="300dp"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center_horizontal"
+    android:layout_marginTop="570dp"
+    android:background="@drawable/custom_button_white"
+    app:backgroundTint="@null"
+    android:onClick="signIn"
+    android:text="I already have an account"
+    android:textColor="@color/black"
+    android:textSize="16sp" />
+</FrameLayout>

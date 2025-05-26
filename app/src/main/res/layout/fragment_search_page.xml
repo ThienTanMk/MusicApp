@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background"
+    android:orientation="vertical"
+    android:padding="20dp"
+    tools:context=".view.fragment.SearchPageFragment"
+    android:fitsSystemWindows="true">
+
+    <!-- Thanh tìm kiếm -->
+    <EditText
+        android:id="@+id/searchEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Search"
+        android:background="@drawable/custom_edit_text"
+        android:padding="12dp"
+        android:textColor="#FFFFFF"
+        android:textColorHint="#B0B0B0"
+        android:drawableStart="@android:drawable/ic_menu_search"
+        android:drawablePadding="8dp" />
+
+    <!-- RecyclerView hiển thị kết quả người dùng tìm thấy -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerViewSearchUser"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:visibility="gone" /> <!-- Mặc định ẩn, chỉ hiện khi có kết quả -->
+    <!-- Tiêu đề Vibes -->
+    <TextView
+        android:id="@+id/textViewVibes"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Vibes"
+        android:textColor="#FFFFFF"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:layout_marginTop="16dp" />
+
+    <!-- GridView cho danh sách các mục (Hip Hop & Rap, Electronic,...) -->
+    <GridView
+        android:id="@+id/gridViewVibes"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="16dp"
+        android:numColumns="2"
+        android:verticalSpacing="4dp"
+        android:horizontalSpacing="4dp"
+        android:stretchMode="columnWidth" />
+</LinearLayout>
