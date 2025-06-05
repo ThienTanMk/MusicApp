@@ -1,4 +1,4 @@
-package com.app.musicapp.view.fragment;
+package com.app.musicapp.view.fragment.album;
 
 import android.os.Bundle;
 
@@ -75,8 +75,29 @@ public class AlbumsFragment extends Fragment {
                 getActivity().getSupportFragmentManager().popBackStack();
             }
         });
+        // Xử lý sự kiện click trên ListView
+        listViewAlbums.setOnItemClickListener((parent, view1, position, id) -> {
+            Album selectedAlbum = filteredAlbumList.get(position);
+            // Tạo instance của AlbumPageFragment và truyền dữ liệu album
+            AlbumPageFragment albumPageFragment = AlbumPageFragment.newInstance(selectedAlbum);
 
-        // Xử lý tìm kiếm
+            // Điều hướng đến AlbumPageFragment
+            if (getActivity() != null) {
+                // Ẩn ViewPager và hiển thị fragment_container
+                View mainView = requireActivity().findViewById(R.id.main);
+                View viewPager = mainView.findViewById(R.id.view_pager);
+                View fragmentContainer = mainView.findViewById(R.id.fragment_container);
+
+                viewPager.setVisibility(View.GONE);
+                fragmentContainer.setVisibility(View.VISIBLE);
+
+                getActivity().getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.fragment_container, albumPageFragment)
+                        .addToBackStack(null)
+                        .commit();
+            }
+        });
         etSearch.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}

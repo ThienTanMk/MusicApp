@@ -87,18 +87,37 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             }
         });
+        getSupportFragmentManager().addOnBackStackChangedListener(() -> {
+            Fragment currentFm =  getSupportFragmentManager().findFragmentById((R.id.fragment_container));
+            View fmContainter = findViewById(R.id.fragment_container);
+            if(currentFm == null){
+                mViewpager.setVisibility(View.VISIBLE);
+                fmContainter.setVisibility(View.GONE);
+            }else {
+                mViewpager.setVisibility(View.GONE);
+                fmContainter.setVisibility(View.VISIBLE);
+            }
+        });
     }
     // Xử lý khi người dùng bấm nút Back
+//    @Override
+//    public void onBackPressed() {
+//        // Kiểm tra nếu fragment_container đang hiển thị
+//        View fragmentContainer = findViewById(R.id.fragment_container);
+//        if (fragmentContainer != null && fragmentContainer.getVisibility() == View.VISIBLE) {
+//            // Hiển thị lại ViewPager và BottomNavigationView
+//            mViewpager.setVisibility(View.VISIBLE);
+//            fragmentContainer.setVisibility(View.GONE);
+//
+//            // Xóa fragment trong fragment_container
+//            getSupportFragmentManager().popBackStack();
+//        } else {
+//            super.onBackPressed();
+//        }
+//    }
     @Override
     public void onBackPressed() {
-        // Kiểm tra nếu fragment_container đang hiển thị
-        View fragmentContainer = findViewById(R.id.fragment_container);
-        if (fragmentContainer != null && fragmentContainer.getVisibility() == View.VISIBLE) {
-            // Hiển thị lại ViewPager và BottomNavigationView
-            mViewpager.setVisibility(View.VISIBLE);
-            fragmentContainer.setVisibility(View.GONE);
-
-            // Xóa fragment trong fragment_container
+        if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
             getSupportFragmentManager().popBackStack();
         } else {
             super.onBackPressed();

@@ -56,7 +56,6 @@ public class FollowingAdapter extends BaseAdapter {
 
         if (i >= 0 && i < followingList.size()) {
             FollowingUser user = followingList.get(i);
-
             // Gán dữ liệu vào view
             tvUserName.setText(user.getName() != null ? user.getName() : "Unknown Name");
             tvUserFrom.setText(user.getLocation() != null ? user.getLocation() : "Unknown");
@@ -81,7 +80,6 @@ public class FollowingAdapter extends BaseAdapter {
                 Toast.makeText(context, "Invalid position: " + i, Toast.LENGTH_SHORT).show();
             }
         }
-
         return view;
     }
 

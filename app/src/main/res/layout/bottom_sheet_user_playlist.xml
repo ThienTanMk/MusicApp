@@ -13,14 +13,13 @@
         android:orientation="horizontal"
         android:gravity="center_vertical"
         android:paddingBottom="16dp">
-        <!-- Ảnh nền bài hát-->
         <ImageView
             android:id="@+id/iv_playlist_image"
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:scaleType="centerCrop"
             android:src="@android:drawable/ic_menu_gallery" />
-        <!-- LinearLayout dọc để chứa tiêu đề và tên nghệ sĩ -->
+
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -37,7 +36,6 @@
                 android:textSize="16sp"
                 android:textStyle="bold" />
 
-            <!-- Tên nghệ sĩ (userId) -->
             <TextView
                 android:id="@+id/tv_user_playlist"
                 android:layout_width="match_parent"
@@ -49,8 +47,6 @@
 
     </LinearLayout>
 
-
-    <!-- Nút Make public -->
     <LinearLayout
         android:id="@+id/layout_make_public"
         android:layout_width="match_parent"
@@ -74,7 +70,6 @@
             android:textSize="16sp" />
     </LinearLayout>
 
-    <!-- Nút Liked -->
     <LinearLayout
         android:id="@+id/layout_liked"
         android:layout_width="match_parent"

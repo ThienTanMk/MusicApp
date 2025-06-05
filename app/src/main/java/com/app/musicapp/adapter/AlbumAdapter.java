@@ -1,7 +1,5 @@
 package com.app.musicapp.adapter;
 
-import static java.security.AccessController.getContext;
-
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,8 +8,11 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.fragment.app.FragmentActivity;
+
 import com.app.musicapp.R;
 import com.app.musicapp.model.Album;
+import com.app.musicapp.view.fragment.album.AlbumOptionsBottomSheet;
 
 import java.util.List;
 
@@ -61,6 +62,11 @@ public class AlbumAdapter extends BaseAdapter {
 
         ivAlbumImage.setImageResource(R.drawable.logo);
 
+        ivMenu.setOnClickListener(v -> {
+            // Mở AlbumOptionsBottomSheet
+            AlbumOptionsBottomSheet bottomSheet = AlbumOptionsBottomSheet.newInstance(album);
+            bottomSheet.show(((FragmentActivity) context).getSupportFragmentManager(), bottomSheet.getTag());
+        });
         return view;
     }
 }

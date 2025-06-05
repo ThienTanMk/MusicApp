@@ -7,7 +7,7 @@ import androidx.fragment.app.FragmentStatePagerAdapter;
 
 import com.app.musicapp.view.fragment.HomePageFragment;
 import com.app.musicapp.view.fragment.LibraryPageFragment;
-import com.app.musicapp.view.fragment.SearchPageFragment;
+import com.app.musicapp.view.fragment.searchpage.SearchPageFragment;
 
 public class HomePageAdapter extends FragmentStatePagerAdapter {
     public HomePageAdapter(@NonNull FragmentManager fm, int behavior){

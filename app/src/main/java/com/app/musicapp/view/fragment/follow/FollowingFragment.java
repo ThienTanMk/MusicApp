@@ -1,4 +1,4 @@
-package com.app.musicapp.view.fragment;
+package com.app.musicapp.view.fragment.follow;
 
 import android.os.Bundle;
 
@@ -12,8 +12,8 @@ import android.widget.*;
 import com.app.musicapp.R;
 import com.app.musicapp.adapter.FollowingAdapter;
 import com.app.musicapp.model.FollowingUser;
+import com.app.musicapp.view.fragment.UserProfileFragment;
 
-import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;

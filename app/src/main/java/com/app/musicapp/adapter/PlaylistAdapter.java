@@ -9,12 +9,15 @@ import android.widget.ArrayAdapter;
 import android.widget.*;
 
 import androidx.annotation.*;
+import androidx.fragment.app.FragmentActivity;
 
 import com.app.musicapp.R;
 import com.app.musicapp.model.LikedPlaylist;
 import com.app.musicapp.model.Playlist;
+import com.app.musicapp.view.fragment.playlist.PlaylistPageFragment;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class PlaylistAdapter extends ArrayAdapter<Object> {
@@ -119,7 +122,28 @@ public class PlaylistAdapter extends ArrayAdapter<Object> {
             bottomSheetDialog.setContentView(bottomSheetView);
             bottomSheetDialog.show();
         });
+        convertView.setOnClickListener(v -> {
+            List<Object> selectedPlaylist = new ArrayList<>();
+            selectedPlaylist.add(item); // Tạo danh sách chỉ chứa playlist được chọn
+            PlaylistPageFragment playlistPageFragment = PlaylistPageFragment.newInstance(selectedPlaylist);
+            // Điều hướng đến PlaylistPageFragment
+            if (getContext() instanceof FragmentActivity) {
+                FragmentActivity activity = (FragmentActivity) getContext();
+                View mainView = activity.findViewById(R.id.main);
+                View viewPager = mainView.findViewById(R.id.view_pager);
+                View fragmentContainer = mainView.findViewById(R.id.fragment_container);
 
+                if (viewPager != null && fragmentContainer != null) {
+                    viewPager.setVisibility(View.GONE);
+                    fragmentContainer.setVisibility(View.VISIBLE);
+                    activity.getSupportFragmentManager()
+                            .beginTransaction()
+                            .replace(R.id.fragment_container, playlistPageFragment)
+                            .addToBackStack(null)
+                            .commit();
+                }
+            }
+        });
         return convertView;
     }
 }

@@ -1,0 +1,84 @@
+package com.app.musicapp.adapter;
+
+import android.content.Context;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.*;
+
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.app.musicapp.R;
+import com.app.musicapp.model.Album;
+
+import java.util.List;
+
+public class AlbumInVibeAdapter extends RecyclerView.Adapter<AlbumInVibeAdapter.ViewHolder> {
+    private Context context;
+    private List<Album> albums;
+
+    public AlbumInVibeAdapter(Context context, List<Album> albums) {
+        this.context = context;
+        this.albums = albums;
+    }
+
+    @NonNull
+    @Override
+    public AlbumInVibeAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(context).inflate(R.layout.list_item_albuminvibe, parent, false);
+        return new ViewHolder(view);
+    }
+
+    @Override
+    public void onBindViewHolder(@NonNull AlbumInVibeAdapter.ViewHolder holder, int position) {
+        Album album = albums.get(position);
+        // Hiển thị thông tin album
+        holder.tvAlbumTitle.setText(album.getAlbumTitle());
+        if (!album.getMainArtists().isEmpty()) {
+            holder.tvAlbumArtist.setText(album.getMainArtists());
+        } else {
+            holder.tvAlbumArtist.setText("No Artist");
+        }
+
+        try {
+            String imagePath = album.getImagePath();
+            String resourceName = imagePath != null ? imagePath.replace(".jpg", "") : "";
+            if (!resourceName.isEmpty()) {
+                int resourceId = context.getResources().getIdentifier(resourceName, "drawable", context.getPackageName());
+                if (resourceId != 0) {
+                    holder.ivAlbumImage.setImageResource(resourceId);
+                } else {
+                    holder.ivAlbumImage.setImageResource(R.drawable.logo);
+                }
+            } else {
+                holder.ivAlbumImage.setImageResource(R.drawable.logo);
+            }
+        } catch (Exception e) {
+            holder.ivAlbumImage.setImageResource(R.drawable.logo);
+            e.printStackTrace();
+        }
+
+    }
+
+    @Override
+    public int getItemCount() {
+        return albums.size();
+    }
+
+    static class ViewHolder extends RecyclerView.ViewHolder {
+        ImageView ivAlbumImage;
+        TextView tvAlbumTitle;
+        TextView tvAlbumArtist;
+
+        public ViewHolder(@NonNull View itemView) {
+            super(itemView);
+            ivAlbumImage = itemView.findViewById(R.id.iv_album_image);
+            tvAlbumTitle = itemView.findViewById(R.id.tv_album_title);
+            tvAlbumArtist = itemView.findViewById(R.id.tv_album_artist);
+            if (ivAlbumImage == null || tvAlbumTitle == null || tvAlbumArtist == null) {
+                throw new IllegalStateException("One or more views are null in ViewHolder");
+            }
+        }
+    }
+}

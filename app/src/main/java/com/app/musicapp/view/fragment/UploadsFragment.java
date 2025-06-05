@@ -54,13 +54,12 @@ public class UploadsFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_uploads, container, false);
 
-        // Ánh xạ views
         listViewUploads = view.findViewById(R.id.listViewUploads);
         ivBack = view.findViewById(R.id.iv_back);
         searchView = view.findViewById(R.id.search_view);
         // Bỏ trạng thái iconified (ẩn) mặc định
         searchView.setIconifiedByDefault(false);
-        searchView.setQueryHint("Search in your uploads"); // Hint chữ
+        searchView.setQueryHint("Search in your uploads");
 
         // Lấy EditText trong SearchView để chỉnh màu chữ
         EditText searchEditText = searchView.findViewById(androidx.appcompat.R.id.search_src_text);
@@ -72,13 +71,11 @@ public class UploadsFragment extends Fragment {
             searchView.setIconified(false);
             searchView.requestFocus();
 
-            // Mở bàn phím
             InputMethodManager imm = (InputMethodManager) requireContext().getSystemService(Context.INPUT_METHOD_SERVICE);
             if (imm != null) {
                 imm.showSoftInput(searchEditText, InputMethodManager.SHOW_IMPLICIT);
             }
         });
-        // Khởi tạo adapter cho danh sách bài hát
         uploadsAdapter = new UploadsAdapter(this, filteredTrackList);
         listViewUploads.setAdapter(uploadsAdapter);
 
@@ -96,8 +93,6 @@ public class UploadsFragment extends Fragment {
                 getActivity().getSupportFragmentManager().popBackStack();
             }
         });
-
-        // Xử lý thanh tìm kiếm
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {

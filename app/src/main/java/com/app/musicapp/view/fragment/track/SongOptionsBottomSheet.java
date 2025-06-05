@@ -1,11 +1,10 @@
-package com.app.musicapp.view.fragment;
+package com.app.musicapp.view.fragment.track;
 
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -50,10 +49,8 @@ public class SongOptionsBottomSheet extends BottomSheetDialogFragment {
         if (track != null) {
             tvSongTitle.setText(track.getTitle());
             tvUserSong.setText(track.getUserId());
-            // Hiển thị ảnh bìa
             try {
                 String coverImageName = track.getCoverImageName();
-                // Loại bỏ phần mở rộng ".jpg"  để lấy tên tài nguyên
                 String resourceName = coverImageName != null ? coverImageName.replace(".jpg", "") : "";
                 if (!resourceName.isEmpty()) {
                     Resources resources = getContext().getResources();

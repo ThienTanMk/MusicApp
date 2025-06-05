@@ -119,7 +119,6 @@
                 app:tint="#FFFFFF" />
         </LinearLayout>
 
-        <!-- RecyclerView cho tất cả các section -->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_profile_content"
             android:layout_width="match_parent"

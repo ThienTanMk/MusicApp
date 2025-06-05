@@ -23,7 +23,7 @@
         app:itemIconTint="@color/color_navigation"
         app:labelVisibilityMode="labeled"
         app:menu="@menu/menu_navigation" />
-    <!-- FrameLayout để hiển thị các Fragment con (như LikedTracksFragment) -->
+    <!-- FrameLayout để hiển thị các Fragment con -->
     <FrameLayout
         android:id="@+id/fragment_container"
         android:layout_width="match_parent"

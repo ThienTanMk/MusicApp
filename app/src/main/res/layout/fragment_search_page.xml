@@ -9,21 +9,36 @@
     android:background="@color/background"
     android:orientation="vertical"
     android:padding="20dp"
-    tools:context=".view.fragment.SearchPageFragment"
+    tools:context=".view.fragment.searchpage.SearchPageFragment"
     android:fitsSystemWindows="true">
 
-    <!-- Thanh tìm kiếm -->
-    <EditText
-        android:id="@+id/searchEditText"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Search"
-        android:background="@drawable/custom_edit_text"
-        android:padding="12dp"
-        android:textColor="#FFFFFF"
-        android:textColorHint="#B0B0B0"
-        android:drawableStart="@android:drawable/ic_menu_search"
-        android:drawablePadding="8dp" />
+        android:orientation="horizontal">
+        <!-- Thanh tìm kiếm -->
+        <EditText
+            android:id="@+id/searchEditText"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="Search"
+            android:background="@drawable/custom_edit_text"
+            android:padding="12dp"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#B0B0B0"
+            android:drawablePadding="8dp" />
+
+        <ImageButton
+            android:id="@+id/searchButton"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_weight="0"
+            android:background="@drawable/custom_button_gray"
+            android:contentDescription="Search"
+            android:src="@drawable/ic_search"
+            android:scaleType="centerInside" />
+    </LinearLayout>
 
     <!-- RecyclerView hiển thị kết quả người dùng tìm thấy -->
     <androidx.recyclerview.widget.RecyclerView
@@ -32,7 +47,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:visibility="gone" /> <!-- Mặc định ẩn, chỉ hiện khi có kết quả -->
-    <!-- Tiêu đề Vibes -->
+
     <TextView
         android:id="@+id/textViewVibes"
         android:layout_width="wrap_content"

@@ -3,7 +3,6 @@ package com.app.musicapp.adapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
 import android.widget.*;
 
 import androidx.annotation.NonNull;
@@ -16,12 +15,11 @@ import com.app.musicapp.model.LikedPlaylist;
 import com.app.musicapp.model.LikedTrack;
 import com.app.musicapp.model.Playlist;
 import com.app.musicapp.model.Track;
-import com.app.musicapp.view.fragment.SongOptionsBottomSheet;
+import com.app.musicapp.view.fragment.track.SongOptionsBottomSheet;
 
 import java.util.List;
 
 public class ProfileContentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-
     private static final int TYPE_SECTION_HEADER = 0;
     private static final int TYPE_TRACK = 1;
     private static final int TYPE_ALBUM = 2;
@@ -35,7 +33,6 @@ public class ProfileContentAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         this.fragment = fragment;
         this.items = items;
     }
-
 
     @NonNull
     @Override
@@ -106,12 +103,10 @@ public class ProfileContentAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
     static class SectionHeaderViewHolder extends RecyclerView.ViewHolder {
         TextView tvSectionTitle;
-
         SectionHeaderViewHolder(View itemView) {
             super(itemView);
             tvSectionTitle = itemView.findViewById(R.id.tv_section_title);
         }
-
         void bind(String sectionTitle) {
             tvSectionTitle.setText(sectionTitle);
         }
@@ -136,7 +131,6 @@ public class ProfileContentAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             ivMenu = itemView.findViewById(R.id.iv_menu);
             this.fragment = fragment;
         }
-
         void bind(Track track) {
             tvTrackTitle.setText(track.getTitle());
             tvTrackArtist.setText(track.getDescription());
@@ -155,14 +149,12 @@ public class ProfileContentAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         ImageView ivAlbumCover;
         TextView tvAlbumTitle;
         TextView tvAlbumArtist;
-
         AlbumViewHolder(View itemView) {
             super(itemView);
             ivAlbumCover = itemView.findViewById(R.id.iv_album_cover);
             tvAlbumTitle = itemView.findViewById(R.id.tv_album_title);
             tvAlbumArtist = itemView.findViewById(R.id.tv_album_artist);
         }
-
         void bind(Album album) {
             tvAlbumTitle.setText(album.getAlbumTitle());
             tvAlbumArtist.setText("Artist");
@@ -174,14 +166,12 @@ public class ProfileContentAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         ImageView ivPlaylistCover;
         TextView tvPlaylistTitle;
         TextView tvPlaylistArtist;
-
         PlaylistViewHolder(View itemView) {
             super(itemView);
             ivPlaylistCover = itemView.findViewById(R.id.iv_playlist_cover);
             tvPlaylistTitle = itemView.findViewById(R.id.tv_playlist_title);
             tvPlaylistArtist = itemView.findViewById(R.id.tv_playlist_artist);
         }
-
         void bind(Playlist playlist) {
             tvPlaylistTitle.setText(playlist.getTitle());
             tvPlaylistArtist.setText(playlist.getUserId());
@@ -196,7 +186,6 @@ public class ProfileContentAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         TextView tvPlayCount;
         TextView tvDuration;
         ImageView ivMenu;
-
         LikedTrackViewHolder(View itemView) {
             super(itemView);
             ivTrackImage = itemView.findViewById(R.id.iv_track_image);
@@ -206,7 +195,6 @@ public class ProfileContentAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             tvDuration = itemView.findViewById(R.id.tv_duration);
             ivMenu = itemView.findViewById(R.id.iv_menu);
         }
-
         void bind(LikedTrack likedTrack) {
             tvTrackTitle.setText("Liked Track " + likedTrack.getTrackId());
             tvTrackArtist.setText("Artist");
@@ -215,7 +203,6 @@ public class ProfileContentAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             ivTrackImage.setImageResource(R.drawable.logo);
             ivMenu.setOnClickListener(v -> {
                 Toast.makeText(itemView.getContext(), "Menu clicked for liked track", Toast.LENGTH_SHORT).show();
-                // Cần logic để lấy Track từ trackId và mở bottom sheet
             });
         }
     }
@@ -235,7 +222,6 @@ public class ProfileContentAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                 throw new IllegalStateException("One or more views are null in LikedPlaylistViewHolder");
             }
         }
-
         void bind(LikedPlaylist likedPlaylist) {
             if (likedPlaylist != null) {
                 Playlist playlist = likedPlaylist.getPlaylist();

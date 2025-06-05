@@ -7,8 +7,7 @@
     android:background="@color/background"
     android:padding="16dp"
     android:orientation="vertical"
-    tools:context=".view.fragment.FollowerFragment">
-    <!-- Tiêu đề "Your true friends" và nút Back -->
+    tools:context=".view.fragment.follow.FollowerFragment">
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -16,7 +15,6 @@
         android:gravity="center_vertical"
         android:paddingBottom="16dp">
 
-        <!-- Nút Back -->
         <ImageView
             android:id="@+id/iv_back"
             android:layout_width="40dp"
@@ -26,7 +24,6 @@
             android:contentDescription="Back"
             app:tint="#FFFFFF" />
 
-        <!-- Tiêu đề -->
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"

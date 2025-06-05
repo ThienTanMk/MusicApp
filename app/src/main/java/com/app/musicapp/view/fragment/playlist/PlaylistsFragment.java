@@ -1,4 +1,4 @@
-package com.app.musicapp.view.fragment;
+package com.app.musicapp.view.fragment.playlist;
 
 import android.os.Bundle;
 

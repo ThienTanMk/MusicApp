@@ -9,7 +9,7 @@
     tools:context=".view.fragment.videfragment.AlbumsTabFragment">
 
     <TextView
-        android:id="@+id/sectionTitle"
+        android:id="@+id/tvAlbums"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
@@ -19,20 +19,10 @@
         android:textStyle="bold" />
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerView"
+        android:id="@+id/recyclerViewAlbums"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:padding="4dp" />
-
-    <TextView
-        android:id="@+id/seeAll"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="end"
-        android:layout_marginTop="4dp"
-        android:text="See all"
-        android:textColor="#B0B0B0"
-        android:textSize="14sp" />
 
 </LinearLayout>

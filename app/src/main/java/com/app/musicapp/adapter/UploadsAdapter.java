@@ -11,7 +11,7 @@ import androidx.fragment.app.Fragment;
 
 import com.app.musicapp.R;
 import com.app.musicapp.model.Track;
-import com.app.musicapp.view.fragment.SongOptionsBottomSheet;
+import com.app.musicapp.view.fragment.track.SongOptionsBottomSheet;
 
 import java.util.List;
 
@@ -68,7 +68,7 @@ public class UploadsAdapter extends BaseAdapter {
         holder.tvDuration.setText(track.getDuration());
         holder.ivTrackImage.setImageResource(R.drawable.logo);
 
-        // Xử lý sự kiện click cho nút menu (ba chấm)
+        // Xử lý sự kiện click cho nút menu
         holder.ivMenu.setOnClickListener(v -> {
             Toast.makeText(fragment.getContext(), "Menu clicked for: " + track.getTitle(), Toast.LENGTH_SHORT).show();
             SongOptionsBottomSheet bottomSheet = SongOptionsBottomSheet.newInstance(track);

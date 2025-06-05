@@ -2,6 +2,7 @@ package com.app.musicapp.view.fragment;
 
 import android.os.Bundle;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -54,6 +55,7 @@ public class UserProfileFragment extends Fragment {
         fragment.setArguments(args);
         return fragment;
     }
+
     public static UserProfileFragment newInstance(FollowingUser followingUser, String source) {
         UserProfileFragment fragment = new UserProfileFragment();
         Bundle args = new Bundle();
@@ -69,7 +71,36 @@ public class UserProfileFragment extends Fragment {
         if (getArguments() != null) {
             profile = (ProfileWithCountFollowResponse) getArguments().getSerializable("profile");
             followingUser = (FollowingUser) getArguments().getSerializable("following_user");
+            source = getArguments().getString("source", "");
         }
+
+        // Xử lý nút Back của điện thoại
+//        requireActivity().getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+//            @Override
+//            public void handleOnBackPressed() {
+//                if ("search".equals(source) && getParentFragmentManager().getBackStackEntryCount() > 1) {
+//                    getParentFragmentManager().popBackStack();
+//                } else {
+//                    getParentFragmentManager().popBackStack();
+//                    View viewPager = requireActivity().findViewById(R.id.view_pager);
+//                    View fragmentContainer = requireActivity().findViewById(R.id.fragment_container);
+//                    if (viewPager != null && fragmentContainer != null) {
+//                        viewPager.setVisibility(View.VISIBLE);
+//                        fragmentContainer.setVisibility(View.GONE);
+//                    }
+//                    RecyclerView recyclerView = requireActivity().findViewById(R.id.recyclerViewSearchUser);
+//                    if (recyclerView != null) {
+//                        recyclerView.setVisibility(View.GONE);
+//                    }
+//                    GridView gridView = requireActivity().findViewById(R.id.gridViewVibes);
+//                    TextView textView = requireActivity().findViewById(R.id.textViewVibes);
+//                    if (gridView != null && textView != null) {
+//                        gridView.setVisibility(View.VISIBLE);
+//                        textView.setVisibility(View.VISIBLE);
+//                    }
+//                }
+//            }
+//        });
     }
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -104,21 +135,46 @@ public class UserProfileFragment extends Fragment {
             tvFollowInfo.setText("0 Followers • 0 Following");
             imgAvatar.setImageResource(R.drawable.logo);
         }
-        ivBack.setOnClickListener(v -> {
-            if (getActivity() != null) {
-                String source = getArguments() != null ? getArguments().getString("source", "") : "";
+//        ivBack.setOnClickListener(v -> getParentFragmentManager().popBackStack());
+//        ivBack.setOnClickListener(v -> {
+//            if (getActivity() != null) {
+//                String source = getArguments() != null ? getArguments().getString("source", "") : "";
+//
+//                if ("search".equals(source)) {
+//                    getActivity().onBackPressed();
+//                } else if ("following".equals(source)) {
+//                    Fragment targetFragment = new FollowingFragment();
+//                    getActivity().getSupportFragmentManager()
+//                            .beginTransaction()
+//                            .replace(R.id.fragment_container, targetFragment)
+//                            .addToBackStack(null)
+//                            .commit();
+//                } else {
+//                    getActivity().onBackPressed();
+//                }
+//            }
+//        });
 
-                if ("search".equals(source)) {
-                    getActivity().onBackPressed();
-                } else if ("following".equals(source)) {
-                    Fragment targetFragment = new FollowingFragment();
-                    getActivity().getSupportFragmentManager()
-                            .beginTransaction()
-                            .replace(R.id.fragment_container, targetFragment)
-                            .addToBackStack(null)
-                            .commit();
-                } else {
-                    getActivity().onBackPressed();
+        ivBack.setOnClickListener(v -> {
+            if ("search".equals(source) && getParentFragmentManager().getBackStackEntryCount() > 1) {
+                getParentFragmentManager().popBackStack();
+            } else {
+                getParentFragmentManager().popBackStack();
+                View viewPager = requireActivity().findViewById(R.id.view_pager);
+                View fragmentContainer = requireActivity().findViewById(R.id.fragment_container);
+                if (viewPager != null && fragmentContainer != null) {
+                    viewPager.setVisibility(View.VISIBLE);
+                    fragmentContainer.setVisibility(View.GONE);
+                }
+                RecyclerView recyclerView = requireActivity().findViewById(R.id.recyclerViewSearchUser);
+                if (recyclerView != null) {
+                    recyclerView.setVisibility(View.GONE);
+                }
+                GridView gridView = requireActivity().findViewById(R.id.gridViewVibes);
+                TextView textView = requireActivity().findViewById(R.id.textViewVibes);
+                if (gridView != null && textView != null) {
+                    gridView.setVisibility(View.VISIBLE);
+                    textView.setVisibility(View.VISIBLE);
                 }
             }
         });

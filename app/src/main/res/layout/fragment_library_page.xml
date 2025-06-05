@@ -11,15 +11,12 @@
     android:padding="20dp"
     android:fitsSystemWindows="true">
 
-
-    <!-- Tiêu đề Library -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical">
 
-        <!-- Tiêu đề Library -->
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -45,7 +42,6 @@
             android:background="@drawable/circle_background" />
     </LinearLayout>
 
-    <!-- ListView cho danh sách các mục (Liked tracks, Playlists,...) -->
     <ListView
         android:id="@+id/listViewMenu"
         android:layout_width="match_parent"

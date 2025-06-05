@@ -20,6 +20,10 @@ import com.app.musicapp.model.Genre;
 import com.app.musicapp.model.ListView.LibraryList;
 import com.app.musicapp.model.Tag;
 import com.app.musicapp.model.Track;
+import com.app.musicapp.view.fragment.album.AlbumsFragment;
+import com.app.musicapp.view.fragment.follow.FollowingFragment;
+import com.app.musicapp.view.fragment.playlist.PlaylistsFragment;
+import com.app.musicapp.view.fragment.track.LikedTracksFragment;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;

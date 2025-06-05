@@ -7,9 +7,8 @@
     android:orientation="vertical"
     android:background="#1A1A1A"
     android:padding="16dp"
-    tools:context=".view.fragment.PlaylistsFragment">
+    tools:context=".view.fragment.playlist.PlaylistsFragment">
 
-    <!-- Tiêu đề "Playlists" và nút Back -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -17,7 +16,6 @@
         android:gravity="center_vertical"
         android:paddingBottom="16dp">
 
-        <!-- Nút Back -->
         <ImageView
             android:id="@+id/iv_back"
             android:layout_width="40dp"
@@ -27,7 +25,6 @@
             android:contentDescription="Back"
             app:tint="#FFFFFF" />
 
-        <!-- Tiêu đề -->
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -40,7 +37,6 @@
 
     </LinearLayout>
 
-    <!-- Thanh tìm kiếm -->
     <EditText
         android:id="@+id/et_search"
         android:layout_width="match_parent"
@@ -55,7 +51,6 @@
         android:drawablePadding="8dp"
         android:layout_marginBottom="16dp" />
 
-    <!-- Nút Create playlist -->
     <LinearLayout
         android:id="@+id/layout_create_playlist"
         android:layout_width="match_parent"
