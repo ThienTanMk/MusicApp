@@ -3,35 +3,107 @@ package com.app.musicapp.view.activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Button;
+import android.widget.Toast;
 
-import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
 import com.app.musicapp.R;
+import com.app.musicapp.api.ApiClient;
+import com.app.musicapp.helper.SharedPreferencesManager;
+import com.app.musicapp.model.LoginRequest;
+import com.app.musicapp.model.ApiResponse;
+import com.app.musicapp.model.LoginResponse;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.textfield.TextInputEditText;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class SignIn extends AppCompatActivity {
+    private TextInputEditText usernameEditText;
+    private TextInputEditText passwordEditText;
+    private MaterialButton loginButton;
+    private View progressBar;
+    private SharedPreferencesManager preferencesManager;
 
-    Button confimBtn;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_sign_in);
-        confimBtn = findViewById(R.id.continueButton);
 
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
+        // Initialize views
+        usernameEditText = findViewById(R.id.usernameEditText);
+        passwordEditText = findViewById(R.id.passwordEditText);
+        loginButton = findViewById(R.id.loginButton);
+        progressBar = findViewById(R.id.progressBar);
+        
+        // Initialize SharedPreferencesManager
+        preferencesManager = new SharedPreferencesManager(this);
+
+        loginButton.setOnClickListener(v -> performLogin());
     }
 
-    public void confirm(View view) {
-        Intent intent = new Intent(SignIn.this, MainActivity.class);
-        startActivity(intent);
+    private void performLogin() {
+        String username = usernameEditText.getText().toString().trim();
+        String password = passwordEditText.getText().toString().trim();
+
+        // Validate input
+        if (username.isEmpty()) {
+            usernameEditText.setError("Username is required");
+            return;
+        }
+        if (password.isEmpty()) {
+            passwordEditText.setError("Password is required");
+            return;
+        }
+
+        // Show loading indicator
+        progressBar.setVisibility(View.VISIBLE);
+        loginButton.setEnabled(false);
+
+        // Create login request
+        LoginRequest loginRequest = new LoginRequest(username, password);
+
+        // Make API call
+        ApiClient.getApiService().login(loginRequest).enqueue(new Callback<ApiResponse<LoginResponse>>() {
+            @Override
+            public void onResponse(Call<ApiResponse<LoginResponse>> call, Response<ApiResponse<LoginResponse>> response) {
+                progressBar.setVisibility(View.GONE);
+                loginButton.setEnabled(true);
+
+                if (response.isSuccessful() && response.body() != null) {
+                    ApiResponse<LoginResponse> apiResponse = response.body();
+                    if (apiResponse.getCode() == 1000) {
+                        // Login successful
+                        LoginResponse loginData = apiResponse.getData();
+                        if (loginData != null && loginData.getToken() != null) {
+                            // Save token
+                            preferencesManager.saveToken(loginData.getToken());
+                            
+                            // Navigate to MainActivity
+                            Toast.makeText(SignIn.this, "Login successful", Toast.LENGTH_SHORT).show();
+                            startActivity(new Intent(SignIn.this, MainActivity.class));
+                            finish();
+                        } else {
+                            Toast.makeText(SignIn.this, "Invalid response from server", Toast.LENGTH_LONG).show();
+                        }
+                    } else {
+                        // Login failed with error message
+                        Toast.makeText(SignIn.this, apiResponse.getMessage(), Toast.LENGTH_LONG).show();
+                    }
+                } else {
+                    // Handle error
+                    Toast.makeText(SignIn.this, "Login failed. Please try again.", Toast.LENGTH_LONG).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponse<LoginResponse>> call, Throwable t) {
+                progressBar.setVisibility(View.GONE);
+                loginButton.setEnabled(true);
+                Toast.makeText(SignIn.this, "Network error: " + t.getMessage(), Toast.LENGTH_LONG).show();
+            }
+        });
     }
 }
