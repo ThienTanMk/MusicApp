@@ -73,6 +73,10 @@
         public List<Track> getNextUpItems(){
             return this.nextUpItems;
         }
+
+        public void setNextUpItems(List<Track> tracks) {
+            this.nextUpItems = tracks;
+        }
         public int getCurrentIndex(){
             return currentIndex;
         }
@@ -292,4 +296,5 @@
         public IBinder onBind(Intent intent) {
             return binder;
         }
+
     }
