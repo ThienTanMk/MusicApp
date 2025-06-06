@@ -1,5 +1,6 @@
 package com.app.musicapp.view.activity;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
@@ -17,6 +18,7 @@ import androidx.viewpager.widget.ViewPager;
 
 import com.app.musicapp.R;
 import com.app.musicapp.adapter.HomePageAdapter;
+import com.app.musicapp.service.MusicService;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.util.List;
@@ -30,7 +32,9 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
+        Intent intent = new Intent(MainActivity.this, MusicPlayer.class);
 
+        startActivity(intent);
         mViewpager = findViewById(R.id.view_pager);
         mBottomNavigationView = findViewById(R.id.bottom_navigation);
 
@@ -127,5 +131,12 @@ public class MainActivity extends AppCompatActivity {
         if (mViewpager != null) {
             mViewpager.setCurrentItem(position);
         }
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+//        Intent intent = new Intent(this, MusicService.class);
+//        startForegroundService(intent);
     }
 }

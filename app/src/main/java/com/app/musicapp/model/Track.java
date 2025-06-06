@@ -12,6 +12,7 @@ public class Track implements Serializable {
     private String coverImageName;
     private LocalDateTime createdAt;
     private String userId;
+    private String artist;
     private String duration;
     private String privacy;
     private int countPlay;
@@ -26,6 +27,22 @@ public class Track implements Serializable {
         this.coverImageName = coverImageName;
         this.createdAt = createdAt;
         this.userId = userId;
+        this.duration = duration;
+        this.privacy = privacy;
+        this.countPlay = countPlay;
+        this.genre = genre;
+        this.tags = tags;
+    }
+
+    public Track(String id, String title, String description, String fileName, String coverImageName, LocalDateTime createdAt, String userId, String artist, String duration, String privacy, int countPlay, Genre genre, List<Tag> tags) {
+        this.id = id;
+        this.title = title;
+        this.description = description;
+        this.fileName = fileName;
+        this.coverImageName = coverImageName;
+        this.createdAt = createdAt;
+        this.userId = userId;
+        this.artist = artist;
         this.duration = duration;
         this.privacy = privacy;
         this.countPlay = countPlay;
@@ -129,4 +146,11 @@ public class Track implements Serializable {
         this.tags = tags;
     }
 
+    public String getArtist() {
+        return artist;
+    }
+
+    public void setArtist(String artist) {
+        this.artist = artist;
+    }
 }
