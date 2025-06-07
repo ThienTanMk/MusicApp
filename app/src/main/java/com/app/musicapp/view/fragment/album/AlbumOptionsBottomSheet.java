@@ -1,21 +1,44 @@
 package com.app.musicapp.view.fragment.album;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.view.*;
 import android.widget.*;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 
 import com.app.musicapp.R;
-import com.app.musicapp.model.Album;
+import com.app.musicapp.api.ApiClient;
+import com.app.musicapp.helper.UrlHelper;
+import com.app.musicapp.model.AlbumResponse;
+import com.app.musicapp.model.ApiResponse;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
+import com.bumptech.glide.request.RequestOptions;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
+
+import java.io.Serializable;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
+import com.app.musicapp.interfaces.OnLikeChangeListener;
 
 public class AlbumOptionsBottomSheet extends BottomSheetDialogFragment {
     private static final String ARG_ALBUM = "album";
-    private Album album;
+    private AlbumResponse album;
+    private ImageView ivLikeIcon;
+    private TextView tvLikeText;
+    private OnLikeChangeListener likeChangeListener;
 
-    public static AlbumOptionsBottomSheet newInstance(Album album) {
+    public void setOnLikeChangeListener(OnLikeChangeListener listener) {
+        this.likeChangeListener = listener;
+    }
+
+    public static AlbumOptionsBottomSheet newInstance(AlbumResponse album) {
         AlbumOptionsBottomSheet fragment = new AlbumOptionsBottomSheet();
         Bundle args = new Bundle();
         args.putSerializable(ARG_ALBUM, album);
@@ -27,7 +50,84 @@ public class AlbumOptionsBottomSheet extends BottomSheetDialogFragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            album = (Album) getArguments().getSerializable(ARG_ALBUM);
+            album = (AlbumResponse) getArguments().getSerializable(ARG_ALBUM);
+        }
+    }
+
+    private void showToast(String message) {
+        Context context = getContext();
+        if (context != null && isAdded()) {
+            Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void updateLikeUI() {
+        if (album != null && isAdded()) {
+            // Update icon
+            ivLikeIcon.setImageResource(R.drawable.ic_favorite);
+            ivLikeIcon.setColorFilter(ContextCompat.getColor(requireContext(), album.getIsLiked() ? R.color.like_active : R.color.like_inactive));
+            
+            // Update text
+            tvLikeText.setText(album.getIsLiked() ? "Bỏ thích" : "Thích");
+        }
+    }
+
+    private void handleLikeUnlike() {
+        if (album == null || album.getId() == null) {
+            showToast("Không thể thực hiện thao tác này");
+            return;
+        }
+
+        if (album.getIsLiked()) {
+            // Unlike album
+            ApiClient.getAlbumService().unlikeAlbum(album.getId()).enqueue(new Callback<ApiResponse<Void>>() {
+                @Override
+                public void onResponse(Call<ApiResponse<Void>> call, Response<ApiResponse<Void>> response) {
+                    if (response.isSuccessful()) {
+                        // Cập nhật trạng thái local
+                        album.setIsLiked(false);
+                        // Cập nhật UI bottom sheet
+                        updateLikeUI();
+                        // Thông báo cho adapter cập nhật
+                        if (likeChangeListener != null) {
+                            likeChangeListener.onLikeChanged(album.getId(), false);
+                        }
+                        showToast("Đã bỏ thích album");
+                    } else {
+                        showToast("Không thể bỏ thích album");
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<ApiResponse<Void>> call, Throwable t) {
+                    showToast("Lỗi kết nối: " + t.getMessage());
+                }
+            });
+        } else {
+            // Like album
+            ApiClient.getAlbumService().likeAlbum(album.getId()).enqueue(new Callback<ApiResponse<Void>>() {
+                @Override
+                public void onResponse(Call<ApiResponse<Void>> call, Response<ApiResponse<Void>> response) {
+                    if (response.isSuccessful()) {
+                        // Cập nhật trạng thái local
+                        album.setIsLiked(true);
+                        // Cập nhật UI bottom sheet
+                        updateLikeUI();
+                        // Thông báo cho adapter cập nhật
+                        if (likeChangeListener != null) {
+                            likeChangeListener.onLikeChanged(album.getId(), true);
+                        }
+                        showToast("Đã thích album");
+                    } else {
+                        showToast("Không thể thích album");
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<ApiResponse<Void>> call, Throwable t) {
+                    showToast("Lỗi kết nối: " + t.getMessage());
+                }
+            });
         }
     }
 
@@ -44,26 +144,51 @@ public class AlbumOptionsBottomSheet extends BottomSheetDialogFragment {
         LinearLayout optionArtistProfile = view.findViewById(R.id.option_artist_profile);
         LinearLayout optionPlayNext = view.findViewById(R.id.option_play_next);
 
+        // Ánh xạ view cho like option
+        ivLikeIcon = optionLiked.findViewById(R.id.iv_like_icon);
+        tvLikeText = optionLiked.findViewById(R.id.tv_like_text);
+
         // Đặt dữ liệu
         if (album != null) {
-            ivAlbumImage.setImageResource(R.drawable.logo);
+            // Load album image using Glide
+            if (album.getImagePath() != null) {
+                Context context = getContext();
+                if (context != null) {
+                    RequestOptions requestOptions = new RequestOptions()
+                        .transform(new RoundedCorners(16)) // Bo góc 16dp
+                        .placeholder(R.drawable.logo) // Ảnh placeholder khi đang load
+                        .error(R.drawable.logo); // Ảnh hiển thị khi lỗi
+
+                    Glide.with(context)
+                        .load(UrlHelper.getCoverImageUrl(album.getImagePath()))
+                        .apply(requestOptions)
+                        .into(ivAlbumImage);
+                } else {
+                    ivAlbumImage.setImageResource(R.drawable.logo);
+                }
+            } else {
+                ivAlbumImage.setImageResource(R.drawable.logo);
+            }
+
             tvAlbumTitle.setText(album.getAlbumTitle());
             tvUserAlbum.setText(album.getMainArtists());
 
+            // Update initial like UI state
+            updateLikeUI();
+
             optionLiked.setOnClickListener(v -> {
-                Toast.makeText(getContext(), "Liked: " + album.getAlbumTitle(), Toast.LENGTH_SHORT).show();
-                dismiss(); // Đóng bottom sheet
+                handleLikeUnlike();
             });
 
             optionArtistProfile.setOnClickListener(v -> {
-                Toast.makeText(getContext(), "Go to artist profile: " + album.getMainArtists(), Toast.LENGTH_SHORT).show();
-                dismiss(); // Đóng bottom sheet
+                showToast("Go to artist profile: " + album.getMainArtists());
+                dismiss();
                 // Thêm logic điều hướng đến profile nghệ sĩ
             });
 
             optionPlayNext.setOnClickListener(v -> {
-                Toast.makeText(getContext(), "Play Next: " + album.getAlbumTitle(), Toast.LENGTH_SHORT).show();
-                dismiss(); // Đóng bottom sheet
+                showToast("Play Next: " + album.getAlbumTitle());
+                dismiss();
                 // Thêm logic phát album tiếp theo
             });
         }

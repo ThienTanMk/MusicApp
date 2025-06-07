@@ -11,7 +11,7 @@ public class AuthInterceptor implements Interceptor {
     private final SharedPreferencesManager preferencesManager;
 
     public AuthInterceptor(Context context) {
-        this.preferencesManager = new SharedPreferencesManager(context);
+        this.preferencesManager = SharedPreferencesManager.getInstance(context);
     }
 
     @Override

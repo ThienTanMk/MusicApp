@@ -12,6 +12,7 @@ import android.widget.ListView;
 import com.app.musicapp.R;
 import com.app.musicapp.adapter.AlbumAdapter;
 import com.app.musicapp.model.Album;
+import com.app.musicapp.model.AlbumResponse;
 import com.app.musicapp.view.fragment.album.AlbumPageFragment;
 
 import java.util.*;
@@ -19,7 +20,7 @@ import java.util.*;
 public class SearchAlbumTabFragment extends Fragment {
 
     private static final String ARG_ALBUMS = "albums";
-    private List<Album> albumResults;
+    private List<AlbumResponse> albumResults;
 
     public static SearchAlbumTabFragment newInstance(List<Album> albums) {
         SearchAlbumTabFragment fragment = new SearchAlbumTabFragment();
@@ -33,7 +34,7 @@ public class SearchAlbumTabFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            albumResults = (List<Album>) getArguments().getSerializable(ARG_ALBUMS);
+            albumResults = (List<AlbumResponse>) getArguments().getSerializable(ARG_ALBUMS);
         }
     }
     @Override
@@ -47,7 +48,7 @@ public class SearchAlbumTabFragment extends Fragment {
         listView.setAdapter(albumAdapter);
 
         listView.setOnItemClickListener((parent, view1, position, id) -> {
-            Album selectedAlbum = albumResults.get(position);
+            AlbumResponse selectedAlbum = albumResults.get(position);
             AlbumPageFragment albumFragment = AlbumPageFragment.newInstance(selectedAlbum);
             requireActivity().getSupportFragmentManager()
                     .beginTransaction()

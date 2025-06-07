@@ -7,4 +7,7 @@
     <color name="primary">#FF000000</color>
     <color name="gray">#929292</color>
     <color name="soundcloud">#EB1212</color>
+    <color name="like_red">#FF0000</color>
+    <color name="like_active">#FE5300</color>
+    <color name="like_inactive">#FFFFFF</color>
 </resources>

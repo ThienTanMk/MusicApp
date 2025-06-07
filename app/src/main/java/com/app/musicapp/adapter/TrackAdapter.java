@@ -10,8 +10,10 @@ import android.widget.*;
 import androidx.fragment.app.Fragment;
 
 import com.app.musicapp.R;
+import com.app.musicapp.helper.UrlHelper;
 import com.app.musicapp.model.Track;
 import com.app.musicapp.view.fragment.track.SongOptionsBottomSheet;
+import com.bumptech.glide.Glide;
 
 import java.util.List;
 
@@ -65,10 +67,18 @@ public class TrackAdapter extends BaseAdapter {
         // Gán dữ liệu
         Track track = trackList.get(i);
         holder.tvTrackTitle.setText(track.getTitle());
-        holder.tvTrackArtist.setText(track.getUserId());
+        holder.tvTrackArtist.setText(track.getArtist());
         holder.tvPlayCount.setText(formatPlayCount(track.getCountPlay()));
         holder.tvDuration.setText(track.getDuration());
-        holder.ivTrackImage.setImageResource(R.drawable.logo);
+        if (track.getCoverImageName() !=null) {
+            Glide.with(context)
+                    .load(UrlHelper.getCoverImageUrl(track.getCoverImageName())) // URL ảnh từ API
+                    .placeholder(R.drawable.logo) // ảnh hiển thị trong khi tải
+                    .error(R.drawable.logo) // ảnh hiển thị nếu lỗi
+                    .into(holder.ivTrackImage);
+        } else {
+            holder.ivTrackImage.setImageResource(R.drawable.logo);
+        }
 
         // Xử lý sự kiện click cho nút menu
         holder.ivMenu.setOnClickListener(v -> {

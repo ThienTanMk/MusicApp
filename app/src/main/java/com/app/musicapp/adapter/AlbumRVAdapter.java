@@ -8,19 +8,20 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.app.musicapp.R;
 import com.app.musicapp.model.Album;
+import com.app.musicapp.model.AlbumResponse;
 import com.bumptech.glide.Glide;
 
 import java.util.List;
 
 public class AlbumRVAdapter extends RecyclerView.Adapter<AlbumRVAdapter.ViewHolder>{
-    private List<Album> albumList;
+    private List<AlbumResponse> albumList;
     private OnItemClickListener listener;
 
     public interface OnItemClickListener {
-        void onItemClick(Album album);
+        void onItemClick(AlbumResponse album);
     }
 
-    public AlbumRVAdapter(List<Album> albumList, OnItemClickListener listener) {
+    public AlbumRVAdapter(List<AlbumResponse> albumList, OnItemClickListener listener) {
         this.albumList = albumList;
         this.listener = listener;
     }
@@ -33,7 +34,7 @@ public class AlbumRVAdapter extends RecyclerView.Adapter<AlbumRVAdapter.ViewHold
 
     @Override
     public void onBindViewHolder(@NonNull AlbumRVAdapter.ViewHolder holder, int position) {
-        Album album = albumList.get(position);
+        AlbumResponse album = albumList.get(position);
         holder.tvAlbumTitle.setText(album.getAlbumTitle());
         holder.tvAlbumArtist.setText(album.getMainArtists());
         Glide.with(holder.itemView.getContext()).load(album.getImagePath()).placeholder(R.drawable.logo).into(holder.ivAlbumImage);

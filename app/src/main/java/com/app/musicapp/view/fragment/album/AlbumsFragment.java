@@ -1,39 +1,49 @@
 package com.app.musicapp.view.fragment.album;
 
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.*;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.ListView;
+import android.widget.ProgressBar;
+import android.widget.Toast;
+
+import androidx.fragment.app.Fragment;
 
 import com.app.musicapp.R;
 import com.app.musicapp.adapter.AlbumAdapter;
-import com.app.musicapp.model.Album;
-import com.app.musicapp.model.Genre;
-import com.app.musicapp.model.Track;
+import com.app.musicapp.api.ApiClient;
+import com.app.musicapp.helper.SharedPreferencesManager;
+import com.app.musicapp.model.AlbumResponse;
+import com.app.musicapp.model.ApiResponse;
+import com.app.musicapp.interfaces.OnLikeChangeListener;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class AlbumsFragment extends Fragment {
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
+public class AlbumsFragment extends Fragment implements OnLikeChangeListener {
 
     private ImageView ivBack;
     private EditText etSearch;
     private ListView listViewAlbums;
     private AlbumAdapter albumAdapter;
-    private List<Album> albumList;
-    private List<Album> filteredAlbumList;
+    private List<AlbumResponse> albumList;
+    private List<AlbumResponse> filteredAlbumList;
+    private ProgressBar progressBar;
 
     public AlbumsFragment() {
         // Required empty public constructor
     }
+
     public static AlbumsFragment newInstance() {
         return new AlbumsFragment();
     }
@@ -42,30 +52,33 @@ public class AlbumsFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
     }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+                           Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_albums, container, false);
 
         // Ánh xạ views
         listViewAlbums = view.findViewById(R.id.listViewAlbums);
         etSearch = view.findViewById(R.id.et_search);
         ivBack = view.findViewById(R.id.iv_back);
+        progressBar = view.findViewById(R.id.progressBar);
 
         // Khởi tạo danh sách album
         albumList = new ArrayList<>();
         filteredAlbumList = new ArrayList<>();
-        mockAlbumData();
 
         // Thiết lập adapter
-        filteredAlbumList.addAll(albumList);
         albumAdapter = new AlbumAdapter(getContext(), filteredAlbumList);
+        albumAdapter.setOnLikeChangeListener(this);
         listViewAlbums.setAdapter(albumAdapter);
+
+        // Load albums from API
+        loadAlbums();
 
         // Xử lý nút Quay lại
         ivBack.setOnClickListener(v -> {
             if (getActivity() != null) {
-                // Hiển thị lại ViewPager và BottomNavigationView
                 View mainView = requireActivity().findViewById(R.id.main);
                 View viewPager = mainView.findViewById(R.id.view_pager);
                 View fragmentContainer = mainView.findViewById(R.id.fragment_container);
@@ -75,13 +88,13 @@ public class AlbumsFragment extends Fragment {
                 getActivity().getSupportFragmentManager().popBackStack();
             }
         });
+
         // Xử lý sự kiện click trên ListView
         listViewAlbums.setOnItemClickListener((parent, view1, position, id) -> {
-            Album selectedAlbum = filteredAlbumList.get(position);
-            // Tạo instance của AlbumPageFragment và truyền dữ liệu album
-            AlbumPageFragment albumPageFragment = AlbumPageFragment.newInstance(selectedAlbum);
-
-            // Điều hướng đến AlbumPageFragment
+            AlbumResponse album = filteredAlbumList.get(position);
+            AlbumOptionsBottomSheet bottomSheet = AlbumOptionsBottomSheet.newInstance(album);
+            bottomSheet.setOnLikeChangeListener(this);
+            AlbumPageFragment fragment = AlbumPageFragment.newInstance(album);
             if (getActivity() != null) {
                 // Ẩn ViewPager và hiển thị fragment_container
                 View mainView = requireActivity().findViewById(R.id.main);
@@ -93,11 +106,12 @@ public class AlbumsFragment extends Fragment {
 
                 getActivity().getSupportFragmentManager()
                         .beginTransaction()
-                        .replace(R.id.fragment_container, albumPageFragment)
+                        .replace(R.id.fragment_container, fragment)
                         .addToBackStack(null)
                         .commit();
             }
         });
+
         etSearch.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
@@ -113,28 +127,37 @@ public class AlbumsFragment extends Fragment {
 
         return view;
     }
-    private void mockAlbumData() {
-        List<Track> tracks1 = new ArrayList<>();
-        List<Track> tracks2 = new ArrayList<>();
-        List<Track> tracks3 = new ArrayList<>();
 
-        for (int i = 0; i < 11; i++) {
-            tracks1.add(new Track("track" + i, "Track " + i, "", "", "", LocalDateTime.now(), "", "3:00", "public", 0, new Genre(), new ArrayList<>()));
+    private void loadAlbums() {
+        progressBar.setVisibility(View.VISIBLE);
+        String userId = SharedPreferencesManager.getInstance(requireContext()).getUserId();
+        
+        if (userId == null) {
+            Toast.makeText(requireContext(), "Vui lòng đăng nhập lại", Toast.LENGTH_SHORT).show();
+            return;
         }
-        for (int i = 0; i < 11; i++) {
-            tracks2.add(new Track("track" + i, "Track " + i, "", "", "", LocalDateTime.now(), "", "3:00", "public", 0, new Genre(), new ArrayList<>()));
-        }
-        for (int i = 0; i < 13; i++) {
-            tracks3.add(new Track("track" + i, "Track " + i, "", "", "", LocalDateTime.now(), "", "3:00", "public", 0, new Genre(), new ArrayList<>()));
-        }
+        
+        ApiClient.getAlbumService().getCreatedAndLikedAlbums(userId).enqueue(new Callback<ApiResponse<List<AlbumResponse>>>() {
+            @Override
+            public void onResponse(Call<ApiResponse<List<AlbumResponse>>> call, Response<ApiResponse<List<AlbumResponse>>> response) {
+                progressBar.setVisibility(View.GONE);
+                if (response.isSuccessful() && response.body() != null && response.body().getData() != null) {
+                    albumList.clear();
+                    albumList.addAll(response.body().getData());
+                    filteredAlbumList.clear();
+                    filteredAlbumList.addAll(albumList);
+                    albumAdapter.notifyDataSetChanged();
+                } else {
+                    Toast.makeText(getContext(), "Không thể tải danh sách album", Toast.LENGTH_SHORT).show();
+                }
+            }
 
-        Album album1 = new Album("Tiên Tiên - Chill With Me", "All Vvpop & Nhạc Việt Nam mới nhất", "", "album", new ArrayList<>(), "", "public", "", "", "", "album1", LocalDateTime.now(), tracks1, new Genre());
-        Album album2 = new Album("25", "Adele", "", "album", new ArrayList<>(), "", "public", "", "", "", "album2", LocalDateTime.now(), tracks2, new Genre());
-        Album album3 = new Album("Soul Of The Forest #4 | Trung Qu...", "The Bros", "", "album", new ArrayList<>(), "", "public", "", "", "", "album3", LocalDateTime.now(), tracks3, new Genre());
-
-        albumList.add(album1);
-        albumList.add(album2);
-        albumList.add(album3);
+            @Override
+            public void onFailure(Call<ApiResponse<List<AlbumResponse>>> call, Throwable t) {
+                progressBar.setVisibility(View.GONE);
+                Toast.makeText(getContext(), "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void filterAlbums(String query) {
@@ -147,6 +170,23 @@ public class AlbumsFragment extends Fragment {
                             album.getMainArtists().toLowerCase().contains(query.toLowerCase()))
                     .collect(Collectors.toList()));
         }
+        albumAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void onLikeChanged(String albumId, boolean isLiked) {
+        // Update both lists
+        for (AlbumResponse album : albumList) {
+            if (album.getId().equals(albumId)) {
+                album.setIsLiked(isLiked);
+            }
+        }
+        for (AlbumResponse album : filteredAlbumList) {
+            if (album.getId().equals(albumId)) {
+                album.setIsLiked(isLiked);
+            }
+        }
+        // Notify adapter to refresh UI
         albumAdapter.notifyDataSetChanged();
     }
 }

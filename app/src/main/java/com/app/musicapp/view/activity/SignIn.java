@@ -1,7 +1,9 @@
 package com.app.musicapp.view.activity;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Base64;
 import android.view.View;
 import android.widget.Toast;
 
@@ -15,6 +17,10 @@ import com.app.musicapp.model.ApiResponse;
 import com.app.musicapp.model.LoginResponse;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
+
+import org.json.JSONObject;
+
+import java.nio.charset.StandardCharsets;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -39,9 +45,33 @@ public class SignIn extends AppCompatActivity {
         progressBar = findViewById(R.id.progressBar);
         
         // Initialize SharedPreferencesManager
-        preferencesManager = new SharedPreferencesManager(this);
+        preferencesManager = SharedPreferencesManager.getInstance(this);
 
         loginButton.setOnClickListener(v -> performLogin());
+    }
+
+    private String extractUserIdFromToken(String token) {
+        try {
+            // Split the token into parts
+            String[] parts = token.split("\\.");
+            if (parts.length < 2) return null;
+
+            // Get the payload part (second part)
+            String payload = parts[1];
+            
+            // Decode the payload
+            byte[] decodedBytes = Base64.decode(payload, Base64.URL_SAFE);
+            String decodedPayload = new String(decodedBytes, StandardCharsets.UTF_8);
+            
+            // Parse the JSON
+            JSONObject jsonPayload = new JSONObject(decodedPayload);
+            
+            // Extract the sub claim (user_id)
+            return jsonPayload.getString("sub");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     private void performLogin() {
@@ -78,13 +108,21 @@ public class SignIn extends AppCompatActivity {
                         // Login successful
                         LoginResponse loginData = apiResponse.getData();
                         if (loginData != null && loginData.getToken() != null) {
+                            String token = loginData.getToken();
                             // Save token
-                            preferencesManager.saveToken(loginData.getToken());
+                            preferencesManager.saveToken(token);
                             
-                            // Navigate to MainActivity
-                            Toast.makeText(SignIn.this, "Login successful", Toast.LENGTH_SHORT).show();
-                            startActivity(new Intent(SignIn.this, MainActivity.class));
-                            finish();
+                            // Extract and save user_id from token
+                            String userId = extractUserIdFromToken(token);
+                            if (userId != null) {
+                                preferencesManager.saveUserId(userId);
+                                // Navigate to MainActivity
+                                Toast.makeText(SignIn.this, "Login successful", Toast.LENGTH_SHORT).show();
+                                startActivity(new Intent(SignIn.this, MainActivity.class));
+                                finish();
+                            } else {
+                                Toast.makeText(SignIn.this, "Failed to extract user information", Toast.LENGTH_LONG).show();
+                            }
                         } else {
                             Toast.makeText(SignIn.this, "Invalid response from server", Toast.LENGTH_LONG).show();
                         }
