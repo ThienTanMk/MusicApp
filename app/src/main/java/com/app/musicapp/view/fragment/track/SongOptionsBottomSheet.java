@@ -11,6 +11,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 
 import com.app.musicapp.R;
 import com.app.musicapp.api.ApiClient;
@@ -64,7 +65,7 @@ public class SongOptionsBottomSheet extends BottomSheetDialogFragment {
 
         if (trackResponse != null) {
             tvSongTitle.setText(trackResponse.getTitle());
-            tvUserSong.setText(trackResponse.getUserId());
+            tvUserSong.setText(trackResponse.getUser().getDisplayName());
 
             // Load song cover image using Glide
             RequestOptions requestOptions = new RequestOptions()
@@ -187,10 +188,9 @@ public class SongOptionsBottomSheet extends BottomSheetDialogFragment {
     private void updateLikeUI() {
         if (isLiked) {
             tvLikeText.setText("Bỏ thích");
-            ivLikeIcon.setImageResource(R.drawable.ic_favorite);
         } else {
             tvLikeText.setText("Thích");
-            ivLikeIcon.setImageResource(R.drawable.ic_favorite);
         }
+        ivLikeIcon.setColorFilter(ContextCompat.getColor(requireContext(), isLiked ? R.color.like_active : R.color.like_inactive));
     }
 }

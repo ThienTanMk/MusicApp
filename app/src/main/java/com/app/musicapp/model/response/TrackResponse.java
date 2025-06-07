@@ -18,7 +18,7 @@ public class TrackResponse implements Serializable {
     private int countPlay;
     private GenreResponse genreResponse;
     private List<TagResponse> tagResponses;
-
+    private ProfileWithCountFollowResponse user;
     public TrackResponse(String id, String title, String description, String fileName, String coverImageName, LocalDateTime createdAt, String userId, String duration, String privacy, int countPlay, GenreResponse genreResponse, List<TagResponse> tagResponses) {
         this.id = id;
         this.title = title;
@@ -152,5 +152,13 @@ public class TrackResponse implements Serializable {
 
     public void setArtist(String artist) {
         this.artist = artist;
+    }
+
+    public void setUser(ProfileWithCountFollowResponse user) {
+        this.user = user;
+    }
+
+    public ProfileWithCountFollowResponse getUser() {
+        return this.user;
     }
 }

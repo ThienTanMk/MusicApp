@@ -67,7 +67,7 @@ public class TrackAdapter extends BaseAdapter {
         // Gán dữ liệu
         TrackResponse trackResponse = trackResponseList.get(i);
         holder.tvTrackTitle.setText(trackResponse.getTitle());
-        holder.tvTrackArtist.setText(trackResponse.getArtist());
+        holder.tvTrackArtist.setText(trackResponse.getUser().getDisplayName());
         holder.tvPlayCount.setText(formatPlayCount(trackResponse.getCountPlay()));
         holder.tvDuration.setText(trackResponse.getDuration());
         if (trackResponse.getCoverImageName() !=null) {

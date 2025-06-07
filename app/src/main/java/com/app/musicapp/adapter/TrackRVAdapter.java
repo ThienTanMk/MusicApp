@@ -10,18 +10,29 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.app.musicapp.R;
+import com.app.musicapp.helper.UrlHelper;
 import com.app.musicapp.model.response.TrackResponse;
 import com.app.musicapp.view.fragment.track.SongOptionsBottomSheet;
+import com.bumptech.glide.Glide;
 
 import java.util.List;
 
 public class TrackRVAdapter extends RecyclerView.Adapter<TrackRVAdapter.ViewHolder> {
     private Fragment fragment;
     private List<TrackResponse> trackResponseList;
+    private OnTrackClickListener onTrackClickListener;
+
+    public interface OnTrackClickListener {
+        void onTrackClick(TrackResponse track);
+    }
 
     public TrackRVAdapter(Fragment fragment, List<TrackResponse> trackResponseList) {
         this.fragment = fragment;
         this.trackResponseList = trackResponseList;
+    }
+
+    public void setOnTrackClickListener(OnTrackClickListener listener) {
+        this.onTrackClickListener = listener;
     }
 
     @NonNull
@@ -36,10 +47,26 @@ public class TrackRVAdapter extends RecyclerView.Adapter<TrackRVAdapter.ViewHold
     public void onBindViewHolder(@NonNull TrackRVAdapter.ViewHolder holder, int position) {
         TrackResponse trackResponse = trackResponseList.get(position);
         holder.tvTrackTitle.setText(trackResponse.getTitle());
-        holder.tvTrackArtist.setText(trackResponse.getUserId());
+        holder.tvTrackArtist.setText(trackResponse.getUser().getDisplayName());
         holder.tvPlayCount.setText(formatPlayCount(trackResponse.getCountPlay()));
         holder.tvDuration.setText(trackResponse.getDuration());
-        holder.ivTrackImage.setImageResource(R.drawable.logo);
+
+        if (trackResponse.getCoverImageName() != null) {
+            Glide.with(fragment)
+                    .load(UrlHelper.getCoverImageUrl(trackResponse.getCoverImageName()))
+                    .placeholder(R.drawable.logo)
+                    .error(R.drawable.logo)
+                    .into(holder.ivTrackImage);
+        } else {
+            holder.ivTrackImage.setImageResource(R.drawable.logo);
+        }
+
+        // Add click listener for the whole item
+        holder.itemView.setOnClickListener(v -> {
+            if (onTrackClickListener != null) {
+                onTrackClickListener.onTrackClick(trackResponse);
+            }
+        });
 
         // Xử lý sự kiện click cho nút menu (ba chấm)
         holder.ivMenu.setOnClickListener(v -> {

@@ -26,6 +26,7 @@ import com.app.musicapp.view.activity.MusicPlayer;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -70,7 +71,11 @@ public class LikedTracksFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 musicService.setNextUpItems(likedTrackResponses);
-                musicService.playMusicAtIndex(i);
+                if (Objects.equals(musicService.getCurrentTrack().getId(), likedTrackResponses.get(i).getId())) {
+                    musicService.playCurrentMusic();
+                } else {
+                    musicService.playMusicAtIndex(i);
+                }
                 Intent intent = new Intent(getContext(), MusicPlayer.class);
                 startActivity(intent);
             }

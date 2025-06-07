@@ -21,6 +21,7 @@ import com.app.musicapp.view.fragment.album.AlbumOptionsBottomSheet;
 import com.bumptech.glide.Glide;
 import com.app.musicapp.interfaces.OnLikeChangeListener;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import retrofit2.Call;
@@ -34,7 +35,7 @@ public class AlbumAdapter extends BaseAdapter {
 
     public AlbumAdapter(Context context, List<AlbumResponse> albums) {
         this.context = context;
-        this.albums = albums;
+        this.albums = albums != null ? albums : new ArrayList<>();
     }
 
     public void setOnLikeChangeListener(OnLikeChangeListener listener) {
@@ -43,7 +44,7 @@ public class AlbumAdapter extends BaseAdapter {
 
     @Override
     public int getCount() {
-        return albums.size();
+        return albums != null ? albums.size() : 0;
     }
 
     @Override
@@ -78,7 +79,10 @@ public class AlbumAdapter extends BaseAdapter {
         AlbumResponse album = albums.get(i);
         holder.tvAlbumTitle.setText(album.getAlbumTitle());
         holder.tvArtist.setText(album.getMainArtists());
-        holder.tvTrackCount.setText(album.getTracks().size() + " Tracks");
+        
+        // Add null check for tracks
+        int trackCount = album.getTracks() != null ? album.getTracks().size() : 0;
+        holder.tvTrackCount.setText(trackCount + " Tracks");
 
         // Load album image
         if (album.getImagePath() != null) {

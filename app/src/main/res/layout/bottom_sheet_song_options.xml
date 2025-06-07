@@ -57,7 +57,7 @@
            android:id="@+id/iv_like_icon"
             android:layout_width="24dp"
             android:layout_height="24dp"
-            android:src="@drawable/heart_svgrepo_com"
+            android:src="@drawable/ic_favorite"
             app:tint="#FFFFFF" />
         <TextView
             android:id="@+id/tv_like_text"

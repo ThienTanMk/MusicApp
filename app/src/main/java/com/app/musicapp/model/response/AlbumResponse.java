@@ -17,7 +17,7 @@ public class AlbumResponse implements Serializable {
     private String userId;
     private String id;
     private LocalDateTime createdAt;
-    private List<TrackResponse> trackResponses;
+    private List<TrackResponse> tracks;
     private GenreResponse genreResponse;
     private Boolean isLiked = false;
 
@@ -121,11 +121,11 @@ public class AlbumResponse implements Serializable {
     }
 
     public List<TrackResponse> getTracks() {
-        return trackResponses;
+        return tracks;
     }
 
     public void setTracks(List<TrackResponse> trackResponses) {
-        this.trackResponses = trackResponses;
+        this.tracks = trackResponses;
     }
 
     public GenreResponse getGenre() {
