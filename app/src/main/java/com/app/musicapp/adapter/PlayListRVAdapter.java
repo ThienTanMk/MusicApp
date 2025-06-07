@@ -8,8 +8,8 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.app.musicapp.R;
-import com.app.musicapp.model.LikedPlaylist;
-import com.app.musicapp.model.Playlist;
+import com.app.musicapp.model.response.LikedPlaylistResponse;
+import com.app.musicapp.model.response.PlaylistResponse;
 import com.bumptech.glide.Glide;
 
 import java.util.List;
@@ -36,16 +36,16 @@ public class PlayListRVAdapter extends RecyclerView.Adapter<PlayListRVAdapter.Vi
     @Override
     public void onBindViewHolder(@NonNull PlayListRVAdapter.ViewHolder holder, int position) {
         Object item = playlist.get(position);
-        if (item instanceof Playlist) {
-            Playlist playlist = (Playlist) item;
-            holder.tvPlaylistTitle.setText(playlist.getTitle());
-            holder.tvPlaylistArtist.setText(playlist.getUserId());
-            Glide.with(holder.itemView.getContext()).load(playlist.getImagePath()).placeholder(R.drawable.logo).into(holder.ivPlaylistImage);
-        } else if (item instanceof LikedPlaylist) {
-            LikedPlaylist likedPlaylist = (LikedPlaylist) item;
-            holder.tvPlaylistTitle.setText(likedPlaylist.getPlaylist().getTitle());
-            holder.tvPlaylistArtist.setText(likedPlaylist.getPlaylist().getUserId());
-            Glide.with(holder.itemView.getContext()).load(likedPlaylist.getPlaylist().getImagePath()).placeholder(R.drawable.logo).into(holder.ivPlaylistImage);
+        if (item instanceof PlaylistResponse) {
+            PlaylistResponse playlistResponse = (PlaylistResponse) item;
+            holder.tvPlaylistTitle.setText(playlistResponse.getTitle());
+            holder.tvPlaylistArtist.setText(playlistResponse.getUserId());
+            Glide.with(holder.itemView.getContext()).load(playlistResponse.getImagePath()).placeholder(R.drawable.logo).into(holder.ivPlaylistImage);
+        } else if (item instanceof LikedPlaylistResponse) {
+            LikedPlaylistResponse likedPlaylistResponse = (LikedPlaylistResponse) item;
+            holder.tvPlaylistTitle.setText(likedPlaylistResponse.getPlaylist().getTitle());
+            holder.tvPlaylistArtist.setText(likedPlaylistResponse.getPlaylist().getUserId());
+            Glide.with(holder.itemView.getContext()).load(likedPlaylistResponse.getPlaylist().getImagePath()).placeholder(R.drawable.logo).into(holder.ivPlaylistImage);
         }
         holder.itemView.setOnClickListener(v -> listener.onItemClick(item));
     }

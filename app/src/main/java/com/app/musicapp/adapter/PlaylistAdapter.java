@@ -12,8 +12,8 @@ import androidx.annotation.*;
 import androidx.fragment.app.FragmentActivity;
 
 import com.app.musicapp.R;
-import com.app.musicapp.model.LikedPlaylist;
-import com.app.musicapp.model.Playlist;
+import com.app.musicapp.model.response.LikedPlaylistResponse;
+import com.app.musicapp.model.response.PlaylistResponse;
 import com.app.musicapp.view.fragment.playlist.PlaylistPageFragment;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 
@@ -45,25 +45,25 @@ public class PlaylistAdapter extends ArrayAdapter<Object> {
 
         // Lấy đối tượng tại vị trí position
         Object item = playlists.get(position);
-        Playlist playlist;
+        PlaylistResponse playlistResponse;
 
         // Kiểm tra xem item là Playlist hay LikedPlaylist
-        if (item instanceof Playlist) {
-            playlist = (Playlist) item;
-        } else if (item instanceof LikedPlaylist) {
-            playlist = ((LikedPlaylist) item).getPlaylist();
+        if (item instanceof PlaylistResponse) {
+            playlistResponse = (PlaylistResponse) item;
+        } else if (item instanceof LikedPlaylistResponse) {
+            playlistResponse = ((LikedPlaylistResponse) item).getPlaylist();
         } else {
             return convertView;
         }
 
         // Hiển thị thông tin playlist
-        tvPlaylistTitle.setText(playlist.getTitle());
-        tvPlaylistArtist.setText(playlist.getUserId());
-        tvTrackCount.setText(playlist.getPlaylistTracks().size() + " Tracks");
+        tvPlaylistTitle.setText(playlistResponse.getTitle());
+        tvPlaylistArtist.setText(playlistResponse.getUserId());
+        tvTrackCount.setText(playlistResponse.getPlaylistTracks().size() + " Tracks");
         tvLikeCount.setText(String.valueOf((int) (Math.random() * 1000)));
 
         try {
-            String imagePath = playlist.getImagePath();
+            String imagePath = playlistResponse.getImagePath();
             String resourceName = imagePath != null ? imagePath.replace(".jpg", "") : "";
             if (!resourceName.isEmpty()) {
                 Resources resources = getContext().getResources();
@@ -85,7 +85,7 @@ public class PlaylistAdapter extends ArrayAdapter<Object> {
         ivMenu.setOnClickListener(v -> {
             BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(getContext());
             View bottomSheetView;
-            if (item instanceof Playlist) {
+            if (item instanceof PlaylistResponse) {
                 // Playlist tự tạo
                 bottomSheetView = LayoutInflater.from(getContext()).inflate(R.layout.bottom_sheet_user_playlist, null);
             } else {
@@ -99,10 +99,10 @@ public class PlaylistAdapter extends ArrayAdapter<Object> {
             TextView tvPlaylistDescriptionSheet = bottomSheetView.findViewById(R.id.tv_user_playlist);
 
             // Hiển thị thông tin playlist trong bottom sheet
-            tvPlaylistTitleSheet.setText(playlist.getTitle());
-            tvPlaylistDescriptionSheet.setText(playlist.getDescription());
+            tvPlaylistTitleSheet.setText(playlistResponse.getTitle());
+            tvPlaylistDescriptionSheet.setText(playlistResponse.getDescription());
             try {
-                String imagePath = playlist.getImagePath();
+                String imagePath = playlistResponse.getImagePath();
                 String resourceName = imagePath != null ? imagePath.replace(".jpg", "") : "";
                 if (!resourceName.isEmpty()) {
                     Resources resources = getContext().getResources();

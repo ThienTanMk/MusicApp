@@ -11,7 +11,7 @@ import androidx.fragment.app.Fragment;
 
 import com.app.musicapp.R;
 import com.app.musicapp.helper.UrlHelper;
-import com.app.musicapp.model.Track;
+import com.app.musicapp.model.response.TrackResponse;
 import com.app.musicapp.view.fragment.track.SongOptionsBottomSheet;
 import com.bumptech.glide.Glide;
 
@@ -21,23 +21,23 @@ public class TrackAdapter extends BaseAdapter {
     private Context context;
     private Fragment fragment;
     private LayoutInflater inflater;
-    private List<Track> trackList;
+    private List<TrackResponse> trackResponseList;
     private int layoutType;
-    public TrackAdapter(Fragment fragment, List<Track> trackList) {
+    public TrackAdapter(Fragment fragment, List<TrackResponse> trackResponseList) {
         this.fragment = fragment;
-        this.trackList = trackList;
+        this.trackResponseList = trackResponseList;
         this.context = fragment.getContext();
         this.inflater = LayoutInflater.from(fragment.getContext());
     }
 
     @Override
     public int getCount() {
-        return trackList.size();
+        return trackResponseList.size();
     }
 
     @Override
     public Object getItem(int i) {
-        return trackList.get(i);
+        return trackResponseList.get(i);
     }
 
     @Override
@@ -65,14 +65,14 @@ public class TrackAdapter extends BaseAdapter {
         }
 
         // Gán dữ liệu
-        Track track = trackList.get(i);
-        holder.tvTrackTitle.setText(track.getTitle());
-        holder.tvTrackArtist.setText(track.getArtist());
-        holder.tvPlayCount.setText(formatPlayCount(track.getCountPlay()));
-        holder.tvDuration.setText(track.getDuration());
-        if (track.getCoverImageName() !=null) {
+        TrackResponse trackResponse = trackResponseList.get(i);
+        holder.tvTrackTitle.setText(trackResponse.getTitle());
+        holder.tvTrackArtist.setText(trackResponse.getArtist());
+        holder.tvPlayCount.setText(formatPlayCount(trackResponse.getCountPlay()));
+        holder.tvDuration.setText(trackResponse.getDuration());
+        if (trackResponse.getCoverImageName() !=null) {
             Glide.with(context)
-                    .load(UrlHelper.getCoverImageUrl(track.getCoverImageName())) // URL ảnh từ API
+                    .load(UrlHelper.getCoverImageUrl(trackResponse.getCoverImageName())) // URL ảnh từ API
                     .placeholder(R.drawable.logo) // ảnh hiển thị trong khi tải
                     .error(R.drawable.logo) // ảnh hiển thị nếu lỗi
                     .into(holder.ivTrackImage);
@@ -82,8 +82,8 @@ public class TrackAdapter extends BaseAdapter {
 
         // Xử lý sự kiện click cho nút menu
         holder.ivMenu.setOnClickListener(v -> {
-            Toast.makeText(fragment.getContext(), "Menu clicked for: " + track.getTitle(), Toast.LENGTH_SHORT).show();
-            SongOptionsBottomSheet bottomSheet = SongOptionsBottomSheet.newInstance(track);
+            Toast.makeText(fragment.getContext(), "Menu clicked for: " + trackResponse.getTitle(), Toast.LENGTH_SHORT).show();
+            SongOptionsBottomSheet bottomSheet = SongOptionsBottomSheet.newInstance(trackResponse);
             bottomSheet.show(fragment.getParentFragmentManager(), bottomSheet.getTag());
         });
 

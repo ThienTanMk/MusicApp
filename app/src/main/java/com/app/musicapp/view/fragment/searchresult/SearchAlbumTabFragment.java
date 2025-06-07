@@ -11,7 +11,6 @@ import android.widget.ListView;
 
 import com.app.musicapp.R;
 import com.app.musicapp.adapter.AlbumAdapter;
-import com.app.musicapp.model.Album;
 import com.app.musicapp.model.AlbumResponse;
 import com.app.musicapp.view.fragment.album.AlbumPageFragment;
 
@@ -20,12 +19,12 @@ import java.util.*;
 public class SearchAlbumTabFragment extends Fragment {
 
     private static final String ARG_ALBUMS = "albums";
-    private List<AlbumResponse> albumResults;
+    private List<com.app.musicapp.model.response.AlbumResponse> albumResponseResults;
 
-    public static SearchAlbumTabFragment newInstance(List<Album> albums) {
+    public static SearchAlbumTabFragment newInstance(List<AlbumResponse> albumResponses) {
         SearchAlbumTabFragment fragment = new SearchAlbumTabFragment();
         Bundle args = new Bundle();
-        args.putSerializable(ARG_ALBUMS, new ArrayList<>(albums));
+        args.putSerializable(ARG_ALBUMS, new ArrayList<>(albumResponses));
         fragment.setArguments(args);
         return fragment;
     }
@@ -34,7 +33,7 @@ public class SearchAlbumTabFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            albumResults = (List<AlbumResponse>) getArguments().getSerializable(ARG_ALBUMS);
+            albumResponseResults = (List<com.app.musicapp.model.response.AlbumResponse>) getArguments().getSerializable(ARG_ALBUMS);
         }
     }
     @Override
@@ -44,12 +43,12 @@ public class SearchAlbumTabFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_search_album_tab, container, false);
 
         ListView listView = view.findViewById(R.id.list_view_album_results);
-        AlbumAdapter albumAdapter = new AlbumAdapter(getContext(), albumResults);
+        AlbumAdapter albumAdapter = new AlbumAdapter(getContext(), albumResponseResults);
         listView.setAdapter(albumAdapter);
 
         listView.setOnItemClickListener((parent, view1, position, id) -> {
-            AlbumResponse selectedAlbum = albumResults.get(position);
-            AlbumPageFragment albumFragment = AlbumPageFragment.newInstance(selectedAlbum);
+            com.app.musicapp.model.response.AlbumResponse selectedAlbumResponse = albumResponseResults.get(position);
+            AlbumPageFragment albumFragment = AlbumPageFragment.newInstance(selectedAlbumResponse);
             requireActivity().getSupportFragmentManager()
                     .beginTransaction()
                     .replace(R.id.fragment_container, albumFragment)

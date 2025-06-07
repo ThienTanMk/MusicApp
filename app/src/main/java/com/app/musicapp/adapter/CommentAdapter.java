@@ -10,23 +10,23 @@ import android.widget.TextView;
 
 
 import com.app.musicapp.R;
-import com.app.musicapp.model.Comment;
+import com.app.musicapp.model.response.CommentResponse;
 
 import java.util.List;
 
 
 public class CommentAdapter extends BaseAdapter {
-    private List<Comment> comments;
+    private List<CommentResponse> commentResponses;
     private Context context;
 
-    public CommentAdapter(List<Comment> comments, Context context) {
-        this.comments = comments;
+    public CommentAdapter(List<CommentResponse> commentResponses, Context context) {
+        this.commentResponses = commentResponses;
         this.context = context;
     }
 
     @Override
     public int getCount() {
-        return comments.size();
+        return commentResponses.size();
     }
 
     @Override

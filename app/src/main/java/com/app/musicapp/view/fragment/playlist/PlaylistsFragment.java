@@ -11,7 +11,11 @@ import android.widget.*;
 
 import com.app.musicapp.R;
 import com.app.musicapp.adapter.PlaylistAdapter;
-import com.app.musicapp.model.*;
+import com.app.musicapp.model.response.GenreResponse;
+import com.app.musicapp.model.response.LikedPlaylistResponse;
+import com.app.musicapp.model.response.PlaylistResponse;
+import com.app.musicapp.model.response.TagResponse;
+import com.app.musicapp.model.response.TrackResponse;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 
 import java.time.LocalDateTime;
@@ -38,25 +42,25 @@ public class PlaylistsFragment extends Fragment {
 
         playlists = new ArrayList<>();
 
-        Playlist playlist1 = new Playlist(
+        PlaylistResponse playlistResponse1 = new PlaylistResponse(
                 "1",
                 "Weekly Wave",
                 LocalDateTime.now(),
                 "Made for ThienTanVCK",
                 "public",
                 "user1",
-                new Genre("1","Rock",LocalDateTime.now()),
+                new GenreResponse("1","Rock",LocalDateTime.now()),
                 "cover1.jpg",
                 LocalDateTime.now(),
                 new ArrayList<>(), // Không có bài hát
-                Arrays.asList(new Tag("tag1", "weekly", LocalDateTime.now(), "user1"))
+                Arrays.asList(new TagResponse("tag1", "weekly", LocalDateTime.now(), "user1")),false,null
         );
-        playlists.add(playlist1);
+        playlists.add(playlistResponse1);
 
         // Playlist được người dùng thích từ người khác
-        List<Track> diracTracks = new ArrayList<>();
+        List<TrackResponse> diracTrackResponses = new ArrayList<>();
         for (int i = 1; i <= 61; i++) {
-            diracTracks.add(new Track(
+            diracTrackResponses.add(new TrackResponse(
                     String.valueOf(i),
                     "Track " + i,
                     "Artist " + i,
@@ -67,29 +71,29 @@ public class PlaylistsFragment extends Fragment {
                     "3:00",
                     "public",
                     (int) (Math.random() * 100000),
-                    new Genre("1","Rock",LocalDateTime.now()),
-                    Arrays.asList(new Tag("tag2" , "gentlebad", LocalDateTime.now(), "user3"))
+                    new GenreResponse("1","Rock",LocalDateTime.now()),
+                    Arrays.asList(new TagResponse("tag2" , "gentlebad", LocalDateTime.now(), "user3"))
             ));
         }
-        Playlist playlist2 = new Playlist(
+        PlaylistResponse playlistResponse2 = new PlaylistResponse(
                 "2",
                 "Dirac Reverse Station",
                 LocalDateTime.now(),
                 "Made for freedommalaysia",
                 "public",
                 "user2",
-                new Genre("1","Rock",LocalDateTime.now()),
+                new GenreResponse("1","Rock",LocalDateTime.now()),
                 "cover2.jpg",
                 LocalDateTime.now(),
-                diracTracks, // 61 Tracks
-                Arrays.asList(new Tag("tag2", "dirac", LocalDateTime.now(), "user2"))
+                diracTrackResponses, // 61 Tracks
+                Arrays.asList(new TagResponse("tag2", "dirac", LocalDateTime.now(), "user2")),false,null
         );
-        playlists.add(new LikedPlaylist("lp1", "user1", LocalDateTime.now(), playlist2));
+        playlists.add(new LikedPlaylistResponse("lp1", "user1", LocalDateTime.now(), playlistResponse2));
 
         // Playlist được người dùng thích từ người khác
-        List<Track> gentleBadTracks = new ArrayList<>();
+        List<TrackResponse> gentleBadTrackResponses = new ArrayList<>();
         for (int i = 1; i <= 5; i++) {
-            gentleBadTracks.add(new Track(
+            gentleBadTrackResponses.add(new TrackResponse(
                     String.valueOf(i + 61),
                     "Gentle Bad Track " + i,
                     "GURBANE",
@@ -100,24 +104,24 @@ public class PlaylistsFragment extends Fragment {
                     "3:00",
                     "public",
                     (int) (Math.random() * 100000),
-                    new Genre("1","Rock",LocalDateTime.now()),
-                    Arrays.asList(new Tag("tag", "gentlebad", LocalDateTime.now(), "user3"))
+                    new GenreResponse("1","Rock",LocalDateTime.now()),
+                    Arrays.asList(new TagResponse("tag", "gentlebad", LocalDateTime.now(), "user3"))
             ));
         }
-        Playlist playlist3 = new Playlist(
+        PlaylistResponse playlistResponse3 = new PlaylistResponse(
                 "3",
                 "\"Gentle Bad\" the EP - GURBANE",
                 LocalDateTime.now(),
                 "Description 3",
                 "public",
                 "user3",
-                new Genre("1","Rock",LocalDateTime.now()),
+                new GenreResponse("1","Rock",LocalDateTime.now()),
                 "cover3.jpg",
                 LocalDateTime.now(),
-                gentleBadTracks, // 5 Tracks
-                Arrays.asList(new Tag("tag3", "gentlebad", LocalDateTime.now(), "user3"))
+                gentleBadTrackResponses, // 5 Tracks
+                Arrays.asList(new TagResponse("tag3", "gentlebad", LocalDateTime.now(), "user3")),false,null
         );
-        playlists.add(new LikedPlaylist("lp2", "user1", LocalDateTime.now(), playlist3));
+        playlists.add(new LikedPlaylistResponse("lp2", "user1", LocalDateTime.now(), playlistResponse3));
 
         // Khởi tạo và gắn adapter vào ListView
         playlistAdapter = new PlaylistAdapter(getContext(), playlists);
@@ -164,22 +168,22 @@ public class PlaylistsFragment extends Fragment {
 
                 // Tạo playlist mới
                 String privacy = switchMakePublic.isChecked() ? "public" : "private";
-                Playlist newPlaylist = new Playlist(
+                PlaylistResponse newPlaylistResponse = new PlaylistResponse(
                         String.valueOf(playlists.size() + 1),
                         title,
                         LocalDateTime.now(),
                         "Created by user1",
                         privacy,
                         "user1",
-                        new Genre("1","Rock",LocalDateTime.now()),
+                        new GenreResponse("1","Rock",LocalDateTime.now()),
                         null,
                         LocalDateTime.now(),
                         new ArrayList<>(),
-                        new ArrayList<>()
+                        new ArrayList<>(),false,null
                 );
 
                 // Thêm playlist mới vào danh sách
-                playlists.add(0, newPlaylist); // Thêm vào đầu danh sách
+                playlists.add(0, newPlaylistResponse); // Thêm vào đầu danh sách
                 playlistAdapter.notifyDataSetChanged();
 
                 Toast.makeText(getContext(), "Playlist created: " + title, Toast.LENGTH_SHORT).show();

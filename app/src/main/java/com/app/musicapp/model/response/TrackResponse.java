@@ -1,10 +1,10 @@
-package com.app.musicapp.model;
+package com.app.musicapp.model.response;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public class Track implements Serializable {
+public class TrackResponse implements Serializable {
     private String id;
     private String title;
     private String description;
@@ -16,10 +16,10 @@ public class Track implements Serializable {
     private String duration;
     private String privacy;
     private int countPlay;
-    private Genre genre;
-    private List<Tag> tags;
+    private GenreResponse genreResponse;
+    private List<TagResponse> tagResponses;
 
-    public Track(String id, String title, String description, String fileName, String coverImageName, LocalDateTime createdAt, String userId, String duration, String privacy, int countPlay, Genre genre, List<Tag> tags) {
+    public TrackResponse(String id, String title, String description, String fileName, String coverImageName, LocalDateTime createdAt, String userId, String duration, String privacy, int countPlay, GenreResponse genreResponse, List<TagResponse> tagResponses) {
         this.id = id;
         this.title = title;
         this.description = description;
@@ -30,11 +30,11 @@ public class Track implements Serializable {
         this.duration = duration;
         this.privacy = privacy;
         this.countPlay = countPlay;
-        this.genre = genre;
-        this.tags = tags;
+        this.genreResponse = genreResponse;
+        this.tagResponses = tagResponses;
     }
 
-    public Track(String id, String title, String description, String fileName, String coverImageName, LocalDateTime createdAt, String userId, String artist, String duration, String privacy, int countPlay, Genre genre, List<Tag> tags) {
+    public TrackResponse(String id, String title, String description, String fileName, String coverImageName, LocalDateTime createdAt, String userId, String artist, String duration, String privacy, int countPlay, GenreResponse genreResponse, List<TagResponse> tagResponses) {
         this.id = id;
         this.title = title;
         this.description = description;
@@ -46,8 +46,8 @@ public class Track implements Serializable {
         this.duration = duration;
         this.privacy = privacy;
         this.countPlay = countPlay;
-        this.genre = genre;
-        this.tags = tags;
+        this.genreResponse = genreResponse;
+        this.tagResponses = tagResponses;
     }
 
     public String getId() {
@@ -130,20 +130,20 @@ public class Track implements Serializable {
         this.countPlay = countPlay;
     }
 
-    public Genre getGenre() {
-        return genre;
+    public GenreResponse getGenre() {
+        return genreResponse;
     }
 
-    public void setGenre(Genre genre) {
-        this.genre = genre;
+    public void setGenre(GenreResponse genreResponse) {
+        this.genreResponse = genreResponse;
     }
 
-    public List<Tag> getTags() {
-        return tags;
+    public List<TagResponse> getTags() {
+        return tagResponses;
     }
 
-    public void setTags(List<Tag> tags) {
-        this.tags = tags;
+    public void setTags(List<TagResponse> tagResponses) {
+        this.tagResponses = tagResponses;
     }
 
     public String getArtist() {

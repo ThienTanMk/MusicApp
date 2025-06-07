@@ -13,11 +13,10 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
 import androidx.appcompat.widget.SearchView;
 import com.app.musicapp.R;
-import com.app.musicapp.adapter.TrackAdapter;
 import com.app.musicapp.adapter.UploadsAdapter;
-import com.app.musicapp.model.Genre;
-import com.app.musicapp.model.Tag;
-import com.app.musicapp.model.Track;
+import com.app.musicapp.model.response.GenreResponse;
+import com.app.musicapp.model.response.TagResponse;
+import com.app.musicapp.model.response.TrackResponse;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -29,8 +28,8 @@ public class UploadsFragment extends Fragment {
     private ImageView ivBack;
     private SearchView searchView;
     private UploadsAdapter uploadsAdapter;
-    private List<Track> trackList;
-    private List<Track> filteredTrackList;
+    private List<TrackResponse> trackResponseList;
+    private List<TrackResponse> filteredTrackResponseList;
 
     public UploadsFragment() {
         // Required empty public constructor
@@ -42,10 +41,10 @@ public class UploadsFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        trackList = new ArrayList<>();
-        filteredTrackList = new ArrayList<>();
+        trackResponseList = new ArrayList<>();
+        filteredTrackResponseList = new ArrayList<>();
         mockTrackData();
-        filteredTrackList.addAll(trackList);
+        filteredTrackResponseList.addAll(trackResponseList);
     }
 
     @Override
@@ -76,7 +75,7 @@ public class UploadsFragment extends Fragment {
                 imm.showSoftInput(searchEditText, InputMethodManager.SHOW_IMPLICIT);
             }
         });
-        uploadsAdapter = new UploadsAdapter(this, filteredTrackList);
+        uploadsAdapter = new UploadsAdapter(this, filteredTrackResponseList);
         listViewUploads.setAdapter(uploadsAdapter);
 
         // Xử lý nút Quay lại
@@ -110,10 +109,10 @@ public class UploadsFragment extends Fragment {
     }
 
     private void mockTrackData() {
-        if (trackList == null) {
-            trackList = new ArrayList<>();
+        if (trackResponseList == null) {
+            trackResponseList = new ArrayList<>();
         }
-        trackList.add(new Track(
+        trackResponseList.add(new TrackResponse(
                 "1",
                 "output_audio",
                 "A sample track description",
@@ -124,10 +123,10 @@ public class UploadsFragment extends Fragment {
                 "0:05",
                 "public",
                 10,
-                new Genre("1","Rock",LocalDateTime.now()),
-                List.of(new Tag("1", "pop", LocalDateTime.now(), "user123"))
+                new GenreResponse("1","Rock",LocalDateTime.now()),
+                List.of(new TagResponse("1", "pop", LocalDateTime.now(), "user123"))
         ));
-        trackList.add(new Track(
+        trackResponseList.add(new TrackResponse(
                 "2",
                 "Song 2",
                 "Another track by Artist 2",
@@ -138,19 +137,19 @@ public class UploadsFragment extends Fragment {
                 "3:45",
                 "private",
                 5,
-                new Genre("1","Rock",LocalDateTime.now()),
-                List.of(new Tag("2", "rock", LocalDateTime.now(), "user123"))
+                new GenreResponse("1","Rock",LocalDateTime.now()),
+                List.of(new TagResponse("2", "rock", LocalDateTime.now(), "user123"))
         ));
     }
     private void filterTracks(String query) {
-        filteredTrackList.clear();
+        filteredTrackResponseList.clear();
         if (query.isEmpty()) {
-            filteredTrackList.addAll(trackList);
+            filteredTrackResponseList.addAll(trackResponseList);
         } else {
-            for (Track track : trackList) {
-                if (track.getTitle().toLowerCase().contains(query.toLowerCase()) ||
-                        track.getDescription().toLowerCase().contains(query.toLowerCase())) {
-                    filteredTrackList.add(track);
+            for (TrackResponse trackResponse : trackResponseList) {
+                if (trackResponse.getTitle().toLowerCase().contains(query.toLowerCase()) ||
+                        trackResponse.getDescription().toLowerCase().contains(query.toLowerCase())) {
+                    filteredTrackResponseList.add(trackResponse);
                 }
             }
         }

@@ -1,7 +1,7 @@
 package com.app.musicapp.api;
 
-import com.app.musicapp.model.ApiResponse;
-import com.app.musicapp.model.Track;
+import com.app.musicapp.model.response.TrackResponse;
+import com.app.musicapp.model.response.ApiResponse;
 
 import java.util.List;
 
@@ -12,7 +12,7 @@ import retrofit2.http.Path;
 
 public interface LikedTrackApiService {
     @GET("/api/user-library/liked/all")
-    Call<ApiResponse<List<Track>>> getAllLikedTracks();
+    Call<ApiResponse<List<TrackResponse>>> getAllLikedTracks();
 
     @GET("/api/user-library/liked/count/{trackId}")
     Call<ApiResponse<Integer>> getTrackLikeCount(@Path("trackId") String trackId);

@@ -10,17 +10,17 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.app.musicapp.R;
-import com.app.musicapp.model.Album;
+import com.app.musicapp.model.AlbumResponse;
 
 import java.util.List;
 
 public class AlbumInVibeAdapter extends RecyclerView.Adapter<AlbumInVibeAdapter.ViewHolder> {
     private Context context;
-    private List<Album> albums;
+    private List<AlbumResponse> albumResponses;
 
-    public AlbumInVibeAdapter(Context context, List<Album> albums) {
+    public AlbumInVibeAdapter(Context context, List<AlbumResponse> albumResponses) {
         this.context = context;
-        this.albums = albums;
+        this.albumResponses = albumResponses;
     }
 
     @NonNull
@@ -32,17 +32,17 @@ public class AlbumInVibeAdapter extends RecyclerView.Adapter<AlbumInVibeAdapter.
 
     @Override
     public void onBindViewHolder(@NonNull AlbumInVibeAdapter.ViewHolder holder, int position) {
-        Album album = albums.get(position);
+        AlbumResponse albumResponse = albumResponses.get(position);
         // Hiển thị thông tin album
-        holder.tvAlbumTitle.setText(album.getAlbumTitle());
-        if (!album.getMainArtists().isEmpty()) {
-            holder.tvAlbumArtist.setText(album.getMainArtists());
+        holder.tvAlbumTitle.setText(albumResponse.getAlbumTitle());
+        if (!albumResponse.getMainArtists().isEmpty()) {
+            holder.tvAlbumArtist.setText(albumResponse.getMainArtists());
         } else {
             holder.tvAlbumArtist.setText("No Artist");
         }
 
         try {
-            String imagePath = album.getImagePath();
+            String imagePath = albumResponse.getImagePath();
             String resourceName = imagePath != null ? imagePath.replace(".jpg", "") : "";
             if (!resourceName.isEmpty()) {
                 int resourceId = context.getResources().getIdentifier(resourceName, "drawable", context.getPackageName());
@@ -63,7 +63,7 @@ public class AlbumInVibeAdapter extends RecyclerView.Adapter<AlbumInVibeAdapter.
 
     @Override
     public int getItemCount() {
-        return albums.size();
+        return albumResponses.size();
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {

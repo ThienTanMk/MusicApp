@@ -4,13 +4,13 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 public class FollowingUser implements Serializable {
-    private String id; // ID của Follows
-    private String name; // displayName từ ProfileWithCountFollowResponse
-    private String location; // Không có trong dữ liệu, để mặc định
-    private int followersCount; // followerCount từ ProfileWithCountFollowResponse
-    private String avatarUrl; // avatar từ ProfileWithCountFollowResponse
-    private LocalDateTime followedAt; // Thời gian theo dõi từ Follows
-    private boolean isFollowing; // Trạng thái theo dõi
+    private String id;
+    private String name;
+    private String location;
+    private int followersCount;
+    private String avatarUrl;
+    private LocalDateTime followedAt;
+    private boolean isFollowing;
 
     public FollowingUser(String id, String name, String location, int followersCount, String avatarUrl, LocalDateTime followedAt, boolean isFollowing) {
         this.id = id;

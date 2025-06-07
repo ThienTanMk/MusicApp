@@ -12,14 +12,12 @@ import androidx.core.content.ContextCompat;
 import com.app.musicapp.R;
 import com.app.musicapp.api.ApiClient;
 import com.app.musicapp.helper.UrlHelper;
-import com.app.musicapp.model.AlbumResponse;
-import com.app.musicapp.model.ApiResponse;
+import com.app.musicapp.model.response.AlbumResponse;
+import com.app.musicapp.model.response.ApiResponse;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.bumptech.glide.request.RequestOptions;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
-
-import java.io.Serializable;
 
 import retrofit2.Call;
 import retrofit2.Callback;

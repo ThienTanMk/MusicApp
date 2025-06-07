@@ -1,15 +1,15 @@
-package com.app.musicapp.model;
+package com.app.musicapp.model.response;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public class Album implements Serializable {
+public class AlbumResponse implements Serializable {
     private String albumTitle;
     private String mainArtists;
     private String genreId;
     private String albumType;
-    private List<Tag> tags;
+    private List<TagResponse> tagResponses;
     private String description;
     private String privacy;
     private String albumLink;
@@ -17,27 +17,11 @@ public class Album implements Serializable {
     private String userId;
     private String id;
     private LocalDateTime createdAt;
-    private List<Track> tracks;
-    private Genre genre;
+    private List<TrackResponse> trackResponses;
+    private GenreResponse genreResponse;
+    private Boolean isLiked = false;
 
-    public Album() {
-    }
-
-    public Album(String albumTitle, String mainArtists, String genreId, String albumType, List<Tag> tags, String description, String privacy, String albumLink, String imagePath, String userId, String id, LocalDateTime createdAt, List<Track> tracks, Genre genre) {
-        this.albumTitle = albumTitle;
-        this.mainArtists = mainArtists;
-        this.genreId = genreId;
-        this.albumType = albumType;
-        this.tags = tags;
-        this.description = description;
-        this.privacy = privacy;
-        this.albumLink = albumLink;
-        this.imagePath = imagePath;
-        this.userId = userId;
-        this.id = id;
-        this.createdAt = createdAt;
-        this.tracks = tracks;
-        this.genre = genre;
+    public AlbumResponse() {
     }
 
     public String getAlbumTitle() {
@@ -72,12 +56,12 @@ public class Album implements Serializable {
         this.albumType = albumType;
     }
 
-    public List<Tag> getTags() {
-        return tags;
+    public List<TagResponse> getTags() {
+        return tagResponses;
     }
 
-    public void setTags(List<Tag> tags) {
-        this.tags = tags;
+    public void setTags(List<TagResponse> tagResponses) {
+        this.tagResponses = tagResponses;
     }
 
     public String getDescription() {
@@ -136,19 +120,27 @@ public class Album implements Serializable {
         this.createdAt = createdAt;
     }
 
-    public List<Track> getTracks() {
-        return tracks;
+    public List<TrackResponse> getTracks() {
+        return trackResponses;
     }
 
-    public void setTracks(List<Track> tracks) {
-        this.tracks = tracks;
+    public void setTracks(List<TrackResponse> trackResponses) {
+        this.trackResponses = trackResponses;
     }
 
-    public Genre getGenre() {
-        return genre;
+    public GenreResponse getGenre() {
+        return genreResponse;
     }
 
-    public void setGenre(Genre genre) {
-        this.genre = genre;
+    public void setGenre(GenreResponse genreResponse) {
+        this.genreResponse = genreResponse;
     }
-}
+
+    public Boolean getIsLiked() {
+        return isLiked;
+    }
+
+    public void setIsLiked(Boolean liked) {
+        isLiked = liked;
+    }
+} 

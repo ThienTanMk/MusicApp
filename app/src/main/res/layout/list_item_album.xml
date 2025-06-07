@@ -14,7 +14,7 @@
         android:scaleType="centerCrop"
         android:src="@android:drawable/ic_menu_gallery" />
 
-    <!-- Thông tin playlist -->
+    <!-- Thông tin playlistResponse -->
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -22,7 +22,7 @@
         android:layout_marginStart="12dp"
         android:orientation="vertical">
 
-        <!-- Tiêu đề album -->
+        <!-- Tiêu đề albumResponse -->
         <TextView
             android:id="@+id/tv_album_title"
             android:layout_width="match_parent"
@@ -41,7 +41,7 @@
             android:textColor="#BBBBBB"
             android:textSize="12sp" />
 
-        <!-- Thông tin album (số lượt thích, loại, số lượng bài hát) -->
+        <!-- Thông tin albumResponse (số lượt thích, loại, số lượng bài hát) -->
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

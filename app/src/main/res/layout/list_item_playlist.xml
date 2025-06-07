@@ -7,7 +7,7 @@
     android:padding="8dp"
     android:gravity="center_vertical">
 
-    <!-- Ảnh bìa playlist -->
+    <!-- Ảnh bìa playlistResponse -->
     <ImageView
         android:id="@+id/iv_playlist_image"
         android:layout_width="48dp"
@@ -15,7 +15,7 @@
         android:scaleType="centerCrop"
         android:src="@android:drawable/ic_menu_gallery" />
 
-    <!-- Thông tin playlist -->
+    <!-- Thông tin playlistResponse -->
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -23,7 +23,7 @@
         android:layout_marginStart="12dp"
         android:orientation="vertical">
 
-        <!-- Tiêu đề playlist -->
+        <!-- Tiêu đề playlistResponse -->
         <TextView
             android:id="@+id/tv_playlist_title"
             android:layout_width="match_parent"
@@ -42,7 +42,7 @@
             android:textColor="#BBBBBB"
             android:textSize="12sp" />
 
-        <!-- Thông tin playlist (số lượt thích, loại, số lượng bài hát) -->
+        <!-- Thông tin playlistResponse (số lượt thích, loại, số lượng bài hát) -->
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

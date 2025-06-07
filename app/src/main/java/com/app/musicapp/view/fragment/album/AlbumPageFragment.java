@@ -17,10 +17,9 @@ import com.app.musicapp.R;
 import com.app.musicapp.adapter.TrackRVAdapter;
 import com.app.musicapp.api.ApiClient;
 import com.app.musicapp.helper.UrlHelper;
-import com.app.musicapp.model.Album;
-import com.app.musicapp.model.AlbumResponse;
-import com.app.musicapp.model.ApiResponse;
-import com.app.musicapp.model.Track;
+import com.app.musicapp.model.response.AlbumResponse;
+import com.app.musicapp.model.response.ApiResponse;
+import com.app.musicapp.model.response.TrackResponse;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 
@@ -191,11 +190,11 @@ public class AlbumPageFragment extends Fragment {
             );
         }
     }
-    private long calculateTotalDuration(List<Track> tracks) {
+    private long calculateTotalDuration(List<TrackResponse> trackResponses) {
         long totalSeconds = 0;
-        if (tracks != null) {
-            for (Track track : tracks) {
-                String[] timeParts = track.getDuration().split(":");
+        if (trackResponses != null) {
+            for (TrackResponse trackResponse : trackResponses) {
+                String[] timeParts = trackResponse.getDuration().split(":");
                 if (timeParts.length == 2) {
                     totalSeconds += Integer.parseInt(timeParts[0]) * 60 + Integer.parseInt(timeParts[1]);
                 }

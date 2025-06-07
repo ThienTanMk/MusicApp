@@ -1,11 +1,15 @@
-package com.app.musicapp.model;
+package com.app.musicapp.model.response;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
-public class GenreResponse {
+public class GenreResponse implements Serializable {
     private String id;
     private String name;
     private LocalDateTime createdAt;
+
+    public GenreResponse() {
+    }
 
     public GenreResponse(String id, String name, LocalDateTime createdAt) {
         this.id = id;

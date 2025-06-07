@@ -18,8 +18,8 @@ import com.app.musicapp.R;
 import com.app.musicapp.adapter.AlbumAdapter;
 import com.app.musicapp.api.ApiClient;
 import com.app.musicapp.helper.SharedPreferencesManager;
-import com.app.musicapp.model.AlbumResponse;
-import com.app.musicapp.model.ApiResponse;
+import com.app.musicapp.model.response.AlbumResponse;
+import com.app.musicapp.model.response.ApiResponse;
 import com.app.musicapp.interfaces.OnLikeChangeListener;
 
 import java.util.ArrayList;

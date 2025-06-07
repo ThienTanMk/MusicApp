@@ -10,18 +10,18 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.app.musicapp.R;
-import com.app.musicapp.model.Track;
+import com.app.musicapp.model.response.TrackResponse;
 import com.app.musicapp.view.fragment.track.SongOptionsBottomSheet;
 
 import java.util.List;
 
 public class TrackRVAdapter extends RecyclerView.Adapter<TrackRVAdapter.ViewHolder> {
     private Fragment fragment;
-    private List<Track> trackList;
+    private List<TrackResponse> trackResponseList;
 
-    public TrackRVAdapter(Fragment fragment, List<Track> trackList) {
+    public TrackRVAdapter(Fragment fragment, List<TrackResponse> trackResponseList) {
         this.fragment = fragment;
-        this.trackList = trackList;
+        this.trackResponseList = trackResponseList;
     }
 
     @NonNull
@@ -34,24 +34,24 @@ public class TrackRVAdapter extends RecyclerView.Adapter<TrackRVAdapter.ViewHold
 
     @Override
     public void onBindViewHolder(@NonNull TrackRVAdapter.ViewHolder holder, int position) {
-        Track track = trackList.get(position);
-        holder.tvTrackTitle.setText(track.getTitle());
-        holder.tvTrackArtist.setText(track.getUserId());
-        holder.tvPlayCount.setText(formatPlayCount(track.getCountPlay()));
-        holder.tvDuration.setText(track.getDuration());
+        TrackResponse trackResponse = trackResponseList.get(position);
+        holder.tvTrackTitle.setText(trackResponse.getTitle());
+        holder.tvTrackArtist.setText(trackResponse.getUserId());
+        holder.tvPlayCount.setText(formatPlayCount(trackResponse.getCountPlay()));
+        holder.tvDuration.setText(trackResponse.getDuration());
         holder.ivTrackImage.setImageResource(R.drawable.logo);
 
         // Xử lý sự kiện click cho nút menu (ba chấm)
         holder.ivMenu.setOnClickListener(v -> {
-            Toast.makeText(fragment.getContext(), "Menu clicked for: " + track.getTitle(), Toast.LENGTH_SHORT).show();
-            SongOptionsBottomSheet bottomSheet = SongOptionsBottomSheet.newInstance(track);
+            Toast.makeText(fragment.getContext(), "Menu clicked for: " + trackResponse.getTitle(), Toast.LENGTH_SHORT).show();
+            SongOptionsBottomSheet bottomSheet = SongOptionsBottomSheet.newInstance(trackResponse);
             bottomSheet.show(fragment.getParentFragmentManager(), bottomSheet.getTag());
         });
     }
 
     @Override
     public int getItemCount() {
-        return trackList.size();
+        return trackResponseList.size();
     }
     private String formatPlayCount(int count) {
         if (count >= 1_000_000) {

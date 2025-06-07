@@ -12,19 +12,19 @@ import android.widget.Toast;
 
 import com.app.musicapp.R;
 import com.app.musicapp.adapter.TrackAdapter;
-import com.app.musicapp.model.Track;
+import com.app.musicapp.model.response.TrackResponse;
 
 import java.util.*;
 
 
 public class SearchTrackTabFragment extends Fragment {
     private static final String ARG_TRACKS = "tracks";
-    private List<Track> trackResults;
+    private List<TrackResponse> trackResponseResults;
 
-    public static SearchTrackTabFragment newInstance(List<Track> tracks) {
+    public static SearchTrackTabFragment newInstance(List<TrackResponse> trackResponses) {
         SearchTrackTabFragment fragment = new SearchTrackTabFragment();
         Bundle args = new Bundle();
-        args.putSerializable(ARG_TRACKS, new ArrayList<>(tracks));
+        args.putSerializable(ARG_TRACKS, new ArrayList<>(trackResponses));
         fragment.setArguments(args);
         return fragment;
     }
@@ -33,7 +33,7 @@ public class SearchTrackTabFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            trackResults = (List<Track>) getArguments().getSerializable(ARG_TRACKS);
+            trackResponseResults = (List<TrackResponse>) getArguments().getSerializable(ARG_TRACKS);
         }
     }
 
@@ -43,11 +43,11 @@ public class SearchTrackTabFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_search_track_tab, container, false);
 
         ListView listView = view.findViewById(R.id.list_view_track_results);
-        TrackAdapter trackAdapter = new TrackAdapter(SearchTrackTabFragment.this, trackResults);
+        TrackAdapter trackAdapter = new TrackAdapter(SearchTrackTabFragment.this, trackResponseResults);
         listView.setAdapter(trackAdapter);
 
         listView.setOnItemClickListener((parent, view1, position, id) -> {
-            Toast.makeText(getContext(), "Clicked: " + trackResults.get(position).getTitle(), Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "Clicked: " + trackResponseResults.get(position).getTitle(), Toast.LENGTH_SHORT).show();
         });
 
         return view;

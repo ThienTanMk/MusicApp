@@ -1,6 +1,5 @@
 package com.app.musicapp.view.fragment.track;
 
-import android.content.res.Resources;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,8 +15,8 @@ import androidx.annotation.Nullable;
 import com.app.musicapp.R;
 import com.app.musicapp.api.ApiClient;
 import com.app.musicapp.helper.UrlHelper;
-import com.app.musicapp.model.ApiResponse;
-import com.app.musicapp.model.Track;
+import com.app.musicapp.model.response.TrackResponse;
+import com.app.musicapp.model.response.ApiResponse;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.bumptech.glide.request.RequestOptions;
@@ -29,15 +28,15 @@ import retrofit2.Response;
 
 public class SongOptionsBottomSheet extends BottomSheetDialogFragment {
     private static final String ARG_TRACK = "track";
-    private Track track;
+    private TrackResponse trackResponse;
     private TextView tvLikeText;
     private ImageView ivLikeIcon;
     private boolean isLiked = false;
 
-    public static SongOptionsBottomSheet newInstance(Track track) {
+    public static SongOptionsBottomSheet newInstance(TrackResponse trackResponse) {
         SongOptionsBottomSheet fragment = new SongOptionsBottomSheet();
         Bundle args = new Bundle();
-        args.putSerializable(ARG_TRACK, track);
+        args.putSerializable(ARG_TRACK, trackResponse);
         fragment.setArguments(args);
         return fragment;
     }
@@ -46,7 +45,7 @@ public class SongOptionsBottomSheet extends BottomSheetDialogFragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            track = (Track) getArguments().getSerializable(ARG_TRACK);
+            trackResponse = (TrackResponse) getArguments().getSerializable(ARG_TRACK);
         }
     }
 
@@ -63,9 +62,9 @@ public class SongOptionsBottomSheet extends BottomSheetDialogFragment {
         tvLikeText = view.findViewById(R.id.tv_like_text);
         ivLikeIcon = view.findViewById(R.id.iv_like_icon);
 
-        if (track != null) {
-            tvSongTitle.setText(track.getTitle());
-            tvUserSong.setText(track.getUserId());
+        if (trackResponse != null) {
+            tvSongTitle.setText(trackResponse.getTitle());
+            tvUserSong.setText(trackResponse.getUserId());
 
             // Load song cover image using Glide
             RequestOptions requestOptions = new RequestOptions()
@@ -73,8 +72,8 @@ public class SongOptionsBottomSheet extends BottomSheetDialogFragment {
                 .error(R.drawable.logo)
                 .transform(new RoundedCorners(8)); // 8dp corner radius
 
-            String coverImageUrl = track.getCoverImageName() != null 
-                ? UrlHelper.getCoverImageUrl(track.getCoverImageName()) 
+            String coverImageUrl = trackResponse.getCoverImageName() != null
+                ? UrlHelper.getCoverImageUrl(trackResponse.getCoverImageName())
                 : null;
 
             Glide.with(requireContext())
@@ -101,27 +100,27 @@ public class SongOptionsBottomSheet extends BottomSheetDialogFragment {
         });
 
         addToPlaylistOption.setOnClickListener(v -> {
-            Toast.makeText(getContext(), "Added to playlist: " + track.getTitle(), Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "Added to playlist: " + trackResponse.getTitle(), Toast.LENGTH_SHORT).show();
             dismiss();
         });
 
         goToArtistOption.setOnClickListener(v -> {
-            Toast.makeText(getContext(), "Going to artist profile: " + track.getUserId(), Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "Going to artist profile: " + trackResponse.getUserId(), Toast.LENGTH_SHORT).show();
             dismiss();
         });
 
         viewCommentsOption.setOnClickListener(v -> {
-            Toast.makeText(getContext(), "Viewing comments for: " + track.getTitle(), Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "Viewing comments for: " + trackResponse.getTitle(), Toast.LENGTH_SHORT).show();
             dismiss();
         });
 
         behindTrackOption.setOnClickListener(v -> {
-            Toast.makeText(getContext(), "Viewing behind the track: " + track.getTitle(), Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "Viewing behind the track: " + trackResponse.getTitle(), Toast.LENGTH_SHORT).show();
             dismiss();
         });
 
         reportOption.setOnClickListener(v -> {
-            Toast.makeText(getContext(), "Reported: " + track.getTitle(), Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "Reported: " + trackResponse.getTitle(), Toast.LENGTH_SHORT).show();
             dismiss();
         });
 
@@ -129,7 +128,7 @@ public class SongOptionsBottomSheet extends BottomSheetDialogFragment {
     }
 
     private void checkLikeStatus() {
-        ApiClient.getLikedTrackService().isLiked(track.getId()).enqueue(new Callback<ApiResponse<Boolean>>() {
+        ApiClient.getLikedTrackService().isLiked(trackResponse.getId()).enqueue(new Callback<ApiResponse<Boolean>>() {
             @Override
             public void onResponse(Call<ApiResponse<Boolean>> call, Response<ApiResponse<Boolean>> response) {
                 if (response.isSuccessful() && response.body() != null && response.body().getCode() == 200) {
@@ -146,13 +145,13 @@ public class SongOptionsBottomSheet extends BottomSheetDialogFragment {
     }
 
     private void likeTrack() {
-        ApiClient.getLikedTrackService().likeTrack(track.getId()).enqueue(new Callback<ApiResponse<Boolean>>() {
+        ApiClient.getLikedTrackService().likeTrack(trackResponse.getId()).enqueue(new Callback<ApiResponse<Boolean>>() {
             @Override
             public void onResponse(Call<ApiResponse<Boolean>> call, Response<ApiResponse<Boolean>> response) {
                 if (response.isSuccessful() && response.body() != null && response.body().getCode() == 200) {
                     isLiked = true;
                     updateLikeUI();
-                    Toast.makeText(getContext(), "Đã thích bài hát: " + track.getTitle(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "Đã thích bài hát: " + trackResponse.getTitle(), Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(getContext(), "Không thể thích bài hát", Toast.LENGTH_SHORT).show();
                 }
@@ -166,13 +165,13 @@ public class SongOptionsBottomSheet extends BottomSheetDialogFragment {
     }
 
     private void unlikeTrack() {
-        ApiClient.getLikedTrackService().unlikeTrack(track.getId()).enqueue(new Callback<ApiResponse<Boolean>>() {
+        ApiClient.getLikedTrackService().unlikeTrack(trackResponse.getId()).enqueue(new Callback<ApiResponse<Boolean>>() {
             @Override
             public void onResponse(Call<ApiResponse<Boolean>> call, Response<ApiResponse<Boolean>> response) {
                 if (response.isSuccessful() && response.body() != null && response.body().getCode() == 200) {
                     isLiked = false;
                     updateLikeUI();
-                    Toast.makeText(getContext(), "Đã bỏ thích bài hát: " + track.getTitle(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "Đã bỏ thích bài hát: " + trackResponse.getTitle(), Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(getContext(), "Không thể bỏ thích bài hát", Toast.LENGTH_SHORT).show();
                 }

@@ -19,13 +19,10 @@ import androidx.fragment.app.Fragment;
 import com.app.musicapp.R;
 import com.app.musicapp.adapter.TrackAdapter;
 import com.app.musicapp.api.ApiClient;
-import com.app.musicapp.helper.UrlHelper;
-import com.app.musicapp.model.ApiResponse;
-import com.app.musicapp.model.Track;
+import com.app.musicapp.model.response.TrackResponse;
+import com.app.musicapp.model.response.ApiResponse;
 import com.app.musicapp.service.MusicService;
-import com.app.musicapp.view.activity.MainActivity;
 import com.app.musicapp.view.activity.MusicPlayer;
-import com.bumptech.glide.Glide;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +35,7 @@ public class LikedTracksFragment extends Fragment {
 
     private ListView listViewLikedTracks;
     private TrackAdapter trackAdapter;
-    private List<Track> likedTracks;
+    private List<TrackResponse> likedTrackResponses;
     private MusicService musicService;
     public LikedTracksFragment() {}
     private ServiceConnection connection = new ServiceConnection() {
@@ -63,8 +60,8 @@ public class LikedTracksFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_like_tracks, container, false);
 
         listViewLikedTracks = view.findViewById(R.id.listViewLikedTracks);
-        likedTracks = new ArrayList<>();
-        trackAdapter = new TrackAdapter(this, likedTracks);
+        likedTrackResponses = new ArrayList<>();
+        trackAdapter = new TrackAdapter(this, likedTrackResponses);
         listViewLikedTracks.setAdapter(trackAdapter);
         Intent intent = new Intent(getContext(), MusicService.class);
         getContext().bindService(intent, connection, Context.BIND_AUTO_CREATE);
@@ -72,7 +69,7 @@ public class LikedTracksFragment extends Fragment {
         listViewLikedTracks.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                musicService.setNextUpItems(likedTracks);
+                musicService.setNextUpItems(likedTrackResponses);
                 musicService.playMusicAtIndex(i);
                 Intent intent = new Intent(getContext(), MusicPlayer.class);
                 startActivity(intent);
@@ -98,16 +95,16 @@ public class LikedTracksFragment extends Fragment {
     }
 
     private void loadLikedTracks() {
-        ApiClient.getApiService().getLikedTrack().enqueue(new Callback<ApiResponse<List<Track>>>() {
+        ApiClient.getApiService().getLikedTrack().enqueue(new Callback<ApiResponse<List<TrackResponse>>>() {
             @Override
-            public void onResponse(Call<ApiResponse<List<Track>>> call, Response<ApiResponse<List<Track>>> response) {
-                likedTracks.clear();
-                likedTracks.addAll(response.body().getData());
+            public void onResponse(Call<ApiResponse<List<TrackResponse>>> call, Response<ApiResponse<List<TrackResponse>>> response) {
+                likedTrackResponses.clear();
+                likedTrackResponses.addAll(response.body().getData());
                 trackAdapter.notifyDataSetChanged();
             }
 
             @Override
-            public void onFailure(Call<ApiResponse<List<Track>>> call, Throwable t) {
+            public void onFailure(Call<ApiResponse<List<TrackResponse>>> call, Throwable t) {
                 System.out.println(t.getMessage());
                 Toast.makeText(getContext(), "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_LONG).show();
             }

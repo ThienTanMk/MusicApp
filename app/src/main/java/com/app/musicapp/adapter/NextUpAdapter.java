@@ -11,19 +11,19 @@ import android.widget.TextView;
 import androidx.core.content.ContextCompat;
 
 import com.app.musicapp.R;
-import com.app.musicapp.model.Track;
+import com.app.musicapp.model.response.TrackResponse;
 import com.app.musicapp.service.MusicService;
 
 import java.util.List;
 
 public class NextUpAdapter extends BaseAdapter {
-    private List<Track> nextUpItems;
+    private List<TrackResponse> nextUpItems;
     private Context context;
     private MusicService musicService;
     private String username;
     private View playingItem;
     private int currentPosition;
-    public NextUpAdapter(List<Track> nextUpItems, Context context, MusicService musicService) {
+    public NextUpAdapter(List<TrackResponse> nextUpItems, Context context, MusicService musicService) {
         this.nextUpItems = nextUpItems;
         this.context = context;
         this.musicService = musicService;
@@ -51,7 +51,7 @@ public class NextUpAdapter extends BaseAdapter {
         ImageView cover = view.findViewById(R.id.image_nextup_cover);
         TextView title = view.findViewById(R.id.text_nextup_title);
         TextView username = view.findViewById(R.id.text_nextup_username);
-        Track item = nextUpItems.get(position);
+        TrackResponse item = nextUpItems.get(position);
         cover.setImageResource(R.drawable.img);
         title.setText(item.getTitle());
         username.setText(item.getArtist());

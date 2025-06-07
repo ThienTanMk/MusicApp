@@ -1,20 +1,19 @@
-package com.app.musicapp.model;
+package com.app.musicapp.model.response;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
-public class Genre implements Serializable {
+public class TagResponse implements Serializable {
     private String id;
     private String name;
     private LocalDateTime createdAt;
+    private String userId;
 
-    public Genre() {
-    }
-
-    public Genre(String id, String name, LocalDateTime createdAt) {
+    public TagResponse(String id, String name, LocalDateTime createdAt, String userId) {
         this.id = id;
         this.name = name;
         this.createdAt = createdAt;
+        this.userId = userId;
     }
 
     public String getId() {
@@ -39,5 +38,13 @@ public class Genre implements Serializable {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 }

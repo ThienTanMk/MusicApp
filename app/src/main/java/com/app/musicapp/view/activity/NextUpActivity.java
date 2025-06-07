@@ -18,7 +18,7 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.app.musicapp.R;
 import com.app.musicapp.adapter.NextUpAdapter;
-import com.app.musicapp.model.Track;
+import com.app.musicapp.model.response.TrackResponse;
 import com.app.musicapp.service.MusicService;
 
 import java.util.List;
@@ -26,7 +26,7 @@ import java.util.List;
 public class NextUpActivity extends AppCompatActivity {
     private ImageView closeButton;
     ListView nextUpListView;
-    List<Track> nextUpItems;
+    List<TrackResponse> nextUpItems;
     NextUpAdapter nextUpAdapter;
     MusicService musicService;
 

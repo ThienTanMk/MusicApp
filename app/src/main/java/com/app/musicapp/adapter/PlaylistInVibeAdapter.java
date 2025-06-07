@@ -11,18 +11,17 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.app.musicapp.R;
-import com.app.musicapp.model.Playlist;
-import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.app.musicapp.model.response.PlaylistResponse;
 
 import java.util.List;
 
 public class PlaylistInVibeAdapter extends RecyclerView.Adapter<PlaylistInVibeAdapter.ViewHolder>{
     private Context context;
-    private List<Playlist> playlists;
+    private List<PlaylistResponse> playlistResponses;
 
-    public PlaylistInVibeAdapter(Context context, List<Playlist> playlists) {
+    public PlaylistInVibeAdapter(Context context, List<PlaylistResponse> playlistResponses) {
         this.context = context;
-        this.playlists = playlists;
+        this.playlistResponses = playlistResponses;
     }
 
     @NonNull
@@ -34,16 +33,16 @@ public class PlaylistInVibeAdapter extends RecyclerView.Adapter<PlaylistInVibeAd
 
     @Override
     public void onBindViewHolder(@NonNull PlaylistInVibeAdapter.ViewHolder holder, int position) {
-        Playlist playlist = playlists.get(position);
-        holder.tvPlaylistTitle.setText(playlist.getTitle());
+        PlaylistResponse playlistResponse = playlistResponses.get(position);
+        holder.tvPlaylistTitle.setText(playlistResponse.getTitle());
         // Lấy tag đầu tiên làm thông tin
-        if (!playlist.getPlaylistTags().isEmpty()) {
-            holder.tvPlaylistArtist.setText(playlist.getPlaylistTags().get(0).getName());
+        if (!playlistResponse.getPlaylistTags().isEmpty()) {
+            holder.tvPlaylistArtist.setText(playlistResponse.getPlaylistTags().get(0).getName());
         } else {
             holder.tvPlaylistArtist.setText("No Category");
         }
         try {
-            String imagePath = playlist.getImagePath();
+            String imagePath = playlistResponse.getImagePath();
             String resourceName = imagePath != null ? imagePath.replace(".jpg", "") : "";
             if (!resourceName.isEmpty()) {
                 Resources resources = context.getResources();
@@ -64,7 +63,7 @@ public class PlaylistInVibeAdapter extends RecyclerView.Adapter<PlaylistInVibeAd
 
     @Override
     public int getItemCount() {
-        return playlists.size();
+        return playlistResponses.size();
     }
     static class ViewHolder extends RecyclerView.ViewHolder {
         ImageView ivPlaylistImage;

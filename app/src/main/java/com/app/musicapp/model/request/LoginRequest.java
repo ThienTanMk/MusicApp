@@ -1,4 +1,4 @@
-package com.app.musicapp.model;
+package com.app.musicapp.model.request;
 
 public class LoginRequest {
     private String username;

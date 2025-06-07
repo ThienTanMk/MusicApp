@@ -1,4 +1,4 @@
-package com.app.musicapp.model;
+package com.app.musicapp.model.response;
 
 public class ApiResponse<T> {
     private int code;

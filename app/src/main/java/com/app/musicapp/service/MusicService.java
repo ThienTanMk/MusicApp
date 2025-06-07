@@ -17,14 +17,15 @@
     import androidx.core.app.NotificationManagerCompat;
 
     import com.app.musicapp.helper.UrlHelper;
-    import com.app.musicapp.model.Track;
+    import com.app.musicapp.model.response.TrackResponse;
+
     import java.io.IOException;
     import java.util.ArrayList;
     import java.util.List;
     import java.util.Random;
 
     public class MusicService extends Service {
-        private List<Track> nextUpItems;
+        private List<TrackResponse> nextUpItems;
         private MediaPlayer mediaPlayer;
         private final Handler handler = new Handler();
 
@@ -60,22 +61,22 @@
         public void onCreate() {
             super.onCreate();
             nextUpItems = new ArrayList<>();
-            nextUpItems.add(new Track("id1","Hello","description","1748680692music.mp3","1748804121data-uri.jpeg",null,"user1","123","1:0","private",1,null,null));
-            nextUpItems.add(new Track("id1","Hello","description","1748680692music.mp3","1748681566data-uri.png",null,"user1","abc","1:0","private",1,null,null));
-            nextUpItems.add(new Track("id1","Hello","description","1748680692music.mp3","1748804121data-uri.jpeg",null,"user1","def","1:0","private",1,null,null));
-            nextUpItems.add(new Track("id1","Hello","description","1748680692music.mp3","1748681566data-uri.png",null,"user1","ghk","1:0","private",1,null,null));
+            nextUpItems.add(new TrackResponse("id1","Hello","description","1748680692music.mp3","1748804121data-uri.jpeg",null,"user1","123","1:0","private",1,null,null));
+            nextUpItems.add(new TrackResponse("id1","Hello","description","1748680692music.mp3","1748681566data-uri.png",null,"user1","abc","1:0","private",1,null,null));
+            nextUpItems.add(new TrackResponse("id1","Hello","description","1748680692music.mp3","1748804121data-uri.jpeg",null,"user1","def","1:0","private",1,null,null));
+            nextUpItems.add(new TrackResponse("id1","Hello","description","1748680692music.mp3","1748681566data-uri.png",null,"user1","ghk","1:0","private",1,null,null));
             currentIndex = 0;
 
         }
-        public Track getCurrentTrack(){
+        public TrackResponse getCurrentTrack(){
             return this.nextUpItems.get(currentIndex);
         }
-        public List<Track> getNextUpItems(){
+        public List<TrackResponse> getNextUpItems(){
             return this.nextUpItems;
         }
 
-        public void setNextUpItems(List<Track> tracks) {
-            this.nextUpItems = tracks;
+        public void setNextUpItems(List<TrackResponse> trackResponses) {
+            this.nextUpItems = trackResponses;
         }
         public int getCurrentIndex(){
             return currentIndex;
@@ -87,9 +88,9 @@
             startSeekbarUpdate();
         }
         private void sendTrackInfo(){
-            Track track = this.nextUpItems.get(currentIndex);
+            TrackResponse trackResponse = this.nextUpItems.get(currentIndex);
             Intent intent = new Intent(ACTION_CHANGED_CURRENT_TRACK);
-            intent.putExtra("track_info", track );
+            intent.putExtra("track_info", trackResponse);
             sendBroadcast(intent);
         }
         public String getPlayBackMode(){

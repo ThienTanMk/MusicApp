@@ -13,9 +13,9 @@ import android.widget.*;
 
 import com.app.musicapp.R;
 import com.app.musicapp.adapter.TrackRVAdapter;
-import com.app.musicapp.model.LikedPlaylist;
-import com.app.musicapp.model.Playlist;
-import com.app.musicapp.model.Track;
+import com.app.musicapp.model.response.LikedPlaylistResponse;
+import com.app.musicapp.model.response.PlaylistResponse;
+import com.app.musicapp.model.response.TrackResponse;
 import com.bumptech.glide.Glide;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 
@@ -72,45 +72,45 @@ public class PlaylistPageFragment extends Fragment {
         // Đặt dữ liệu lấy playlist đầu tiên nếu danh sách không rỗng
         if (playlist != null && !playlist.isEmpty()) {
             Object item = playlist.get(0);
-            Playlist playlistData;
-            if (item instanceof Playlist) {
-                playlistData = (Playlist) item;
-            } else if (item instanceof LikedPlaylist) {
-                playlistData = ((LikedPlaylist) item).getPlaylist();
+            PlaylistResponse playlistResponseData;
+            if (item instanceof PlaylistResponse) {
+                playlistResponseData = (PlaylistResponse) item;
+            } else if (item instanceof LikedPlaylistResponse) {
+                playlistResponseData = ((LikedPlaylistResponse) item).getPlaylist();
             } else {
-                playlistData = null;
+                playlistResponseData = null;
             }
 
-            if (playlistData != null) {
-                tvPlaylistTitleHeader.setText("Playlist " + playlistData.getCreatedAt().getYear());
-                tvPlaylistTitle.setText(playlistData.getTitle());
-                tvPlaylistArtists.setText(playlistData.getUserId());
+            if (playlistResponseData != null) {
+                tvPlaylistTitleHeader.setText("Playlist " + playlistResponseData.getCreatedAt().getYear());
+                tvPlaylistTitle.setText(playlistResponseData.getTitle());
+                tvPlaylistArtists.setText(playlistResponseData.getUserId());
 
                 Glide.with(ivPlaylistCover.getContext())
-                        .load(playlistData.getImagePath())
+                        .load(playlistResponseData.getImagePath())
                         .placeholder(R.drawable.logo)
                         .into(ivPlaylistCover);
 
                 tvPlaylistType.setText("Playlist");
-                tvCreatedAt.setText(" · " + playlistData.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy")));
-                int trackCount = playlistData.getPlaylistTracks() != null ? playlistData.getPlaylistTracks().size() : 0;
+                tvCreatedAt.setText(" · " + playlistResponseData.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy")));
+                int trackCount = playlistResponseData.getPlaylistTracks() != null ? playlistResponseData.getPlaylistTracks().size() : 0;
                 tvNumOfTracks.setText(" · " + trackCount + " Tracks");
-                long totalDurationSeconds = calculateTotalDuration(playlistData.getPlaylistTracks());
+                long totalDurationSeconds = calculateTotalDuration(playlistResponseData.getPlaylistTracks());
                 String duration = String.format("%d:%02d", totalDurationSeconds / 60, totalDurationSeconds % 60);
                 tvTotalDuration.setText(" · " + duration);
 
                 tvLikeCount.setText("210");
-                tvDescription.setText(playlistData.getDescription() != null ? playlistData.getDescription() : "No description");
+                tvDescription.setText(playlistResponseData.getDescription() != null ? playlistResponseData.getDescription() : "No description");
 
                 rvTracks.setLayoutManager(new LinearLayoutManager(getContext()));
-                TrackRVAdapter trackAdapter = new TrackRVAdapter(this, playlistData.getPlaylistTracks() != null ? playlistData.getPlaylistTracks() : new ArrayList<>());
+                TrackRVAdapter trackAdapter = new TrackRVAdapter(this, playlistResponseData.getPlaylistTracks() != null ? playlistResponseData.getPlaylistTracks() : new ArrayList<>());
                 rvTracks.setAdapter(trackAdapter);
             }
         }
 
         ivBack.setOnClickListener(v -> getParentFragmentManager().popBackStack());
         ivLike.setOnClickListener(v -> {
-            Toast.makeText(getContext(), "Liked: " + (playlist != null && !playlist.isEmpty() ? ((Playlist) playlist.get(0)).getTitle() : "Unknown"), Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "Liked: " + (playlist != null && !playlist.isEmpty() ? ((PlaylistResponse) playlist.get(0)).getTitle() : "Unknown"), Toast.LENGTH_SHORT).show();
         });
         ivMenu.setOnClickListener(v -> {
             // Mở bottom sheet theo logic của PlaylistAdapter
@@ -118,7 +118,7 @@ public class PlaylistPageFragment extends Fragment {
                 Object item = playlist.get(0);
                 BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(getContext());
                 View bottomSheetView;
-                if (item instanceof Playlist) {
+                if (item instanceof PlaylistResponse) {
                     bottomSheetView = LayoutInflater.from(getContext()).inflate(R.layout.bottom_sheet_user_playlist, null);
                 } else {
                     bottomSheetView = LayoutInflater.from(getContext()).inflate(R.layout.bottom_sheet_liked_playlist_options, null);
@@ -129,11 +129,11 @@ public class PlaylistPageFragment extends Fragment {
                 TextView tvPlaylistTitleSheet = bottomSheetView.findViewById(R.id.tv_playlist_title);
                 TextView tvPlaylistDescriptionSheet = bottomSheetView.findViewById(R.id.tv_user_playlist);
 
-                Playlist playlistData = (item instanceof Playlist) ? (Playlist) item : ((LikedPlaylist) item).getPlaylist();
-                tvPlaylistTitleSheet.setText(playlistData.getTitle());
-                tvPlaylistDescriptionSheet.setText(playlistData.getDescription());
+                PlaylistResponse playlistResponseData = (item instanceof PlaylistResponse) ? (PlaylistResponse) item : ((LikedPlaylistResponse) item).getPlaylist();
+                tvPlaylistTitleSheet.setText(playlistResponseData.getTitle());
+                tvPlaylistDescriptionSheet.setText(playlistResponseData.getDescription());
                 Glide.with(ivPlaylistImageSheet.getContext())
-                        .load(playlistData.getImagePath())
+                        .load(playlistResponseData.getImagePath())
                         .placeholder(R.drawable.logo)
                         .into(ivPlaylistImageSheet);
                 bottomSheetDialog.setContentView(bottomSheetView);
@@ -142,7 +142,7 @@ public class PlaylistPageFragment extends Fragment {
         });
         ivPlay.setOnClickListener(v -> {
             // Logic phát playlist
-            Toast.makeText(getContext(), "Playing: " + (playlist != null && !playlist.isEmpty() ? ((Playlist) playlist.get(0)).getTitle() : "Unknown"), Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "Playing: " + (playlist != null && !playlist.isEmpty() ? ((PlaylistResponse) playlist.get(0)).getTitle() : "Unknown"), Toast.LENGTH_SHORT).show();
         });
         tvShowMore.setOnClickListener(v -> {
             // Mở rộng description
@@ -152,11 +152,11 @@ public class PlaylistPageFragment extends Fragment {
         return view;
     }
 
-    private long calculateTotalDuration(List<Track> tracks) {
+    private long calculateTotalDuration(List<TrackResponse> trackResponses) {
         long totalSeconds = 0;
-        if (tracks != null) {
-            for (Track track : tracks) {
-                String[] timeParts = track.getDuration().split(":");
+        if (trackResponses != null) {
+            for (TrackResponse trackResponse : trackResponses) {
+                String[] timeParts = trackResponse.getDuration().split(":");
                 if (timeParts.length == 2) {
                     totalSeconds += Integer.parseInt(timeParts[0]) * 60 + Integer.parseInt(timeParts[1]);
                 }

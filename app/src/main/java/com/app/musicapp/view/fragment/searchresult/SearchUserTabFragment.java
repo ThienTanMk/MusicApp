@@ -11,7 +11,7 @@ import android.widget.ListView;
 
 import com.app.musicapp.R;
 import com.app.musicapp.adapter.SearchUserListAdapter;
-import com.app.musicapp.model.ProfileWithCountFollowResponse;
+import com.app.musicapp.model.response.ProfileWithCountFollowResponse;
 import com.app.musicapp.view.fragment.UserProfileFragment;
 
 import java.util.*;

@@ -10,11 +10,11 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.app.musicapp.R;
-import com.app.musicapp.model.Album;
-import com.app.musicapp.model.LikedPlaylist;
-import com.app.musicapp.model.LikedTrack;
-import com.app.musicapp.model.Playlist;
-import com.app.musicapp.model.Track;
+import com.app.musicapp.model.AlbumResponse;
+import com.app.musicapp.model.response.LikedPlaylistResponse;
+import com.app.musicapp.model.response.LikedTrackResponse;
+import com.app.musicapp.model.response.PlaylistResponse;
+import com.app.musicapp.model.response.TrackResponse;
 import com.app.musicapp.view.fragment.track.SongOptionsBottomSheet;
 
 import java.util.List;
@@ -66,15 +66,15 @@ public class ProfileContentAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         if (holder instanceof SectionHeaderViewHolder) {
             ((SectionHeaderViewHolder) holder).bind((String) item);
         } else if (holder instanceof TrackViewHolder) {
-            ((TrackViewHolder) holder).bind((Track) item);
+            ((TrackViewHolder) holder).bind((TrackResponse) item);
         } else if (holder instanceof AlbumViewHolder) {
-            ((AlbumViewHolder) holder).bind((Album) item);
+            ((AlbumViewHolder) holder).bind((AlbumResponse) item);
         } else if (holder instanceof PlaylistViewHolder) {
-            ((PlaylistViewHolder) holder).bind((Playlist) item);
+            ((PlaylistViewHolder) holder).bind((PlaylistResponse) item);
         } else if (holder instanceof LikedTrackViewHolder) {
-            ((LikedTrackViewHolder) holder).bind((LikedTrack) item);
+            ((LikedTrackViewHolder) holder).bind((LikedTrackResponse) item);
         } else if (holder instanceof LikedPlaylistViewHolder) {
-            ((LikedPlaylistViewHolder) holder).bind((LikedPlaylist) item);
+            ((LikedPlaylistViewHolder) holder).bind((LikedPlaylistResponse) item);
         }
     }
     @Override
@@ -82,15 +82,15 @@ public class ProfileContentAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         Object item = items.get(position);
         if (item instanceof String) {
             return TYPE_SECTION_HEADER;
-        } else if (item instanceof Track) {
+        } else if (item instanceof TrackResponse) {
             return TYPE_TRACK;
-        } else if (item instanceof Album) {
+        } else if (item instanceof AlbumResponse) {
             return TYPE_ALBUM;
-        } else if (item instanceof Playlist) {
+        } else if (item instanceof PlaylistResponse) {
             return TYPE_PLAYLIST;
-        } else if (item instanceof LikedTrack) {
+        } else if (item instanceof LikedTrackResponse) {
             return TYPE_LIKED_TRACK;
-        } else if (item instanceof LikedPlaylist) {
+        } else if (item instanceof LikedPlaylistResponse) {
             return TYPE_LIKED_PLAYLIST;
         }
         throw new IllegalArgumentException("Unknown item type at position " + position);
@@ -131,15 +131,15 @@ public class ProfileContentAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             ivMenu = itemView.findViewById(R.id.iv_menu);
             this.fragment = fragment;
         }
-        void bind(Track track) {
-            tvTrackTitle.setText(track.getTitle());
-            tvTrackArtist.setText(track.getDescription());
-            tvPlayCount.setText(String.valueOf(track.getCountPlay()));
-            tvDuration.setText(track.getDuration());
+        void bind(TrackResponse trackResponse) {
+            tvTrackTitle.setText(trackResponse.getTitle());
+            tvTrackArtist.setText(trackResponse.getDescription());
+            tvPlayCount.setText(String.valueOf(trackResponse.getCountPlay()));
+            tvDuration.setText(trackResponse.getDuration());
             ivTrackImage.setImageResource(R.drawable.logo);
             ivMenu.setOnClickListener(v -> {
-                Toast.makeText(itemView.getContext(), "Menu clicked for: " + track.getTitle(), Toast.LENGTH_SHORT).show();
-                SongOptionsBottomSheet bottomSheet = SongOptionsBottomSheet.newInstance(track);
+                Toast.makeText(itemView.getContext(), "Menu clicked for: " + trackResponse.getTitle(), Toast.LENGTH_SHORT).show();
+                SongOptionsBottomSheet bottomSheet = SongOptionsBottomSheet.newInstance(trackResponse);
                 bottomSheet.show(fragment.getParentFragmentManager(), bottomSheet.getTag());
             });
         }
@@ -155,8 +155,8 @@ public class ProfileContentAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             tvAlbumTitle = itemView.findViewById(R.id.tv_album_title);
             tvAlbumArtist = itemView.findViewById(R.id.tv_album_artist);
         }
-        void bind(Album album) {
-            tvAlbumTitle.setText(album.getAlbumTitle());
+        void bind(AlbumResponse albumResponse) {
+            tvAlbumTitle.setText(albumResponse.getAlbumTitle());
             tvAlbumArtist.setText("Artist");
             ivAlbumCover.setImageResource(R.drawable.logo);
         }
@@ -172,9 +172,9 @@ public class ProfileContentAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             tvPlaylistTitle = itemView.findViewById(R.id.tv_playlist_title);
             tvPlaylistArtist = itemView.findViewById(R.id.tv_playlist_artist);
         }
-        void bind(Playlist playlist) {
-            tvPlaylistTitle.setText(playlist.getTitle());
-            tvPlaylistArtist.setText(playlist.getUserId());
+        void bind(PlaylistResponse playlistResponse) {
+            tvPlaylistTitle.setText(playlistResponse.getTitle());
+            tvPlaylistArtist.setText(playlistResponse.getUserId());
             ivPlaylistCover.setImageResource(R.drawable.logo);
         }
     }
@@ -195,8 +195,8 @@ public class ProfileContentAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             tvDuration = itemView.findViewById(R.id.tv_duration);
             ivMenu = itemView.findViewById(R.id.iv_menu);
         }
-        void bind(LikedTrack likedTrack) {
-            tvTrackTitle.setText("Liked Track " + likedTrack.getTrackId());
+        void bind(LikedTrackResponse likedTrackResponse) {
+            tvTrackTitle.setText("Liked Track " + likedTrackResponse.getTrackId());
             tvTrackArtist.setText("Artist");
             tvPlayCount.setText("0");
             tvDuration.setText("0:00");
@@ -222,12 +222,12 @@ public class ProfileContentAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                 throw new IllegalStateException("One or more views are null in LikedPlaylistViewHolder");
             }
         }
-        void bind(LikedPlaylist likedPlaylist) {
-            if (likedPlaylist != null) {
-                Playlist playlist = likedPlaylist.getPlaylist();
-                if (playlist != null) {
-                    tvPlaylistTitle.setText(playlist.getTitle() != null ? playlist.getTitle() : "Untitled");
-                    tvPlaylistArtist.setText(playlist.getUserId() != null ? playlist.getUserId() : "Unknown User");
+        void bind(LikedPlaylistResponse likedPlaylistResponse) {
+            if (likedPlaylistResponse != null) {
+                PlaylistResponse playlistResponse = likedPlaylistResponse.getPlaylist();
+                if (playlistResponse != null) {
+                    tvPlaylistTitle.setText(playlistResponse.getTitle() != null ? playlistResponse.getTitle() : "Untitled");
+                    tvPlaylistArtist.setText(playlistResponse.getUserId() != null ? playlistResponse.getUserId() : "Unknown User");
                 } else {
                     tvPlaylistTitle.setText("No Playlist");
                     tvPlaylistArtist.setText("Unknown");

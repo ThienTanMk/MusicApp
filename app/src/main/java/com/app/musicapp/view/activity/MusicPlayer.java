@@ -20,7 +20,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.app.musicapp.R;
 import com.app.musicapp.helper.UrlHelper;
-import com.app.musicapp.model.Track;
+import com.app.musicapp.model.response.TrackResponse;
 import com.app.musicapp.service.MusicService;
 import com.bumptech.glide.Glide;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -34,7 +34,7 @@ public class MusicPlayer extends AppCompatActivity {
     LinearLayout comment;
     ImageView nextUp;
     private boolean isPlaying = false;
-    private Track currentTrack;
+    private TrackResponse currentTrackResponse;
     MusicService  musicService;
 
     private final BroadcastReceiver receiver = new BroadcastReceiver() {
@@ -53,9 +53,9 @@ public class MusicPlayer extends AppCompatActivity {
 
             }else if(MusicService.ACTION_CHANGED_CURRENT_TRACK.equals(action)){
                 Log.i("TAG", "onReceive: a");
-                currentTrack = musicService.getCurrentTrack();
-                songName.setText(currentTrack.getTitle());
-                artistName.setText(currentTrack.getArtist());
+                currentTrackResponse = musicService.getCurrentTrack();
+                songName.setText(currentTrackResponse.getTitle());
+                artistName.setText(currentTrackResponse.getArtist());
             }
             else if(MusicService.ACTION_PLAY.equals(action)&&!isPlaying){
                 playPauseBtn.setImageResource(R.drawable.play_icon);
@@ -95,11 +95,11 @@ public class MusicPlayer extends AppCompatActivity {
             // We've bound to LocalService, cast the IBinder and get LocalService instance.
             MusicService.LocalBinder binder = (MusicService.LocalBinder) service;
             musicService = binder.getService();
-            currentTrack = musicService.getCurrentTrack();
-            songName.setText(currentTrack.getTitle());
-            headerTrackName.setText(currentTrack.getTitle());
-            artistName.setText(currentTrack.getArtist());
-            Glide.with(MusicPlayer.this).load(UrlHelper.getCoverImageUrl(currentTrack.getCoverImageName())).into(coverArt);
+            currentTrackResponse = musicService.getCurrentTrack();
+            songName.setText(currentTrackResponse.getTitle());
+            headerTrackName.setText(currentTrackResponse.getTitle());
+            artistName.setText(currentTrackResponse.getArtist());
+            Glide.with(MusicPlayer.this).load(UrlHelper.getCoverImageUrl(currentTrackResponse.getCoverImageName())).into(coverArt);
             updatePlayBackModeBtn(musicService.getPlayBackMode());
         }
 

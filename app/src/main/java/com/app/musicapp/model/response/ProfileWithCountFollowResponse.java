@@ -1,4 +1,4 @@
-package com.app.musicapp.model;
+package com.app.musicapp.model.response;
 
 import java.io.Serializable;
 import java.time.LocalDate;

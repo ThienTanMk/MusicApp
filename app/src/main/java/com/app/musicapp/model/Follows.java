@@ -1,18 +1,19 @@
 package com.app.musicapp.model;
 
+import com.app.musicapp.model.response.ProfileWithCountFollowResponse;
+import com.app.musicapp.model.response.UserProfileResponse;
+
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
 public class Follows implements Serializable {
     private String id;
-    private UserProfileResponse follower; // Người theo dõi
-    private ProfileWithCountFollowResponse following; // Người được theo dõi
+    private UserProfileResponse follower;
+    private ProfileWithCountFollowResponse following;
     private LocalDateTime followedAt;
 
-    // Constructor không tham số (yêu cầu cho Serializable)
     public Follows() {}
 
-    // Constructor đầy đủ
     public Follows(String id, UserProfileResponse follower, ProfileWithCountFollowResponse following, LocalDateTime followedAt) {
         this.id = id;
         this.follower = follower;

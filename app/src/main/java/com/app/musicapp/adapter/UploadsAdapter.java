@@ -10,7 +10,7 @@ import android.widget.*;
 import androidx.fragment.app.Fragment;
 
 import com.app.musicapp.R;
-import com.app.musicapp.model.Track;
+import com.app.musicapp.model.response.TrackResponse;
 import com.app.musicapp.view.fragment.track.SongOptionsBottomSheet;
 
 import java.util.List;
@@ -19,22 +19,22 @@ public class UploadsAdapter extends BaseAdapter {
     private Context context;
     private Fragment fragment;
     private LayoutInflater inflater;
-    private List<Track> trackList;
+    private List<TrackResponse> trackResponseList;
 
-    public UploadsAdapter(Fragment fragment, List<Track> trackList) {
+    public UploadsAdapter(Fragment fragment, List<TrackResponse> trackResponseList) {
         this.fragment = fragment;
-        this.trackList = trackList;
+        this.trackResponseList = trackResponseList;
         this.context = fragment.getContext();
         this.inflater = LayoutInflater.from(fragment.getContext());
     }
     @Override
     public int getCount() {
-        return trackList.size();
+        return trackResponseList.size();
     }
 
     @Override
     public Object getItem(int i) {
-        return trackList.get(i);
+        return trackResponseList.get(i);
     }
 
     @Override
@@ -62,16 +62,16 @@ public class UploadsAdapter extends BaseAdapter {
         }
 
         // Gán dữ liệu
-        Track track = trackList.get(i);
-        holder.tvTrackTitle.setText(track.getTitle());
-        holder.tvTrackArtist.setText(track.getUserId());
-        holder.tvDuration.setText(track.getDuration());
+        TrackResponse trackResponse = trackResponseList.get(i);
+        holder.tvTrackTitle.setText(trackResponse.getTitle());
+        holder.tvTrackArtist.setText(trackResponse.getUserId());
+        holder.tvDuration.setText(trackResponse.getDuration());
         holder.ivTrackImage.setImageResource(R.drawable.logo);
 
         // Xử lý sự kiện click cho nút menu
         holder.ivMenu.setOnClickListener(v -> {
-            Toast.makeText(fragment.getContext(), "Menu clicked for: " + track.getTitle(), Toast.LENGTH_SHORT).show();
-            SongOptionsBottomSheet bottomSheet = SongOptionsBottomSheet.newInstance(track);
+            Toast.makeText(fragment.getContext(), "Menu clicked for: " + trackResponse.getTitle(), Toast.LENGTH_SHORT).show();
+            SongOptionsBottomSheet bottomSheet = SongOptionsBottomSheet.newInstance(trackResponse);
             bottomSheet.show(fragment.getParentFragmentManager(), bottomSheet.getTag());
         });
 

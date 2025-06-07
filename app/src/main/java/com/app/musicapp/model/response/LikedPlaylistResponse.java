@@ -1,19 +1,19 @@
-package com.app.musicapp.model;
+package com.app.musicapp.model.response;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
-public class LikedPlaylist implements Serializable {
+public class LikedPlaylistResponse implements Serializable {
     private String id;
     private String userId;
     private LocalDateTime likedAt;
-    private Playlist playlist;
+    private PlaylistResponse playlistResponse;
 
-    public LikedPlaylist(String id, String userId, LocalDateTime likedAt, Playlist playlist) {
+    public LikedPlaylistResponse(String id, String userId, LocalDateTime likedAt, PlaylistResponse playlistResponse) {
         this.id = id;
         this.userId = userId;
         this.likedAt = likedAt;
-        this.playlist = playlist;
+        this.playlistResponse = playlistResponse;
     }
 
     public String getId() {
@@ -40,11 +40,11 @@ public class LikedPlaylist implements Serializable {
         this.likedAt = likedAt;
     }
 
-    public Playlist getPlaylist() {
-        return playlist;
+    public PlaylistResponse getPlaylist() {
+        return playlistResponse;
     }
 
-    public void setPlaylist(Playlist playlist) {
-        this.playlist = playlist;
+    public void setPlaylist(PlaylistResponse playlistResponse) {
+        this.playlistResponse = playlistResponse;
     }
 }

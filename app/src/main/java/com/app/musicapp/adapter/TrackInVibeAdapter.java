@@ -9,18 +9,18 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.app.musicapp.R;
-import com.app.musicapp.model.Track;
+import com.app.musicapp.model.response.TrackResponse;
 import com.app.musicapp.view.fragment.track.SongOptionsBottomSheet;
 
 import java.util.List;
 
 public class TrackInVibeAdapter extends RecyclerView.Adapter<TrackInVibeAdapter.ViewHolder>{
     private Fragment fragment;
-    private List<Track> trackList;
+    private List<TrackResponse> trackResponseList;
 
-    public TrackInVibeAdapter(Fragment fragment, List<Track> trackList) {
+    public TrackInVibeAdapter(Fragment fragment, List<TrackResponse> trackResponseList) {
         this.fragment = fragment;
-        this.trackList = trackList;
+        this.trackResponseList = trackResponseList;
     }
 
     @NonNull
@@ -34,22 +34,22 @@ public class TrackInVibeAdapter extends RecyclerView.Adapter<TrackInVibeAdapter.
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
 
-        Track track = trackList.get(position);
-        holder.tvTrackTitle.setText(track.getTitle());
-        holder.tvTrackArtist.setText(track.getUserId());
+        TrackResponse trackResponse = trackResponseList.get(position);
+        holder.tvTrackTitle.setText(trackResponse.getTitle());
+        holder.tvTrackArtist.setText(trackResponse.getUserId());
 
         holder.ivTrackImage.setImageResource(R.drawable.logo);
 
         holder.ivMenu.setOnClickListener(v -> {
-            Toast.makeText(fragment.getContext(), "Menu clicked for: " + track.getTitle(), Toast.LENGTH_SHORT).show();
-            SongOptionsBottomSheet bottomSheet = SongOptionsBottomSheet.newInstance(track);
+            Toast.makeText(fragment.getContext(), "Menu clicked for: " + trackResponse.getTitle(), Toast.LENGTH_SHORT).show();
+            SongOptionsBottomSheet bottomSheet = SongOptionsBottomSheet.newInstance(trackResponse);
             bottomSheet.show(fragment.getParentFragmentManager(), bottomSheet.getTag());
         });
     }
 
     @Override
     public int getItemCount() {
-        return trackList.size();
+        return trackResponseList.size();
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {

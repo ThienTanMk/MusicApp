@@ -2,7 +2,6 @@ package com.app.musicapp.view.fragment;
 
 import android.os.Bundle;
 
-import androidx.activity.OnBackPressedCallback;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -14,16 +13,15 @@ import android.widget.*;
 
 import com.app.musicapp.R;
 import com.app.musicapp.adapter.ProfileContentAdapter;
-import com.app.musicapp.adapter.TrackAdapter;
-import com.app.musicapp.model.Album;
+import com.app.musicapp.model.AlbumResponse;
 import com.app.musicapp.model.FollowingUser;
-import com.app.musicapp.model.Genre;
-import com.app.musicapp.model.LikedPlaylist;
-import com.app.musicapp.model.LikedTrack;
-import com.app.musicapp.model.Playlist;
-import com.app.musicapp.model.ProfileWithCountFollowResponse;
-import com.app.musicapp.model.Tag;
-import com.app.musicapp.model.Track;
+import com.app.musicapp.model.response.GenreResponse;
+import com.app.musicapp.model.response.LikedPlaylistResponse;
+import com.app.musicapp.model.response.LikedTrackResponse;
+import com.app.musicapp.model.response.PlaylistResponse;
+import com.app.musicapp.model.response.TrackResponse;
+import com.app.musicapp.model.response.ProfileWithCountFollowResponse;
+import com.app.musicapp.model.response.TagResponse;
 import com.bumptech.glide.Glide;
 
 import java.time.LocalDateTime;
@@ -232,35 +230,35 @@ public class UserProfileFragment extends Fragment {
 
         return view;
     }
-    private List<Track> mockTopTracks() {
-        List<Track> tracks = new ArrayList<>();
-        tracks.add(new Track("1", "Bản ghi mới 14", "Description", "file1.mp3", "cover1.jpg",
+    private List<TrackResponse> mockTopTracks() {
+        List<TrackResponse> trackResponses = new ArrayList<>();
+        trackResponses.add(new TrackResponse("1", "Bản ghi mới 14", "Description", "file1.mp3", "cover1.jpg",
                 LocalDateTime.now(), "user123", "4:18", "public", 10,
-                new Genre("1","Rock",LocalDateTime.now()),
-                List.of(new Tag("1", "pop", LocalDateTime.now(), "user123"))));
-        tracks.add(new Track("2", "N21DCCN089 Tran Viet Quang", "Description", "file2.mp3", "cover2.jpg",
+                new GenreResponse("1","Rock",LocalDateTime.now()),
+                List.of(new TagResponse("1", "pop", LocalDateTime.now(), "user123"))));
+        trackResponses.add(new TrackResponse("2", "N21DCCN089 Tran Viet Quang", "Description", "file2.mp3", "cover2.jpg",
                 LocalDateTime.now(), "user123", "2:12", "public", 5,
-                new Genre("1","Rock",LocalDateTime.now()),
-                List.of(new Tag("2", "rock", LocalDateTime.now(), "user123"))));
-        return tracks;
+                new GenreResponse("1","Rock",LocalDateTime.now()),
+                List.of(new TagResponse("2", "rock", LocalDateTime.now(), "user123"))));
+        return trackResponses;
     }
 
-    private List<Track> mockTracks() {
-        List<Track> tracks = new ArrayList<>();
-        tracks.add(new Track("3", "Track 1", "Artist 1", "file3.mp3", "cover3.jpg",
+    private List<TrackResponse> mockTracks() {
+        List<TrackResponse> trackResponses = new ArrayList<>();
+        trackResponses.add(new TrackResponse("3", "Track 1", "Artist 1", "file3.mp3", "cover3.jpg",
                 LocalDateTime.now(), "user123", "3:45", "public", 8,
-                new Genre("1","Rock",LocalDateTime.now()),
-                List.of(new Tag("3", "pop", LocalDateTime.now(), "user123"))));
-        tracks.add(new Track("4", "Track 2", "Artist 2", "file4.mp3", "cover4.jpg",
+                new GenreResponse("1","Rock",LocalDateTime.now()),
+                List.of(new TagResponse("3", "pop", LocalDateTime.now(), "user123"))));
+        trackResponses.add(new TrackResponse("4", "Track 2", "Artist 2", "file4.mp3", "cover4.jpg",
                 LocalDateTime.now(), "user123", "4:00", "public", 12,
-                new Genre("1","Rock",LocalDateTime.now()),
-                List.of(new Tag("4", "hiphop", LocalDateTime.now(), "user123"))));
-        return tracks;
+                new GenreResponse("1","Rock",LocalDateTime.now()),
+                List.of(new TagResponse("4", "hiphop", LocalDateTime.now(), "user123"))));
+        return trackResponses;
     }
 
-    private List<Album> mockAlbums() {
-        List<Album> albums = new ArrayList<>();
-        albums.add(new Album(
+    private List<AlbumResponse> mockAlbums() {
+        List<AlbumResponse> albumResponses = new ArrayList<>();
+        albumResponses.add(new AlbumResponse(
                 "Album 1",                  // albumTitle
                 "Artist A",                 // mainArtists
                 "1",                        // genreId
@@ -274,45 +272,45 @@ public class UserProfileFragment extends Fragment {
                 "1",                       // id
                 LocalDateTime.now(),       // createdAt
                 new ArrayList<>(),         // tracks
-                new Genre("1", "Rock", LocalDateTime.now()) // genre
+                new GenreResponse("1", "Rock", LocalDateTime.now()) // genre
         ));
 
-        albums.add(new Album(
+        albumResponses.add(new AlbumResponse(
                 "Album 2", "Artist B", "1", "Album",
                 new ArrayList<>(), "Description", "public", "http://example.com/2",
                 "album2.jpg", "user123", "2", LocalDateTime.now(),
-                new ArrayList<>(), new Genre("1", "Rock", LocalDateTime.now())
+                new ArrayList<>(), new GenreResponse("1", "Rock", LocalDateTime.now())
         ));
-        return albums;
+        return albumResponses;
     }
 
-    private List<Playlist> mockPlaylists() {
-        List<Playlist> playlists = new ArrayList<>();
-        playlists.add(new Playlist("1", "Playlist 1", LocalDateTime.now(), "Description",
+    private List<PlaylistResponse> mockPlaylists() {
+        List<PlaylistResponse> playlistResponses = new ArrayList<>();
+        playlistResponses.add(new PlaylistResponse("1", "Playlist 1", LocalDateTime.now(), "Description",
                 "public", "user123",
-                new Genre("1","Rock",LocalDateTime.now()),
+                new GenreResponse("1","Rock",LocalDateTime.now()),
                 "playlist1.jpg", LocalDateTime.now(), new ArrayList<>(),
-                new ArrayList<>()));
-        playlists.add(new Playlist("2", "Playlist 2", LocalDateTime.now(), "Description",
+                new ArrayList<>(),false,null));
+        playlistResponses.add(new PlaylistResponse("2", "Playlist 2", LocalDateTime.now(), "Description",
                 "public", "user123",
-                new Genre("1","Rock",LocalDateTime.now()),
-                "playlist2.jpg", LocalDateTime.now(), new ArrayList<>(), new ArrayList<>()));
-        return playlists;
+                new GenreResponse("1","Rock",LocalDateTime.now()),
+                "playlist2.jpg", LocalDateTime.now(), new ArrayList<>(), new ArrayList<>(),false,null));
+        return playlistResponses;
     }
 
-    private List<LikedTrack> mockLikedTracks() {
-        List<LikedTrack> likedTracks = new ArrayList<>();
-        likedTracks.add(new LikedTrack("1", "3", "user123"));
-        likedTracks.add(new LikedTrack("2", "4", "user123"));
-        return likedTracks;
+    private List<LikedTrackResponse> mockLikedTracks() {
+        List<LikedTrackResponse> likedTrackResponses = new ArrayList<>();
+        likedTrackResponses.add(new LikedTrackResponse("1", "3", "user123"));
+        likedTrackResponses.add(new LikedTrackResponse("2", "4", "user123"));
+        return likedTrackResponses;
     }
 
-    private List<LikedPlaylist> mockLikedPlaylists() {
-        List<LikedPlaylist> likedPlaylists = new ArrayList<>();
-        likedPlaylists.add(new LikedPlaylist("1", "user123", LocalDateTime.now(),
+    private List<LikedPlaylistResponse> mockLikedPlaylists() {
+        List<LikedPlaylistResponse> likedPlaylistResponses = new ArrayList<>();
+        likedPlaylistResponses.add(new LikedPlaylistResponse("1", "user123", LocalDateTime.now(),
                 mockPlaylists().get(0))); // Playlist 1
-        likedPlaylists.add(new LikedPlaylist("2", "user123", LocalDateTime.now(),
+        likedPlaylistResponses.add(new LikedPlaylistResponse("2", "user123", LocalDateTime.now(),
                 mockPlaylists().get(1))); // Playlist 2
-        return likedPlaylists;
+        return likedPlaylistResponses;
     }
 }

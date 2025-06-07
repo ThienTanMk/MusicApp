@@ -1,4 +1,4 @@
-package com.app.musicapp.model;
+package com.app.musicapp.model.response;
 
 public class LoginResponse {
    private String token;

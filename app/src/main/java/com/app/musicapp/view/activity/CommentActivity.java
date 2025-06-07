@@ -11,7 +11,7 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.app.musicapp.R;
 import com.app.musicapp.adapter.CommentAdapter;
-import com.app.musicapp.model.Comment;
+import com.app.musicapp.model.response.CommentResponse;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -20,7 +20,7 @@ import java.util.List;
 public class CommentActivity extends AppCompatActivity {
 
     ListView commentListView;
-    ArrayList<Comment> comments;
+    ArrayList<CommentResponse> commentResponses;
     CommentAdapter commentAdapter;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,10 +34,10 @@ public class CommentActivity extends AppCompatActivity {
         });
 
         commentListView = findViewById(R.id.comment_listview);
-        comments = new ArrayList<>();
+        commentResponses = new ArrayList<>();
 
 // Khởi tạo comment 1
-        comments.add(new Comment(
+        commentResponses.add(new CommentResponse(
                 "1",
                 "track01",
                 "user01",
@@ -50,7 +50,7 @@ public class CommentActivity extends AppCompatActivity {
         ));
 
 // Khởi tạo comment 2
-        comments.add(new Comment(
+        commentResponses.add(new CommentResponse(
                 "2",
                 "track01",
                 "user02",
@@ -63,8 +63,8 @@ public class CommentActivity extends AppCompatActivity {
         ));
 
 // Khởi tạo comment 3 có replies
-        List<Comment> replies = new ArrayList<>();
-        replies.add(new Comment(
+        List<CommentResponse> replies = new ArrayList<>();
+        replies.add(new CommentResponse(
                 "3-1",
                 "track01",
                 "user03",
@@ -76,7 +76,7 @@ public class CommentActivity extends AppCompatActivity {
                 new ArrayList<>()
         ));
 
-        comments.add(new Comment(
+        commentResponses.add(new CommentResponse(
                 "3",
                 "track01",
                 "user02",
@@ -87,7 +87,7 @@ public class CommentActivity extends AppCompatActivity {
                 3,
                 replies
         ));
-        commentAdapter = new CommentAdapter(comments,this);
+        commentAdapter = new CommentAdapter(commentResponses,this);
         commentListView.setAdapter(commentAdapter);
 
     }

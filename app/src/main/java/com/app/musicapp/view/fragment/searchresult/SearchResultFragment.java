@@ -15,11 +15,11 @@ import android.widget.*;
 
 import com.app.musicapp.R;
 import com.app.musicapp.adapter.SearchResultPagerAdapter;
-import com.app.musicapp.model.Album;
-import com.app.musicapp.model.LikedPlaylist;
-import com.app.musicapp.model.Playlist;
-import com.app.musicapp.model.ProfileWithCountFollowResponse;
-import com.app.musicapp.model.Track;
+import com.app.musicapp.model.AlbumResponse;
+import com.app.musicapp.model.response.LikedPlaylistResponse;
+import com.app.musicapp.model.response.PlaylistResponse;
+import com.app.musicapp.model.response.TrackResponse;
+import com.app.musicapp.model.response.ProfileWithCountFollowResponse;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
@@ -37,22 +37,22 @@ public class SearchResultFragment extends Fragment {
     private TabLayout tabLayout;
     private ImageView ivBack;
 
-    private List<Track> trackResults = new ArrayList<>();
+    private List<TrackResponse> trackResponseResults = new ArrayList<>();
     private List<ProfileWithCountFollowResponse> userResults = new ArrayList<>();
     private List<Object> playlistResults = new ArrayList<>();
-    private List<Album> albumResults = new ArrayList<>();
+    private List<AlbumResponse> albumResponseResults = new ArrayList<>();
 
     public SearchResultFragment() {
         // Required empty public constructor
     }
-    public static SearchResultFragment newInstance(List<Track> tracks, List<ProfileWithCountFollowResponse> users,
-                                                   List<Object> playlists, List<Album> albums, String query) {
+    public static SearchResultFragment newInstance(List<TrackResponse> trackResponses, List<ProfileWithCountFollowResponse> users,
+                                                   List<Object> playlists, List<AlbumResponse> albumResponses, String query) {
         SearchResultFragment fragment = new SearchResultFragment();
         Bundle args = new Bundle();
-        args.putSerializable(ARG_TRACKS, new ArrayList<>(tracks));
+        args.putSerializable(ARG_TRACKS, new ArrayList<>(trackResponses));
         args.putSerializable(ARG_USERS, new ArrayList<>(users));
         args.putSerializable(ARG_PLAYLISTS, new ArrayList<>(playlists));
-        args.putSerializable(ARG_ALBUMS, new ArrayList<>(albums));
+        args.putSerializable(ARG_ALBUMS, new ArrayList<>(albumResponses));
         args.putString(ARG_QUERY, query);
         fragment.setArguments(args);
         return fragment;
@@ -62,10 +62,10 @@ public class SearchResultFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            trackResults = (List<Track>) getArguments().getSerializable(ARG_TRACKS);
+            trackResponseResults = (List<TrackResponse>) getArguments().getSerializable(ARG_TRACKS);
             userResults = (List<ProfileWithCountFollowResponse>) getArguments().getSerializable(ARG_USERS);
             playlistResults = (List<Object>) getArguments().getSerializable(ARG_PLAYLISTS);
-            albumResults = (List<Album>) getArguments().getSerializable(ARG_ALBUMS);
+            albumResponseResults = (List<AlbumResponse>) getArguments().getSerializable(ARG_ALBUMS);
         }
         // Xử lý nút Back của điện thoại
 //        requireActivity().getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
@@ -113,7 +113,7 @@ public class SearchResultFragment extends Fragment {
         searchEditText.setText(query);
 
         // Thiết lập ViewPager2 và TabLayout
-        SearchResultPagerAdapter adapter = new SearchResultPagerAdapter(this, trackResults, userResults, playlistResults, albumResults);
+        SearchResultPagerAdapter adapter = new SearchResultPagerAdapter(this, trackResponseResults, userResults, playlistResults, albumResponseResults);
         viewPager.setAdapter(adapter);
 
         new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> {
@@ -159,7 +159,7 @@ public class SearchResultFragment extends Fragment {
                 performSearch(newQuery);
                 SearchResultPagerAdapter pagerAdapter = (SearchResultPagerAdapter) viewPager.getAdapter();
                 if (pagerAdapter != null) {
-                    pagerAdapter.updateData(trackResults, userResults, playlistResults, albumResults);
+                    pagerAdapter.updateData(trackResponseResults, userResults, playlistResults, albumResponseResults);
                 }
             }
 
@@ -170,21 +170,21 @@ public class SearchResultFragment extends Fragment {
         return view;
     }
     private void performSearch(String query) {
-        List<Track> tempTrackResults = new ArrayList<>(trackResults);
+        List<TrackResponse> tempTrackResponseResults = new ArrayList<>(trackResponseResults);
         List<ProfileWithCountFollowResponse> tempUserResults = new ArrayList<>(userResults);
         List<Object> tempPlaylistResults = new ArrayList<>(playlistResults);
-        List<Album> tempAlbumResults = new ArrayList<>(albumResults);
+        List<AlbumResponse> tempAlbumResponseResults = new ArrayList<>(albumResponseResults);
 
-        trackResults.clear();
+        trackResponseResults.clear();
         userResults.clear();
         playlistResults.clear();
-        albumResults.clear();
+        albumResponseResults.clear();
 
         if (query != null && !query.isEmpty()) {
             // Tìm kiếm Track
-            for (Track track : tempTrackResults) {
-                if (track.getTitle().toLowerCase().contains(query.toLowerCase())) {
-                    trackResults.add(track);
+            for (TrackResponse trackResponse : tempTrackResponseResults) {
+                if (trackResponse.getTitle().toLowerCase().contains(query.toLowerCase())) {
+                    trackResponseResults.add(trackResponse);
                 }
             }
 
@@ -197,17 +197,17 @@ public class SearchResultFragment extends Fragment {
 
             // Tìm kiếm Playlist
             for (Object playlist : tempPlaylistResults) {
-                if (playlist instanceof Playlist && ((Playlist) playlist).getTitle().toLowerCase().contains(query.toLowerCase())) {
+                if (playlist instanceof PlaylistResponse && ((PlaylistResponse) playlist).getTitle().toLowerCase().contains(query.toLowerCase())) {
                     playlistResults.add(playlist);
-                } else if (playlist instanceof LikedPlaylist && ((LikedPlaylist) playlist).getPlaylist().getTitle().toLowerCase().contains(query.toLowerCase())) {
+                } else if (playlist instanceof LikedPlaylistResponse && ((LikedPlaylistResponse) playlist).getPlaylist().getTitle().toLowerCase().contains(query.toLowerCase())) {
                     playlistResults.add(playlist);
                 }
             }
 
             // Tìm kiếm Album
-            for (Album album : tempAlbumResults) {
-                if (album.getAlbumTitle().toLowerCase().contains(query.toLowerCase())) {
-                    albumResults.add(album);
+            for (AlbumResponse albumResponse : tempAlbumResponseResults) {
+                if (albumResponse.getAlbumTitle().toLowerCase().contains(query.toLowerCase())) {
+                    albumResponseResults.add(albumResponse);
                 }
             }
         }

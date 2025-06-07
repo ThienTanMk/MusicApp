@@ -23,14 +23,14 @@ import android.widget.TextView;
 import com.app.musicapp.R;
 import com.app.musicapp.adapter.SearchUserAdapter;
 import com.app.musicapp.adapter.VibesAdapter;
-import com.app.musicapp.model.Album;
-import com.app.musicapp.model.Genre;
+import com.app.musicapp.model.AlbumResponse;
+import com.app.musicapp.model.response.GenreResponse;
 import com.app.musicapp.model.GridView.Vibes;
-import com.app.musicapp.model.LikedPlaylist;
-import com.app.musicapp.model.Playlist;
-import com.app.musicapp.model.ProfileWithCountFollowResponse;
-import com.app.musicapp.model.Tag;
-import com.app.musicapp.model.Track;
+import com.app.musicapp.model.response.LikedPlaylistResponse;
+import com.app.musicapp.model.response.PlaylistResponse;
+import com.app.musicapp.model.response.TrackResponse;
+import com.app.musicapp.model.response.ProfileWithCountFollowResponse;
+import com.app.musicapp.model.response.TagResponse;
 import com.app.musicapp.view.fragment.searchresult.SearchResultFragment;
 import com.app.musicapp.view.fragment.UserProfileFragment;
 
@@ -47,9 +47,9 @@ public class SearchPageFragment extends Fragment {
     private SearchUserAdapter searchUserAdapter;
     private List<ProfileWithCountFollowResponse> searchResults = new ArrayList<>();
     private List<ProfileWithCountFollowResponse> allUsers = new ArrayList<>();
-    private List<Track> allTracks = new ArrayList<>();
+    private List<TrackResponse> allTrackResponses = new ArrayList<>();
     private List<Object> allPlaylists = new ArrayList<>();
-    private List<Album> allAlbums = new ArrayList<>();
+    private List<AlbumResponse> allAlbumResponses = new ArrayList<>();
 
     public SearchPageFragment() {
         // Required empty public constructor
@@ -175,74 +175,74 @@ public class SearchPageFragment extends Fragment {
         ));
 
         // Dữ liệu mẫu cho Track
-        Genre rockGenre = new Genre("1", "Rock", LocalDateTime.now());
-        List<Tag> trackTags1 = new ArrayList<>();
-        trackTags1.add(new Tag("1", "pop", LocalDateTime.now(), "user123"));
-        List<Tag> trackTags2 = new ArrayList<>();
-        trackTags2.add(new Tag("2", "rock", LocalDateTime.now(), "user123"));
+        GenreResponse rockGenreResponse = new GenreResponse("1", "Rock", LocalDateTime.now());
+        List<TagResponse> trackTags1 = new ArrayList<>();
+        trackTags1.add(new TagResponse("1", "pop", LocalDateTime.now(), "user123"));
+        List<TagResponse> trackTags2 = new ArrayList<>();
+        trackTags2.add(new TagResponse("2", "rock", LocalDateTime.now(), "user123"));
 
-        allTracks.add(new Track(
+        allTrackResponses.add(new TrackResponse(
                 "1", "Song 1A", "A great pop song", "song1.mp3", "cover1.jpg",
-                LocalDateTime.now(), "user123", "3:30", "public", 1000, rockGenre, trackTags1
+                LocalDateTime.now(), "user123", "3:30", "public", 1000, rockGenreResponse, trackTags1
         ));
-        allTracks.add(new Track(
+        allTrackResponses.add(new TrackResponse(
                 "2", "Song 2A", "An awesome rock song", "song2.mp3", "cover2.jpg",
-                LocalDateTime.now(), "user456", "4:00", "public", 500, rockGenre, trackTags2
+                LocalDateTime.now(), "user456", "4:00", "public", 500, rockGenreResponse, trackTags2
         ));
 
         // Dữ liệu mẫu cho Playlist
-        List<Track> playlistTracks1 = new ArrayList<>();
-        playlistTracks1.add(allTracks.get(0));
-        List<Tag> playlistTags1 = new ArrayList<>();
-        playlistTags1.add(new Tag("3", "chill", LocalDateTime.now(), "user123"));
+        List<TrackResponse> playlistTracks1 = new ArrayList<>();
+        playlistTracks1.add(allTrackResponses.get(0));
+        List<TagResponse> playlistTags1 = new ArrayList<>();
+        playlistTags1.add(new TagResponse("3", "chill", LocalDateTime.now(), "user123"));
 
-        List<Track> playlistTracks2 = new ArrayList<>();
-        playlistTracks2.add(allTracks.get(1));
-        List<Tag> playlistTags2 = new ArrayList<>();
-        playlistTags2.add(new Tag("4", "party", LocalDateTime.now(), "user456"));
+        List<TrackResponse> playlistTracks2 = new ArrayList<>();
+        playlistTracks2.add(allTrackResponses.get(1));
+        List<TagResponse> playlistTags2 = new ArrayList<>();
+        playlistTags2.add(new TagResponse("4", "party", LocalDateTime.now(), "user456"));
 
-        Playlist playlist1 = new Playlist(
+        PlaylistResponse playlistResponse1 = new PlaylistResponse(
                 "3", "Playlist 1", LocalDateTime.now(), "A chill playlist", "public",
-                "user123", rockGenre, "path/to/playlist1.jpg", LocalDateTime.now(), playlistTracks1, playlistTags1
+                "user123", rockGenreResponse, "path/to/playlist1.jpg", LocalDateTime.now(), playlistTracks1, playlistTags1,false,null
         );
-        Playlist playlist2 = new Playlist(
+        PlaylistResponse playlistResponse2 = new PlaylistResponse(
                 "4", "Playlist 2", LocalDateTime.now(), "A party playlist", "public",
-                "user456", rockGenre, "path/to/playlist2.jpg", LocalDateTime.now(), playlistTracks2, playlistTags2
+                "user456", rockGenreResponse, "path/to/playlist2.jpg", LocalDateTime.now(), playlistTracks2, playlistTags2,false,null
         );
 
-        allPlaylists.add(playlist1);
-        allPlaylists.add(new LikedPlaylist("5", "user123", LocalDateTime.now(), playlist2));
+        allPlaylists.add(playlistResponse1);
+        allPlaylists.add(new LikedPlaylistResponse("5", "user123", LocalDateTime.now(), playlistResponse2));
 
         // Dữ liệu mẫu cho Album
-        List<Track> albumTracks1 = new ArrayList<>();
-        albumTracks1.add(allTracks.get(0));
-        List<Tag> albumTags1 = new ArrayList<>();
-        albumTags1.add(new Tag("5", "pop", LocalDateTime.now(), "user123"));
+        List<TrackResponse> albumTracks1 = new ArrayList<>();
+        albumTracks1.add(allTrackResponses.get(0));
+        List<TagResponse> albumTags1 = new ArrayList<>();
+        albumTags1.add(new TagResponse("5", "pop", LocalDateTime.now(), "user123"));
 
-        List<Track> albumTracks2 = new ArrayList<>();
-        albumTracks2.add(allTracks.get(1));
-        List<Tag> albumTags2 = new ArrayList<>();
-        albumTags2.add(new Tag("6", "rock", LocalDateTime.now(), "user456"));
+        List<TrackResponse> albumTracks2 = new ArrayList<>();
+        albumTracks2.add(allTrackResponses.get(1));
+        List<TagResponse> albumTags2 = new ArrayList<>();
+        albumTags2.add(new TagResponse("6", "rock", LocalDateTime.now(), "user456"));
 
-        allAlbums.add(new Album(
+        allAlbumResponses.add(new AlbumResponse(
                 "Album 1", "Artist 1", "1", "Single", albumTags1, "A pop album", "public",
-                "http://album1.com", "path/to/album1.jpg", "user123", "5", LocalDateTime.now(), albumTracks1, rockGenre
+                "http://album1.com", "path/to/album1.jpg", "user123", "5", LocalDateTime.now(), albumTracks1, rockGenreResponse
         ));
-        allAlbums.add(new Album(
+        allAlbumResponses.add(new AlbumResponse(
                 "Album 2", "Artist 2", "1", "Album", albumTags2, "A rock album", "public",
-                "http://album2.com", "path/to/album2.jpg", "user456", "6", LocalDateTime.now(), albumTracks2, rockGenre
+                "http://album2.com", "path/to/album2.jpg", "user456", "6", LocalDateTime.now(), albumTracks2, rockGenreResponse
         ));
     }
 
     private void performSearch(String query) {
-        List<Track> filteredTracks = new ArrayList<>();
+        List<TrackResponse> filteredTrackResponses = new ArrayList<>();
         List<ProfileWithCountFollowResponse> filteredUsers = new ArrayList<>();
         List<Object> filteredPlaylists = new ArrayList<>();
-        List<Album> filteredAlbums = new ArrayList<>();
+        List<AlbumResponse> filteredAlbumResponses = new ArrayList<>();
 
-        for (Track track : allTracks) {
-            if (track.getTitle().toLowerCase().contains(query.toLowerCase())) {
-                filteredTracks.add(track);
+        for (TrackResponse trackResponse : allTrackResponses) {
+            if (trackResponse.getTitle().toLowerCase().contains(query.toLowerCase())) {
+                filteredTrackResponses.add(trackResponse);
             }
         }
         for (ProfileWithCountFollowResponse user : allUsers) {
@@ -251,19 +251,19 @@ public class SearchPageFragment extends Fragment {
             }
         }
         for (Object playlist : allPlaylists) {
-            if (playlist instanceof Playlist && ((Playlist) playlist).getTitle().toLowerCase().contains(query.toLowerCase())) {
+            if (playlist instanceof PlaylistResponse && ((PlaylistResponse) playlist).getTitle().toLowerCase().contains(query.toLowerCase())) {
                 filteredPlaylists.add(playlist);
-            } else if (playlist instanceof LikedPlaylist && ((LikedPlaylist) playlist).getPlaylist().getTitle().toLowerCase().contains(query.toLowerCase())) {
+            } else if (playlist instanceof LikedPlaylistResponse && ((LikedPlaylistResponse) playlist).getPlaylist().getTitle().toLowerCase().contains(query.toLowerCase())) {
                 filteredPlaylists.add(playlist);
             }
         }
-        for (Album album : allAlbums) {
-            if (album.getAlbumTitle().toLowerCase().contains(query.toLowerCase())) {
-                filteredAlbums.add(album);
+        for (AlbumResponse albumResponse : allAlbumResponses) {
+            if (albumResponse.getAlbumTitle().toLowerCase().contains(query.toLowerCase())) {
+                filteredAlbumResponses.add(albumResponse);
             }
         }
 
-        SearchResultFragment fragment = SearchResultFragment.newInstance(filteredTracks, filteredUsers, filteredPlaylists, filteredAlbums, query);
+        SearchResultFragment fragment = SearchResultFragment.newInstance(filteredTrackResponses, filteredUsers, filteredPlaylists, filteredAlbumResponses, query);
         requireActivity().getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.fragment_container, fragment)

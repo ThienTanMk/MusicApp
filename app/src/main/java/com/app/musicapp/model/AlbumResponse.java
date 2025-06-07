@@ -1,15 +1,19 @@
 package com.app.musicapp.model;
 
+import com.app.musicapp.model.response.GenreResponse;
+import com.app.musicapp.model.response.TagResponse;
+import com.app.musicapp.model.response.TrackResponse;
+
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public class    AlbumResponse implements Serializable {
+public class AlbumResponse implements Serializable {
     private String albumTitle;
     private String mainArtists;
     private String genreId;
     private String albumType;
-    private List<TagResponse> tags;
+    private List<TagResponse> tagResponses;
     private String description;
     private String privacy;
     private String albumLink;
@@ -17,11 +21,27 @@ public class    AlbumResponse implements Serializable {
     private String userId;
     private String id;
     private LocalDateTime createdAt;
-    private List<Track> tracks;
-    private GenreResponse genre;
+    private List<TrackResponse> trackResponses;
+    private GenreResponse genreResponse;
     private Boolean isLiked = false;
-
     public AlbumResponse() {
+    }
+
+    public AlbumResponse(String albumTitle, String mainArtists, String genreId, String albumType, List<TagResponse> tagResponses, String description, String privacy, String albumLink, String imagePath, String userId, String id, LocalDateTime createdAt, List<TrackResponse> trackResponses, GenreResponse genreResponse) {
+        this.albumTitle = albumTitle;
+        this.mainArtists = mainArtists;
+        this.genreId = genreId;
+        this.albumType = albumType;
+        this.tagResponses = tagResponses;
+        this.description = description;
+        this.privacy = privacy;
+        this.albumLink = albumLink;
+        this.imagePath = imagePath;
+        this.userId = userId;
+        this.id = id;
+        this.createdAt = createdAt;
+        this.trackResponses = trackResponses;
+        this.genreResponse = genreResponse;
     }
 
     public String getAlbumTitle() {
@@ -57,11 +77,11 @@ public class    AlbumResponse implements Serializable {
     }
 
     public List<TagResponse> getTags() {
-        return tags;
+        return tagResponses;
     }
 
-    public void setTags(List<TagResponse> tags) {
-        this.tags = tags;
+    public void setTags(List<TagResponse> tagResponses) {
+        this.tagResponses = tagResponses;
     }
 
     public String getDescription() {
@@ -120,27 +140,19 @@ public class    AlbumResponse implements Serializable {
         this.createdAt = createdAt;
     }
 
-    public List<Track> getTracks() {
-        return tracks;
+    public List<TrackResponse> getTracks() {
+        return trackResponses;
     }
 
-    public void setTracks(List<Track> tracks) {
-        this.tracks = tracks;
+    public void setTracks(List<TrackResponse> trackResponses) {
+        this.trackResponses = trackResponses;
     }
 
     public GenreResponse getGenre() {
-        return genre;
+        return genreResponse;
     }
 
-    public void setGenre(GenreResponse genre) {
-        this.genre = genre;
+    public void setGenre(GenreResponse genreResponse) {
+        this.genreResponse = genreResponse;
     }
-
-    public Boolean getIsLiked() {
-        return isLiked;
-    }
-
-    public void setIsLiked(Boolean liked) {
-        isLiked = liked;
-    }
-} 
+}

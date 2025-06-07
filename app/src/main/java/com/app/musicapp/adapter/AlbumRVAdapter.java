@@ -7,8 +7,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.app.musicapp.R;
-import com.app.musicapp.model.Album;
-import com.app.musicapp.model.AlbumResponse;
+import com.app.musicapp.model.response.AlbumResponse;
 import com.bumptech.glide.Glide;
 
 import java.util.List;

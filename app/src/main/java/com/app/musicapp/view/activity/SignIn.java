@@ -1,6 +1,5 @@
 package com.app.musicapp.view.activity;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Base64;
@@ -12,9 +11,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.app.musicapp.R;
 import com.app.musicapp.api.ApiClient;
 import com.app.musicapp.helper.SharedPreferencesManager;
-import com.app.musicapp.model.LoginRequest;
-import com.app.musicapp.model.ApiResponse;
-import com.app.musicapp.model.LoginResponse;
+import com.app.musicapp.model.request.LoginRequest;
+import com.app.musicapp.model.response.ApiResponse;
+import com.app.musicapp.model.response.LoginResponse;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 

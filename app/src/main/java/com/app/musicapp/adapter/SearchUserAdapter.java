@@ -10,7 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.app.musicapp.R;
-import com.app.musicapp.model.ProfileWithCountFollowResponse;
+import com.app.musicapp.model.response.ProfileWithCountFollowResponse;
 import com.bumptech.glide.Glide;
 
 import java.util.ArrayList;

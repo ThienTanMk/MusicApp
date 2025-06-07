@@ -18,11 +18,11 @@ import com.app.musicapp.R;
 import com.app.musicapp.adapter.AlbumInVibeAdapter;
 import com.app.musicapp.adapter.PlaylistInVibeAdapter;
 import com.app.musicapp.adapter.TrackInVibeAdapter;
-import com.app.musicapp.model.Album;
-import com.app.musicapp.model.Genre;
-import com.app.musicapp.model.Playlist;
-import com.app.musicapp.model.Tag;
-import com.app.musicapp.model.Track;
+import com.app.musicapp.model.AlbumResponse;
+import com.app.musicapp.model.response.GenreResponse;
+import com.app.musicapp.model.response.PlaylistResponse;
+import com.app.musicapp.model.response.TagResponse;
+import com.app.musicapp.model.response.TrackResponse;
 import com.app.musicapp.view.fragment.searchpage.VibeDetailFragment;
 
 import java.time.LocalDateTime;
@@ -32,9 +32,9 @@ import java.util.List;
 
 public class AllTabFragment extends Fragment {
     private static final String TAG = "AllTabFragment";
-    private List<Track> trackList = new ArrayList<>();
-    private List<Playlist> playlistsList = new ArrayList<>();
-    private List<Album> albumsList = new ArrayList<>();
+    private List<TrackResponse> trackResponseList = new ArrayList<>();
+    private List<PlaylistResponse> playlistsList = new ArrayList<>();
+    private List<AlbumResponse> albumsList = new ArrayList<>();
     private VibeDetailFragment.VibeTabNavigator tabNavigator;
 
     public AllTabFragment() {
@@ -76,7 +76,7 @@ public class AllTabFragment extends Fragment {
         mockDataAlbums();
 
         // Gán adapter
-        recyclerViewTrending.setAdapter(new TrackInVibeAdapter(this, trackList.subList(0, Math.min(4, trackList.size()))));
+        recyclerViewTrending.setAdapter(new TrackInVibeAdapter(this, trackResponseList.subList(0, Math.min(4, trackResponseList.size()))));
         recyclerViewPlaylists.setAdapter(new PlaylistInVibeAdapter(getContext(),playlistsList.subList(0, Math.min(4, playlistsList.size()))));
         recyclerViewAlbums.setAdapter(new AlbumInVibeAdapter(getContext(), albumsList.subList(0, Math.min(4, albumsList.size()))));
 
@@ -121,128 +121,128 @@ public class AllTabFragment extends Fragment {
         }
     }
     private void mockDataTrack() {
-        trackList.add(new Track(
+        trackResponseList.add(new TrackResponse(
                 "1", "This Weight Burdens Me", "Freddy River", "Description 1", "cover1.jpg",
                 LocalDateTime.now(), "Freddy River", "3:04", "public", 1200,
-                new Genre("1", "Rock", LocalDateTime.now()),
-                Arrays.asList(new Tag("tag67", "gentlebad", LocalDateTime.now(), "user3"))
+                new GenreResponse("1", "Rock", LocalDateTime.now()),
+                Arrays.asList(new TagResponse("tag67", "gentlebad", LocalDateTime.now(), "user3"))
         ));
-        trackList.add(new Track(
+        trackResponseList.add(new TrackResponse(
                 "2", "Lùa Chọn Của Em", "Nguyễn Minh Hiền (inZow)", "Description 2", "cover2.jpg",
                 LocalDateTime.now(), "Nguyễn Minh Hiền (inZow)", "3:27", "public", 138000,
-                new Genre("2", "Pop", LocalDateTime.now()),
-                Arrays.asList(new Tag("tag9", "gentlebad", LocalDateTime.now(), "user3"))
+                new GenreResponse("2", "Pop", LocalDateTime.now()),
+                Arrays.asList(new TagResponse("tag9", "gentlebad", LocalDateTime.now(), "user3"))
         ));
-        trackList.add(new Track(
+        trackResponseList.add(new TrackResponse(
                 "3", "Dựt Còn Mưa (Remake) - Tobiee", "youngtobieeasick", "Description 3", "cover3.jpg",
                 LocalDateTime.now(), "youngtobieeasick", "3:14", "public", 681000,
-                new Genre("3", "C", LocalDateTime.now()),
-                Arrays.asList(new Tag("tag8", "gentlebad", LocalDateTime.now(), "user3"))
+                new GenreResponse("3", "C", LocalDateTime.now()),
+                Arrays.asList(new TagResponse("tag8", "gentlebad", LocalDateTime.now(), "user3"))
         ));
-        trackList.add(new Track(
+        trackResponseList.add(new TrackResponse(
                 "4", "dưới cơn mưa - obito lena", "NhânGreen", "Description 4", "cover4.jpg",
                 LocalDateTime.now(), "NhânGreen", "3:15", "public", 110000,
-                new Genre("4", "D", LocalDateTime.now()),
-                Arrays.asList(new Tag("tag1233", "gentlebad", LocalDateTime.now(), "user3"))
+                new GenreResponse("4", "D", LocalDateTime.now()),
+                Arrays.asList(new TagResponse("tag1233", "gentlebad", LocalDateTime.now(), "user3"))
         ));
-        trackList.add(new Track(
+        trackResponseList.add(new TrackResponse(
                 "5", "dưới cơn mưa - obito lena", "NhânGreen", "Description 4", "cover4.jpg",
                 LocalDateTime.now(), "NhânGreen", "3:15", "public", 110000,
-                new Genre("4", "D", LocalDateTime.now()),
-                Arrays.asList(new Tag("tag1233", "gentlebad", LocalDateTime.now(), "user3"))
+                new GenreResponse("4", "D", LocalDateTime.now()),
+                Arrays.asList(new TagResponse("tag1233", "gentlebad", LocalDateTime.now(), "user3"))
         ));
-        trackList.add(new Track(
+        trackResponseList.add(new TrackResponse(
                 "6", "dưới cơn mưa - obito lena", "NhânGreen", "Description 4", "cover4.jpg",
                 LocalDateTime.now(), "NhânGreen", "3:15", "public", 110000,
-                new Genre("4", "D", LocalDateTime.now()),
-                Arrays.asList(new Tag("tag1233", "gentlebad", LocalDateTime.now(), "user3"))
+                new GenreResponse("4", "D", LocalDateTime.now()),
+                Arrays.asList(new TagResponse("tag1233", "gentlebad", LocalDateTime.now(), "user3"))
         ));
 
     }
     private void mockDataPlaylists() {
-        List<Track> playlistTracks1 = new ArrayList<>();
-        playlistTracks1.add(trackList.get(0));
-        playlistTracks1.add(trackList.get(1));
+        List<TrackResponse> playlistTracks1 = new ArrayList<>();
+        playlistTracks1.add(trackResponseList.get(0));
+        playlistTracks1.add(trackResponseList.get(1));
 
-        playlistsList.add(new Playlist(
+        playlistsList.add(new PlaylistResponse(
                 "p1", "Chill Vibes", LocalDateTime.now(), "Chill playlist", "public",
-                "user4", new Genre("5", "Chill", LocalDateTime.now()), "cover5.jpg",
+                "user4", new GenreResponse("5", "Chill", LocalDateTime.now()), "cover5.jpg",
                 LocalDateTime.now(), playlistTracks1,
-                Arrays.asList(new Tag("tag10", "chillzone", LocalDateTime.now(), "user4"))
+                Arrays.asList(new TagResponse("tag10", "chillzone", LocalDateTime.now(), "user4")),false,null
         ));
 
-        List<Track> playlistTracks2 = new ArrayList<>();
-        playlistTracks2.add(trackList.get(2));
-        playlistTracks2.add(trackList.get(3));
+        List<TrackResponse> playlistTracks2 = new ArrayList<>();
+        playlistTracks2.add(trackResponseList.get(2));
+        playlistTracks2.add(trackResponseList.get(3));
 
-        playlistsList.add(new Playlist(
+        playlistsList.add(new PlaylistResponse(
                 "p2", "Party Mix", LocalDateTime.now(), "Party playlist", "public",
-                "user4", new Genre("6", "Party", LocalDateTime.now()), "cover6.jpg",
+                "user4", new GenreResponse("6", "Party", LocalDateTime.now()), "cover6.jpg",
                 LocalDateTime.now(), playlistTracks2,
-                Arrays.asList(new Tag("tag11", "partyzone", LocalDateTime.now(), "user4"))
+                Arrays.asList(new TagResponse("tag11", "partyzone", LocalDateTime.now(), "user4")),false,null
         ));
-        List<Track> playlistTracks3 = new ArrayList<>();
-        playlistTracks3.add(trackList.get(2));
-        playlistTracks3.add(trackList.get(3));
+        List<TrackResponse> playlistTracks3 = new ArrayList<>();
+        playlistTracks3.add(trackResponseList.get(2));
+        playlistTracks3.add(trackResponseList.get(3));
 
-        playlistsList.add(new Playlist(
+        playlistsList.add(new PlaylistResponse(
                 "p2", "Party Mix", LocalDateTime.now(), "Party playlist", "public",
-                "user4", new Genre("6", "Party", LocalDateTime.now()), "cover6.jpg",
+                "user4", new GenreResponse("6", "Party", LocalDateTime.now()), "cover6.jpg",
                 LocalDateTime.now(), playlistTracks2,
-                Arrays.asList(new Tag("tag11", "partyzone", LocalDateTime.now(), "user4"))
+                Arrays.asList(new TagResponse("tag11", "partyzone", LocalDateTime.now(), "user4")),false,null
         ));
-        List<Track> playlistTracks4 = new ArrayList<>();
-        playlistTracks4.add(trackList.get(0));
-        playlistTracks4.add(trackList.get(1));
+        List<TrackResponse> playlistTracks4 = new ArrayList<>();
+        playlistTracks4.add(trackResponseList.get(0));
+        playlistTracks4.add(trackResponseList.get(1));
 
-        playlistsList.add(new Playlist(
+        playlistsList.add(new PlaylistResponse(
                 "p2", "Party Mix", LocalDateTime.now(), "Party playlist", "public",
-                "user4", new Genre("6", "Party", LocalDateTime.now()), "cover6.jpg",
+                "user4", new GenreResponse("6", "Party", LocalDateTime.now()), "cover6.jpg",
                 LocalDateTime.now(), playlistTracks2,
-                Arrays.asList(new Tag("tag11", "partyzone", LocalDateTime.now(), "user4"))
+                Arrays.asList(new TagResponse("tag11", "partyzone", LocalDateTime.now(), "user4")),false,null
         ));
-        List<Track> playlistTracks5 = new ArrayList<>();
-        playlistTracks5.add(trackList.get(0));
-        playlistTracks5.add(trackList.get(1));
+        List<TrackResponse> playlistTracks5 = new ArrayList<>();
+        playlistTracks5.add(trackResponseList.get(0));
+        playlistTracks5.add(trackResponseList.get(1));
 
-        playlistsList.add(new Playlist(
+        playlistsList.add(new PlaylistResponse(
                 "p2", "Party Mix", LocalDateTime.now(), "Party playlist", "public",
-                "user4", new Genre("6", "Party", LocalDateTime.now()), "cover6.jpg",
+                "user4", new GenreResponse("6", "Party", LocalDateTime.now()), "cover6.jpg",
                 LocalDateTime.now(), playlistTracks2,
-                Arrays.asList(new Tag("tag11", "partyzone", LocalDateTime.now(), "user4"))
+                Arrays.asList(new TagResponse("tag11", "partyzone", LocalDateTime.now(), "user4")),false,null
         ));
-        List<Track> playlistTracks6 = new ArrayList<>();
-        playlistTracks6.add(trackList.get(0));
-        playlistTracks6.add(trackList.get(1));
+        List<TrackResponse> playlistTracks6 = new ArrayList<>();
+        playlistTracks6.add(trackResponseList.get(0));
+        playlistTracks6.add(trackResponseList.get(1));
 
-        playlistsList.add(new Playlist(
+        playlistsList.add(new PlaylistResponse(
                 "p1", "Chill Vibes", LocalDateTime.now(), "Chill playlist", "public",
-                "user4", new Genre("5", "Chill", LocalDateTime.now()), "cover5.jpg",
+                "user4", new GenreResponse("5", "Chill", LocalDateTime.now()), "cover5.jpg",
                 LocalDateTime.now(), playlistTracks1,
-                Arrays.asList(new Tag("tag10", "chillzone", LocalDateTime.now(), "user4"))
+                Arrays.asList(new TagResponse("tag10", "chillzone", LocalDateTime.now(), "user4")),false,null
         ));
     }
     private void mockDataAlbums() {
-        List<Track> albumTracks1 = new ArrayList<>();
-        albumTracks1.add(trackList.get(0));
-        albumTracks1.add(trackList.get(1));
+        List<TrackResponse> albumTracks1 = new ArrayList<>();
+        albumTracks1.add(trackResponseList.get(0));
+        albumTracks1.add(trackResponseList.get(1));
 
-        albumsList.add(new Album(
+        albumsList.add(new AlbumResponse(
                 "Rock Legends", "Rock Band", "7", "album",
-                Arrays.asList(new Tag("tag12", "rockzone", LocalDateTime.now(), "user5")),
+                Arrays.asList(new TagResponse("tag12", "rockzone", LocalDateTime.now(), "user5")),
                 "Rock album", "public", "link1", "cover7.jpg", "user5", "a1",
-                LocalDateTime.now(), albumTracks1, new Genre("7", "Rock", LocalDateTime.now())
+                LocalDateTime.now(), albumTracks1, new GenreResponse("7", "Rock", LocalDateTime.now())
         ));
 
-        List<Track> albumTracks2 = new ArrayList<>();
-        albumTracks2.add(trackList.get(2));
-        albumTracks2.add(trackList.get(3));
+        List<TrackResponse> albumTracks2 = new ArrayList<>();
+        albumTracks2.add(trackResponseList.get(2));
+        albumTracks2.add(trackResponseList.get(3));
 
-        albumsList.add(new Album(
+        albumsList.add(new AlbumResponse(
                 "Pop Hits", "Pop Star", "8", "album",
-                Arrays.asList(new Tag("tag13", "popzone", LocalDateTime.now(), "user5")),
+                Arrays.asList(new TagResponse("tag13", "popzone", LocalDateTime.now(), "user5")),
                 "Pop album", "public", "link2", "cover8.jpg", "user5", "a2",
-                LocalDateTime.now(), albumTracks2, new Genre("8", "Pop", LocalDateTime.now())
+                LocalDateTime.now(), albumTracks2, new GenreResponse("8", "Pop", LocalDateTime.now())
         ));
     }
 

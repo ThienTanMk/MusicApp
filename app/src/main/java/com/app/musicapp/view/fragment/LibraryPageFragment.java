@@ -16,10 +16,10 @@ import android.widget.Toast;
 import com.app.musicapp.R;
 import com.app.musicapp.adapter.LibraryListAdapter;
 import com.app.musicapp.adapter.TrackAdapter;
-import com.app.musicapp.model.Genre;
+import com.app.musicapp.model.response.GenreResponse;
 import com.app.musicapp.model.ListView.LibraryList;
-import com.app.musicapp.model.Tag;
-import com.app.musicapp.model.Track;
+import com.app.musicapp.model.response.TagResponse;
+import com.app.musicapp.model.response.TrackResponse;
 import com.app.musicapp.view.fragment.album.AlbumsFragment;
 import com.app.musicapp.view.fragment.follow.FollowingFragment;
 import com.app.musicapp.view.fragment.playlist.PlaylistsFragment;
@@ -37,7 +37,7 @@ public class LibraryPageFragment extends Fragment {
     private LibraryListAdapter menuAdapter;
     private TrackAdapter historyAdapter;
     private List<LibraryList> libraryLists;
-    private List<Track> trackList;
+    private List<TrackResponse> trackResponseList;
     public LibraryPageFragment() {
         // Required empty public constructor
     }
@@ -115,8 +115,8 @@ public class LibraryPageFragment extends Fragment {
         // Khởi tạo ListView cho Listening history
         listViewHistory = view.findViewById(R.id.listViewHistory);
 
-        trackList = new ArrayList<>();
-        trackList.add(new Track(
+        trackResponseList = new ArrayList<>();
+        trackResponseList.add(new TrackResponse(
                 "1", // id
                 "Khóc Cùng Em", // title
                 "Description 1", // description
@@ -127,11 +127,11 @@ public class LibraryPageFragment extends Fragment {
                 "3:10", // duration
                 "public", // privacy
                 67, // countPlay
-                new Genre("1","Pop",LocalDateTime.now()), // genre
-                Arrays.asList(new Tag("tag3", "gentlebad", LocalDateTime.now(), "user3")) // tags
+                new GenreResponse("1","Pop",LocalDateTime.now()), // genre
+                Arrays.asList(new TagResponse("tag3", "gentlebad", LocalDateTime.now(), "user3")) // tags
         ));
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            trackList.add(new Track(
+            trackResponseList.add(new TrackResponse(
                     "2", // id
                     "(slowed) Khiếp Chông Chung", // title
                     "Description 2", // description
@@ -142,11 +142,11 @@ public class LibraryPageFragment extends Fragment {
                     "4:28", // duration
                     "public", // privacy
                     165000, // countPlay
-                    new Genre("2","Hip Hop",LocalDateTime.now()), // genre
-                    Arrays.asList(new Tag("tag3", "gentlebad", LocalDateTime.now(), "user3")) // tags
+                    new GenreResponse("2","Hip Hop",LocalDateTime.now()), // genre
+                    Arrays.asList(new TagResponse("tag3", "gentlebad", LocalDateTime.now(), "user3")) // tags
             ));
         }
-        trackList.add(new Track(
+        trackResponseList.add(new TrackResponse(
                 "3", // id
                 "Đế Anh Lừng Thiền Linh Hương", // title
                 "Description 3", // description
@@ -157,12 +157,12 @@ public class LibraryPageFragment extends Fragment {
                 "4:34", // duration
                 "public", // privacy
                 2400000, // countPlay
-                new Genre("3","Ballad",LocalDateTime.now()), // genre
-                Arrays.asList(new Tag("tag3", "gentlebad", LocalDateTime.now(), "user3")) // tags
+                new GenreResponse("3","Ballad",LocalDateTime.now()), // genre
+                Arrays.asList(new TagResponse("tag3", "gentlebad", LocalDateTime.now(), "user3")) // tags
         ));
 
         // Khởi tạo và gắn adapter vào ListView history
-        historyAdapter = new TrackAdapter(this, trackList);
+        historyAdapter = new TrackAdapter(this, trackResponseList);
         listViewHistory.setAdapter(historyAdapter);
         return view;
     }

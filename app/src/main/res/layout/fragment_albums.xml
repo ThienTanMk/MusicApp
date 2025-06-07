@@ -7,7 +7,7 @@
     android:orientation="vertical"
     android:background="#1A1A1A"
     android:padding="16dp"
-    tools:context=".view.fragment.playlist.PlaylistsFragment">
+    tools:context=".view.fragment.playlistResponse.PlaylistsFragment">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -42,7 +42,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/search_background"
-        android:hint="Search albums"
+        android:hint="Search albumResponses"
         android:textColor="#FFFFFF"
         android:textColorHint="#BBBBBB"
         android:padding="12dp"

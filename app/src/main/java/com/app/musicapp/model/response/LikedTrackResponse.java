@@ -1,13 +1,13 @@
-package com.app.musicapp.model;
+package com.app.musicapp.model.response;
 
 import java.io.Serializable;
 
-public class LikedTrack implements Serializable {
+public class LikedTrackResponse implements Serializable {
     private String id;
     private String trackId;
     private String userId;
 
-    public LikedTrack(String id, String trackId, String userId) {
+    public LikedTrackResponse(String id, String trackId, String userId) {
         this.id = id;
         this.trackId = trackId;
         this.userId = userId;

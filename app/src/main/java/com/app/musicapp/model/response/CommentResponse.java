@@ -1,9 +1,9 @@
-package com.app.musicapp.model;
+package com.app.musicapp.model.response;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-public class Comment {
+public class CommentResponse {
     String id;
     String trackId;
     String userId;
@@ -12,12 +12,12 @@ public class Comment {
     String content;
     LocalDateTime commentAt;
     int likeCount;
-    List<Comment> replies;
+    List<CommentResponse> replies;
 
-    public Comment() {
+    public CommentResponse() {
     }
 
-    public Comment(String id, String trackId, String userId, String repliedUserId, Boolean isLiked, String content, LocalDateTime commentAt, int likeCount, List<Comment> replies) {
+    public CommentResponse(String id, String trackId, String userId, String repliedUserId, Boolean isLiked, String content, LocalDateTime commentAt, int likeCount, List<CommentResponse> replies) {
         this.id = id;
         this.trackId = trackId;
         this.userId = userId;
@@ -93,11 +93,11 @@ public class Comment {
         this.likeCount = likeCount;
     }
 
-    public List<Comment> getReplies() {
+    public List<CommentResponse> getReplies() {
         return replies;
     }
 
-    public void setReplies(List<Comment> replies) {
+    public void setReplies(List<CommentResponse> replies) {
         this.replies = replies;
     }
 }
