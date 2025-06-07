@@ -42,8 +42,8 @@ public class HomePageFragment extends Fragment {
     private LinearLayout llYourLikes;
     private View progressBar;
     private RecyclerView rvPlaylist, rvPlaylistLike, rvAlbum;
-    private List<Object> userPlaylists = new ArrayList<>();
-    private List<Object> likedPlaylists = new ArrayList<>();
+    private List<PlaylistResponse> userPlaylists = new ArrayList<>();
+    private List<PlaylistResponse> likedPlaylists = new ArrayList<>();
     private List<AlbumResponse> likedAlbumResponses = new ArrayList<>();
     private PlayListRVAdapter playListRVAdapter, likedPlaylistRVAdapter;
     private AlbumRVAdapter albumRVAdapter;
@@ -70,9 +70,8 @@ public class HomePageFragment extends Fragment {
         // Thiết lập RecyclerView cho userPlaylists
         rvPlaylist.setLayoutManager(new GridLayoutManager(getContext(), 1, GridLayoutManager.HORIZONTAL, false));
         playListRVAdapter = new PlayListRVAdapter(userPlaylists, item -> {
-            PlaylistResponse playlistResponse = (item instanceof PlaylistResponse) ? (PlaylistResponse) item : ((LikedPlaylistResponse) item).getPlaylist();
-            Toast.makeText(getContext(), "Clicked: " + playlistResponse.getTitle(), Toast.LENGTH_SHORT).show();
-            List<Object> playlistList = new ArrayList<>();
+            Toast.makeText(getContext(), "Clicked: " + item.getTitle(), Toast.LENGTH_SHORT).show();
+            List<PlaylistResponse> playlistList = new ArrayList<>();
             playlistList.add(item);
             navigateToPlaylistPage(playlistList);
         });
@@ -81,9 +80,8 @@ public class HomePageFragment extends Fragment {
         // Thiết lập RecyclerView cho likedPlaylists
         rvPlaylistLike.setLayoutManager(new GridLayoutManager(getContext(), 1, GridLayoutManager.HORIZONTAL, false));
         likedPlaylistRVAdapter = new PlayListRVAdapter(likedPlaylists, item -> {
-            PlaylistResponse playlistResponse = (item instanceof PlaylistResponse) ? (PlaylistResponse) item : ((LikedPlaylistResponse) item).getPlaylist();
-            Toast.makeText(getContext(), "Clicked: " + playlistResponse.getTitle(), Toast.LENGTH_SHORT).show();
-            List<Object> playlistList = new ArrayList<>();
+            Toast.makeText(getContext(), "Clicked: " + item.getTitle(), Toast.LENGTH_SHORT).show();
+            List<PlaylistResponse> playlistList = new ArrayList<>();
             playlistList.add(item);
             navigateToPlaylistPage(playlistList);
         });
@@ -274,7 +272,7 @@ public class HomePageFragment extends Fragment {
         }
     }
 
-    private void navigateToPlaylistPage(List<Object> playlistList) {
+    private void navigateToPlaylistPage(List<PlaylistResponse> playlistList) {
         navigateToFragment(PlaylistPageFragment.newInstance(playlistList));
     }
     private void navigateToAlbumPage(AlbumResponse albumResponse) {

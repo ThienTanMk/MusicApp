@@ -1,131 +1,55 @@
 package com.app.musicapp.view.fragment.playlist;
 
+import android.content.Intent;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.fragment.app.Fragment;
 
+import android.util.Log;
 import android.view.*;
 
 import android.widget.*;
 
 import com.app.musicapp.R;
 import com.app.musicapp.adapter.PlaylistAdapter;
+import com.app.musicapp.api.ApiClient;
+import com.app.musicapp.helper.SharedPreferencesManager;
+import com.app.musicapp.model.response.ApiResponse;
 import com.app.musicapp.model.response.GenreResponse;
 import com.app.musicapp.model.response.LikedPlaylistResponse;
 import com.app.musicapp.model.response.PlaylistResponse;
 import com.app.musicapp.model.response.TagResponse;
 import com.app.musicapp.model.response.TrackResponse;
+import com.app.musicapp.view.activity.SignIn;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import retrofit2.*;
 
 
 public class PlaylistsFragment extends Fragment {
-
     private ListView listViewPlaylists;
     private PlaylistAdapter playlistAdapter;
-    private List<Object> playlists; // Danh sách chứa cả Playlist và LikedPlaylist
+    private ProgressBar progressBar;
+    private List<PlaylistResponse> playlists = new ArrayList<>(); // Danh sách chứa cả Playlist và LikedPlaylist
 
-    public PlaylistsFragment() {
-        // Required empty public constructor
-    }
+    public PlaylistsFragment() {}
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_playlists, container, false);
 
-        // Ánh xạ ListView
         listViewPlaylists = view.findViewById(R.id.listViewPlaylists);
+        progressBar = view.findViewById(R.id.progressBar);
 
-        playlists = new ArrayList<>();
-
-        PlaylistResponse playlistResponse1 = new PlaylistResponse(
-                "1",
-                "Weekly Wave",
-                LocalDateTime.now(),
-                "Made for ThienTanVCK",
-                "public",
-                "user1",
-                new GenreResponse("1","Rock",LocalDateTime.now()),
-                "cover1.jpg",
-                LocalDateTime.now(),
-                new ArrayList<>(), // Không có bài hát
-                Arrays.asList(new TagResponse("tag1", "weekly", LocalDateTime.now(), "user1")),false,null
-        );
-        playlists.add(playlistResponse1);
-
-        // Playlist được người dùng thích từ người khác
-        List<TrackResponse> diracTrackResponses = new ArrayList<>();
-        for (int i = 1; i <= 61; i++) {
-            diracTrackResponses.add(new TrackResponse(
-                    String.valueOf(i),
-                    "Track " + i,
-                    "Artist " + i,
-                    "Description " + i,
-                    "cover" + i + ".jpg",
-                    LocalDateTime.now(),
-                    "Artist " + i,
-                    "3:00",
-                    "public",
-                    (int) (Math.random() * 100000),
-                    new GenreResponse("1","Rock",LocalDateTime.now()),
-                    Arrays.asList(new TagResponse("tag2" , "gentlebad", LocalDateTime.now(), "user3"))
-            ));
-        }
-        PlaylistResponse playlistResponse2 = new PlaylistResponse(
-                "2",
-                "Dirac Reverse Station",
-                LocalDateTime.now(),
-                "Made for freedommalaysia",
-                "public",
-                "user2",
-                new GenreResponse("1","Rock",LocalDateTime.now()),
-                "cover2.jpg",
-                LocalDateTime.now(),
-                diracTrackResponses, // 61 Tracks
-                Arrays.asList(new TagResponse("tag2", "dirac", LocalDateTime.now(), "user2")),false,null
-        );
-        playlists.add(new LikedPlaylistResponse("lp1", "user1", LocalDateTime.now(), playlistResponse2));
-
-        // Playlist được người dùng thích từ người khác
-        List<TrackResponse> gentleBadTrackResponses = new ArrayList<>();
-        for (int i = 1; i <= 5; i++) {
-            gentleBadTrackResponses.add(new TrackResponse(
-                    String.valueOf(i + 61),
-                    "Gentle Bad Track " + i,
-                    "GURBANE",
-                    "Description " + (i + 61),
-                    "cover" + (i + 61) + ".jpg",
-                    LocalDateTime.now(),
-                    "GURBANE",
-                    "3:00",
-                    "public",
-                    (int) (Math.random() * 100000),
-                    new GenreResponse("1","Rock",LocalDateTime.now()),
-                    Arrays.asList(new TagResponse("tag", "gentlebad", LocalDateTime.now(), "user3"))
-            ));
-        }
-        PlaylistResponse playlistResponse3 = new PlaylistResponse(
-                "3",
-                "\"Gentle Bad\" the EP - GURBANE",
-                LocalDateTime.now(),
-                "Description 3",
-                "public",
-                "user3",
-                new GenreResponse("1","Rock",LocalDateTime.now()),
-                "cover3.jpg",
-                LocalDateTime.now(),
-                gentleBadTrackResponses, // 5 Tracks
-                Arrays.asList(new TagResponse("tag3", "gentlebad", LocalDateTime.now(), "user3")),false,null
-        );
-        playlists.add(new LikedPlaylistResponse("lp2", "user1", LocalDateTime.now(), playlistResponse3));
-
-        // Khởi tạo và gắn adapter vào ListView
         playlistAdapter = new PlaylistAdapter(getContext(), playlists);
         listViewPlaylists.setAdapter(playlistAdapter);
+
+        loadPlaylists();
 
         // Xử lý sự kiện bấm nút Back
         ImageView ivBack = view.findViewById(R.id.iv_back);
@@ -162,7 +86,7 @@ public class PlaylistsFragment extends Fragment {
             tvSave.setOnClickListener(v1 -> {
                 String title = etPlaylistTitle.getText().toString().trim();
                 if (title.isEmpty()) {
-                    Toast.makeText(getContext(), "Playlist title cannot be empty", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "Tiêu đề Playlist không được trống", Toast.LENGTH_SHORT).show();
                     return;
                 }
 
@@ -193,5 +117,42 @@ public class PlaylistsFragment extends Fragment {
         });
 
         return view;
+    }
+
+    private void loadPlaylists() {
+        progressBar.setVisibility(View.VISIBLE);
+        String userId = SharedPreferencesManager.getInstance(requireContext()).getUserId();
+
+        if (userId == null) {
+            progressBar.setVisibility(View.GONE);
+            Toast.makeText(requireContext(), "Vui lòng đăng nhập lại", Toast.LENGTH_SHORT).show();
+            startActivity(new Intent(requireContext(), SignIn.class));
+            requireActivity().finish();
+            return;
+        }
+        Log.d("PlaylistsFragment", "Fetching playlists for userId: " + userId);
+        ApiClient.getPlaylistService().getAllPlaylists().enqueue(new Callback<ApiResponse<List<PlaylistResponse>>>() {
+            @Override
+            public void onResponse(@NonNull Call<ApiResponse<List<PlaylistResponse>>> call, @NonNull Response<ApiResponse<List<PlaylistResponse>>> response) {
+                progressBar.setVisibility(View.GONE);
+                if (response.isSuccessful() && response.body() != null && response.body().getData() != null) {
+                    playlists.clear();
+                    playlists.addAll(response.body().getData());
+                    playlistAdapter.notifyDataSetChanged();
+                } else if (response.body() != null && response.body().getCode() == 1401) {
+                    Toast.makeText(requireContext(), "Vui lòng đăng nhập lại", Toast.LENGTH_SHORT).show();
+                    startActivity(new Intent(requireContext(), SignIn.class));
+                    requireActivity().finish();
+                } else {
+                    Toast.makeText(requireContext(), "Không thể tải danh sách playlist", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<ApiResponse<List<PlaylistResponse>>> call, @NonNull Throwable t) {
+                progressBar.setVisibility(View.GONE);
+                Toast.makeText(requireContext(), "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }

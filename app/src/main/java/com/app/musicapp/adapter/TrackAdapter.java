@@ -11,6 +11,7 @@ import androidx.fragment.app.Fragment;
 
 import com.app.musicapp.R;
 import com.app.musicapp.helper.UrlHelper;
+import com.app.musicapp.model.response.ProfileWithCountFollowResponse;
 import com.app.musicapp.model.response.TrackResponse;
 import com.app.musicapp.view.fragment.track.SongOptionsBottomSheet;
 import com.bumptech.glide.Glide;
@@ -66,10 +67,17 @@ public class TrackAdapter extends BaseAdapter {
 
         // Gán dữ liệu
         TrackResponse trackResponse = trackResponseList.get(i);
-        holder.tvTrackTitle.setText(trackResponse.getTitle());
-        holder.tvTrackArtist.setText(trackResponse.getUser().getDisplayName());
+        holder.tvTrackTitle.setText(trackResponse.getTitle() != null ? trackResponse.getTitle() : "Unknown Track");
+        ProfileWithCountFollowResponse user = trackResponse.getUser();
+        if (user != null && user.getDisplayName() != null) {
+            holder.tvTrackArtist.setText(user.getDisplayName());
+        } else {
+//            Log.w("TrackAdapter", "User or displayName is null for track: " +
+//                    (trackResponse.getTitle() != null ? trackResponse.getTitle() : "null"));
+            holder.tvTrackArtist.setText("Unknown Artist");
+        }
         holder.tvPlayCount.setText(formatPlayCount(trackResponse.getCountPlay()));
-        holder.tvDuration.setText(trackResponse.getDuration());
+        holder.tvDuration.setText(trackResponse.getDuration() != null ? trackResponse.getDuration() : "0:00");
         if (trackResponse.getCoverImageName() !=null) {
             Glide.with(context)
                     .load(UrlHelper.getCoverImageUrl(trackResponse.getCoverImageName())) // URL ảnh từ API

@@ -40,11 +40,11 @@ public class LikedPlaylistResponse implements Serializable {
         this.likedAt = likedAt;
     }
 
-    public PlaylistResponse getPlaylist() {
+    public PlaylistResponse getPlaylistResponse() {
         return playlistResponse;
     }
 
-    public void setPlaylist(PlaylistResponse playlistResponse) {
+    public void setPlaylistResponse(PlaylistResponse playlistResponse) {
         this.playlistResponse = playlistResponse;
     }
 }

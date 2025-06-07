@@ -2,10 +2,12 @@ package com.app.musicapp.view.fragment.playlist;
 
 import android.os.Bundle;
 
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,9 +26,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PlaylistPageFragment extends Fragment {
-    private List<Object> playlist; // Danh sách chứa cả Playlist và LikedPlaylist
+    private List<PlaylistResponse> playlist;
 
-    public static PlaylistPageFragment newInstance(List<Object> playlist) {
+    public static PlaylistPageFragment newInstance(List<PlaylistResponse> playlist) {
         PlaylistPageFragment fragment = new PlaylistPageFragment();
         Bundle args = new Bundle();
         args.putSerializable("playlist", (java.io.Serializable) playlist);
@@ -37,7 +39,7 @@ public class PlaylistPageFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            playlist = (List<Object>) getArguments().getSerializable("playlist");
+            playlist = (List<PlaylistResponse>) getArguments().getSerializable("playlist");
         }
     }
     public PlaylistPageFragment() {
@@ -48,10 +50,8 @@ public class PlaylistPageFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_playlist_page, container, false);
 
-        // Ánh xạ view
         ImageView ivBack = view.findViewById(R.id.iv_back);
         TextView tvPlaylistTitleHeader = view.findViewById(R.id.tv_playlist_title_header);
         ImageView ivPlaylistCover = view.findViewById(R.id.iv_playlist_cover);
@@ -69,43 +69,35 @@ public class PlaylistPageFragment extends Fragment {
         TextView tvShowMore = view.findViewById(R.id.tv_show_more);
         RecyclerView rvTracks = view.findViewById(R.id.rv_tracks);
 
-        // Đặt dữ liệu lấy playlist đầu tiên nếu danh sách không rỗng
-        if (playlist != null && !playlist.isEmpty()) {
-            Object item = playlist.get(0);
-            PlaylistResponse playlistResponseData;
-            if (item instanceof PlaylistResponse) {
-                playlistResponseData = (PlaylistResponse) item;
-            } else if (item instanceof LikedPlaylistResponse) {
-                playlistResponseData = ((LikedPlaylistResponse) item).getPlaylist();
-            } else {
-                playlistResponseData = null;
-            }
+        final PlaylistResponse playlistResponseData = (playlist != null && !playlist.isEmpty()) ? playlist.get(0) : null;
 
-            if (playlistResponseData != null) {
-                tvPlaylistTitleHeader.setText("Playlist " + playlistResponseData.getCreatedAt().getYear());
-                tvPlaylistTitle.setText(playlistResponseData.getTitle());
-                tvPlaylistArtists.setText(playlistResponseData.getUserId());
+        if (playlistResponseData != null) {
+            tvPlaylistTitleHeader.setText("Playlist " + (playlistResponseData.getCreatedAt() != null ? playlistResponseData.getCreatedAt().getYear() : "Unknown"));
+            tvPlaylistTitle.setText(playlistResponseData.getTitle() != null ? playlistResponseData.getTitle() : "Untitled");
+            tvPlaylistArtists.setText(playlistResponseData.getUserId() != null ? playlistResponseData.getUserId() : "Unknown User");
 
-                Glide.with(ivPlaylistCover.getContext())
-                        .load(playlistResponseData.getImagePath())
-                        .placeholder(R.drawable.logo)
-                        .into(ivPlaylistCover);
+            Glide.with(ivPlaylistCover.getContext())
+                    .load(playlistResponseData.getImagePath() != null ? playlistResponseData.getImagePath() : R.drawable.logo)
+                    .placeholder(R.drawable.logo)
+                    .into(ivPlaylistCover);
 
-                tvPlaylistType.setText("Playlist");
-                tvCreatedAt.setText(" · " + playlistResponseData.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy")));
-                int trackCount = playlistResponseData.getPlaylistTracks() != null ? playlistResponseData.getPlaylistTracks().size() : 0;
-                tvNumOfTracks.setText(" · " + trackCount + " Tracks");
-                long totalDurationSeconds = calculateTotalDuration(playlistResponseData.getPlaylistTracks());
-                String duration = String.format("%d:%02d", totalDurationSeconds / 60, totalDurationSeconds % 60);
-                tvTotalDuration.setText(" · " + duration);
+            tvPlaylistType.setText("Playlist");
+            tvCreatedAt.setText(playlistResponseData.getCreatedAt() != null ? " · " + playlistResponseData.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy")) : " · Unknown");
+            int trackCount = playlistResponseData.getPlaylistTracks() != null ? playlistResponseData.getPlaylistTracks().size() : 0;
+            tvNumOfTracks.setText(" · " + trackCount + " Tracks");
+            long totalDurationSeconds = calculateTotalDuration(playlistResponseData.getPlaylistTracks());
+            String duration = String.format("%d:%02d", totalDurationSeconds / 60, totalDurationSeconds % 60);
+            tvTotalDuration.setText(" · " + duration);
 
-                tvLikeCount.setText("210");
-                tvDescription.setText(playlistResponseData.getDescription() != null ? playlistResponseData.getDescription() : "No description");
+            tvLikeCount.setText("210");
+            tvDescription.setText(playlistResponseData.getDescription() != null ? playlistResponseData.getDescription() : "No description");
 
-                rvTracks.setLayoutManager(new LinearLayoutManager(getContext()));
-                TrackRVAdapter trackAdapter = new TrackRVAdapter(this, playlistResponseData.getPlaylistTracks() != null ? playlistResponseData.getPlaylistTracks() : new ArrayList<>());
-                rvTracks.setAdapter(trackAdapter);
-            }
+            rvTracks.setLayoutManager(new LinearLayoutManager(getContext()));
+            TrackRVAdapter trackAdapter = new TrackRVAdapter(this, playlistResponseData.getPlaylistTracks() != null ?
+                        playlistResponseData.getPlaylistTracks() : new ArrayList<>());
+            rvTracks.setAdapter(trackAdapter);
+        } else {
+            Log.w("PlaylistPageFragment", "No playlist data available");
         }
 
         ivBack.setOnClickListener(v -> getParentFragmentManager().popBackStack());
@@ -113,31 +105,12 @@ public class PlaylistPageFragment extends Fragment {
             Toast.makeText(getContext(), "Liked: " + (playlist != null && !playlist.isEmpty() ? ((PlaylistResponse) playlist.get(0)).getTitle() : "Unknown"), Toast.LENGTH_SHORT).show();
         });
         ivMenu.setOnClickListener(v -> {
-            // Mở bottom sheet theo logic của PlaylistAdapter
-            if (playlist != null && !playlist.isEmpty()) {
-                Object item = playlist.get(0);
-                BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(getContext());
-                View bottomSheetView;
-                if (item instanceof PlaylistResponse) {
-                    bottomSheetView = LayoutInflater.from(getContext()).inflate(R.layout.bottom_sheet_user_playlist, null);
-                } else {
-                    bottomSheetView = LayoutInflater.from(getContext()).inflate(R.layout.bottom_sheet_liked_playlist_options, null);
-                }
-
-                // Ánh xạ các view trong bottom sheet
-                ImageView ivPlaylistImageSheet = bottomSheetView.findViewById(R.id.iv_playlist_image);
-                TextView tvPlaylistTitleSheet = bottomSheetView.findViewById(R.id.tv_playlist_title);
-                TextView tvPlaylistDescriptionSheet = bottomSheetView.findViewById(R.id.tv_user_playlist);
-
-                PlaylistResponse playlistResponseData = (item instanceof PlaylistResponse) ? (PlaylistResponse) item : ((LikedPlaylistResponse) item).getPlaylist();
-                tvPlaylistTitleSheet.setText(playlistResponseData.getTitle());
-                tvPlaylistDescriptionSheet.setText(playlistResponseData.getDescription());
-                Glide.with(ivPlaylistImageSheet.getContext())
-                        .load(playlistResponseData.getImagePath())
-                        .placeholder(R.drawable.logo)
-                        .into(ivPlaylistImageSheet);
-                bottomSheetDialog.setContentView(bottomSheetView);
-                bottomSheetDialog.show();
+            if (playlistResponseData != null) {
+                PlaylistOptionsBottomSheet bottomSheet = PlaylistOptionsBottomSheet.newInstance(playlistResponseData);
+                bottomSheet.show(getParentFragmentManager(), bottomSheet.getTag());
+            } else {
+                Log.w("PlaylistPageFragment", "Cannot open bottom sheet: playlistResponseData is null");
+                Toast.makeText(getContext(), "No playlist data available", Toast.LENGTH_SHORT).show();
             }
         });
         ivPlay.setOnClickListener(v -> {
@@ -164,4 +137,5 @@ public class PlaylistPageFragment extends Fragment {
         }
         return totalSeconds;
     }
+
 }

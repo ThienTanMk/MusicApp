@@ -72,7 +72,12 @@ public class ApiClient {
         }
         return getClient().create(PlaylistApiService.class);
     }
-
+    public static LikedPlaylistApiService getLikedPlaylistService() {
+        if (context == null) {
+            throw new IllegalStateException("ApiClient must be initialized with context first");
+        }
+        return getClient().create(LikedPlaylistApiService.class);
+    }
     // Call this when you need to clear the retrofit instance (e.g., on logout)
     public static void clearInstance() {
         retrofit = null;

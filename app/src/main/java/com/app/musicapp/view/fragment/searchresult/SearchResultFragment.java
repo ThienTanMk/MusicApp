@@ -67,33 +67,6 @@ public class SearchResultFragment extends Fragment {
             playlistResults = (List<Object>) getArguments().getSerializable(ARG_PLAYLISTS);
             albumResponseResults = (List<AlbumResponse>) getArguments().getSerializable(ARG_ALBUMS);
         }
-        // Xử lý nút Back của điện thoại
-//        requireActivity().getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
-//            @Override
-//            public void handleOnBackPressed() {
-//                if (getParentFragmentManager().getBackStackEntryCount() > 1) {
-//                    getParentFragmentManager().popBackStack();
-//                } else {
-//                    getParentFragmentManager().popBackStack();
-//                    View viewPager = requireActivity().findViewById(R.id.view_pager);
-//                    View fragmentContainer = requireActivity().findViewById(R.id.fragment_container);
-//                    if (viewPager != null && fragmentContainer != null) {
-//                        viewPager.setVisibility(View.VISIBLE);
-//                        fragmentContainer.setVisibility(View.GONE);
-//                    }
-//                    RecyclerView recyclerView = requireActivity().findViewById(R.id.recyclerViewSearchUser);
-//                    if (recyclerView != null) {
-//                        recyclerView.setVisibility(View.GONE);
-//                    }
-//                    GridView gridView = requireActivity().findViewById(R.id.gridViewVibes);
-//                    TextView textView = requireActivity().findViewById(R.id.textViewVibes);
-//                    if (gridView != null && textView != null) {
-//                        gridView.setVisibility(View.VISIBLE);
-//                        textView.setVisibility(View.VISIBLE);
-//                    }
-//                }
-//            }
-//        });
     }
 
     @Override
@@ -199,7 +172,7 @@ public class SearchResultFragment extends Fragment {
             for (Object playlist : tempPlaylistResults) {
                 if (playlist instanceof PlaylistResponse && ((PlaylistResponse) playlist).getTitle().toLowerCase().contains(query.toLowerCase())) {
                     playlistResults.add(playlist);
-                } else if (playlist instanceof LikedPlaylistResponse && ((LikedPlaylistResponse) playlist).getPlaylist().getTitle().toLowerCase().contains(query.toLowerCase())) {
+                } else if (playlist instanceof LikedPlaylistResponse && ((LikedPlaylistResponse) playlist).getPlaylistResponse().getTitle().toLowerCase().contains(query.toLowerCase())) {
                     playlistResults.add(playlist);
                 }
             }
