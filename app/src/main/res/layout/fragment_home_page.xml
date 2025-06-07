@@ -150,7 +150,13 @@
                 android:layout_height="wrap_content"
                 android:nestedScrollingEnabled="false" />
         </LinearLayout>
-
+        <!-- ProgressBar -->
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:visibility="gone" />
     </LinearLayout>
 
 </androidx.core.widget.NestedScrollView>
