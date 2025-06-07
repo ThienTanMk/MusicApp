@@ -21,4 +21,7 @@ public interface ApiService {
 
     @GET("api/user-library/liked/all")
     Call<ApiResponse<List<Track>>> getLikedTrack();
+
+    @GET("api/user-library/playlist/you/all")
+    Call<ApiResponse<List<Playlist>>> getAllPlaylist();
 }
