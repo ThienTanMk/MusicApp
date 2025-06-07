@@ -14,7 +14,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class ApiClient {
     // Replace 192.168.1.x with your computer's actual IP address
-    private static final String BASE_URL = "http://192.168.110.196:8888/";
+    private static final String BASE_URL = "http://192.168.1.105:8888/";
     private static Retrofit retrofit = null;
     private static Context context;
 
@@ -62,6 +62,12 @@ public class ApiClient {
             throw new IllegalStateException("ApiClient must be initialized with context first");
         }
         return getClient().create(AlbumApiService.class);
+    }
+    public static PlaylistApiService getPlaylistService() {
+        if (context == null) {
+            throw new IllegalStateException("ApiClient must be initialized with context first");
+        }
+        return getClient().create(PlaylistApiService.class);
     }
 
     // Call this when you need to clear the retrofit instance (e.g., on logout)

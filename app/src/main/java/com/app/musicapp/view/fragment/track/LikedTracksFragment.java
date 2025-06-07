@@ -4,6 +4,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.view.LayoutInflater;
@@ -65,7 +66,9 @@ public class LikedTracksFragment extends Fragment {
         listViewLikedTracks.setAdapter(trackAdapter);
         Intent intent = new Intent(getContext(), MusicService.class);
         getContext().bindService(intent, connection, Context.BIND_AUTO_CREATE);
-        getContext().startForegroundService(intent);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            getContext().startForegroundService(intent);
+        }
         listViewLikedTracks.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
