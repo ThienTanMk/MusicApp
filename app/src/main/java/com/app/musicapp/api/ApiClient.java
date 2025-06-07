@@ -2,10 +2,12 @@ package com.app.musicapp.api;
 
 import android.content.Context;
 
+import com.app.musicapp.util.LocalDateAdapter;
 import com.app.musicapp.util.LocalDateTimeAdapter;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import okhttp3.OkHttpClient;
@@ -27,6 +29,7 @@ public class ApiClient {
             // Create Gson instance with LocalDateTime adapter
             Gson gson = new GsonBuilder()
                     .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
+                    .registerTypeAdapter(LocalDate.class, new LocalDateAdapter())
                     .create();
 
             // Create OkHttpClient with interceptor
