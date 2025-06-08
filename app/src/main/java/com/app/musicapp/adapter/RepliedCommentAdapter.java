@@ -1,7 +1,6 @@
 package com.app.musicapp.adapter;
 
 import android.app.Activity;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,7 +9,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.app.musicapp.R;
@@ -21,51 +19,49 @@ import com.app.musicapp.model.response.CommentResponse;
 import com.app.musicapp.view.activity.CommentActivity;
 import com.bumptech.glide.Glide;
 
+
 import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.ViewHolder> {
-    private List<CommentResponse> comments;
+public class RepliedCommentAdapter extends RecyclerView.Adapter<RepliedCommentAdapter.ViewHolder> {
+
+    private CommentResponse parentComment;
     private CommentActivity context;
-    public CommentAdapter(List<CommentResponse>comments, CommentActivity context) {
-        this.comments = comments;
+    public RepliedCommentAdapter(CommentResponse parentComment, CommentActivity context) {
+        this.parentComment=parentComment;
         this.context = context;
     }
 
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.comment_item,parent,false);
+
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.replied_comment_item,parent,false);
 
         return new ViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        CommentResponse comment = comments.get(position);
+        CommentResponse comment = parentComment.getReplies().get(position);
         holder.displayName.setText(comment.getUser().getDisplayName());
         holder.commentContent.setText(comment.getContent());
         Glide.with(context).load(UrlHelper.getAvatarImageUrl(comment.getUser().getAvatar())).into(holder.imageAvatar);
-        RepliedCommentAdapter repliedCommentAdapter = new RepliedCommentAdapter(comment,context);
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(context);
-        holder.listRepliesComments.setLayoutManager(linearLayoutManager);
-        holder.listRepliesComments.setAdapter(repliedCommentAdapter);
 
         if(comment.getLiked()) holder.like.setImageResource(R.drawable.red_heart_icon);
+
 
         holder.reply.setOnClickListener(v -> {
             ImageView imageSendBtn = context.findViewById(R.id.image_send_btn);
             EditText editComment = context.findViewById(R.id.edit_text_comment);
             editComment.setText("@" + comment.getUser().getDisplayName());
-            imageSendBtn.setVisibility(View.VISIBLE);
-            context.setCommentId(comment.getId());
             context.setRepliedType();
+            context.setCommentId(comment.getId());
         });
         holder.like.setOnClickListener(v -> {
-            Log.i("like",comment.getLiked().toString());
             if(!comment.getLiked()){
                 ApiClient.getCommentService().likeComment(comment.getId()).enqueue(new Callback< ApiResponse<Void>>(){
 
@@ -105,23 +101,23 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.ViewHold
 
     @Override
     public int getItemCount() {
-        return comments.size();
+        if(parentComment.getReplies()==null) return 0;
+        return parentComment.getReplies().size();
     }
+
     public class ViewHolder extends RecyclerView.ViewHolder {
         ImageView imageAvatar;
         TextView displayName ;
         TextView commentContent;
         TextView reply;
         ImageView like;
-        RecyclerView listRepliesComments;
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
-            imageAvatar = itemView.findViewById(R.id.image_avatar);
-            displayName = itemView.findViewById(R.id.text_display_name);
-            commentContent = itemView.findViewById(R.id.text_content);
-            reply = itemView.findViewById(R.id.text_reply_btn);
-            like = itemView.findViewById(R.id.image_like_btn);
-            listRepliesComments = itemView.findViewById(R.id.list_replies_comments);
+            imageAvatar = itemView.findViewById(R.id.replied_image_avatar);
+            displayName = itemView.findViewById(R.id.replied_text_display_name);
+            commentContent = itemView.findViewById(R.id.replied_text_content);
+            reply = itemView.findViewById(R.id.replied_text_reply_btn);
+            like = itemView.findViewById(R.id.replied_image_like_btn);
         }
     }
 }

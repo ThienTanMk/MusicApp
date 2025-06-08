@@ -11,18 +11,26 @@
     import android.os.Build;
     import android.os.Handler;
     import android.os.IBinder;
+    import android.util.Log;
+    import android.widget.Toast;
 
     import androidx.annotation.Nullable;
     import androidx.core.app.NotificationCompat;
     import androidx.core.app.NotificationManagerCompat;
 
+    import com.app.musicapp.api.ApiClient;
     import com.app.musicapp.helper.UrlHelper;
+    import com.app.musicapp.model.response.ApiResponse;
     import com.app.musicapp.model.response.TrackResponse;
 
     import java.io.IOException;
     import java.util.ArrayList;
     import java.util.List;
     import java.util.Random;
+
+    import retrofit2.Call;
+    import retrofit2.Callback;
+    import retrofit2.Response;
 
     public class MusicService extends Service {
         private List<TrackResponse> nextUpItems;
@@ -54,21 +62,34 @@
 
             createNotificationChannel();
             startForeground(1, buildNotification("Music Service Ready"));
+            getLikedTrack();
+            currentIndex = 0;
             return super.onStartCommand(intent, flags, startId);
+        }
+
+        //TEST DATA
+        private void getLikedTrack(){
+            ApiClient.getApiService().getLikedTrack().enqueue(new Callback<ApiResponse<List<TrackResponse>>>() {
+                @Override
+                public void onResponse(Call<ApiResponse<List<TrackResponse>>> call, Response<ApiResponse<List<TrackResponse>>> response) {
+                    MusicService.this.nextUpItems = response.body().getData();
+                }
+
+                @Override
+                public void onFailure(Call<ApiResponse<List<TrackResponse>>> call, Throwable t) {
+
+                }
+            });
+
         }
 
         @Override
         public void onCreate() {
             super.onCreate();
-            nextUpItems = new ArrayList<>();
-            nextUpItems.add(new TrackResponse("id1","Hello","description","1748680692music.mp3","1748804121data-uri.jpeg",null,"user1","123","1:0","private",1,null,null));
-            nextUpItems.add(new TrackResponse("id1","Hello","description","1748680692music.mp3","1748681566data-uri.png",null,"user1","abc","1:0","private",1,null,null));
-            nextUpItems.add(new TrackResponse("id1","Hello","description","1748680692music.mp3","1748804121data-uri.jpeg",null,"user1","def","1:0","private",1,null,null));
-            nextUpItems.add(new TrackResponse("id1","Hello","description","1748680692music.mp3","1748681566data-uri.png",null,"user1","ghk","1:0","private",1,null,null));
-            currentIndex = 0;
 
         }
         public TrackResponse getCurrentTrack(){
+            if(this.nextUpItems==null||this.nextUpItems.isEmpty()) return null;
             return this.nextUpItems.get(currentIndex);
         }
         public List<TrackResponse> getNextUpItems(){
@@ -152,6 +173,7 @@
 
                 mediaPlayer.setOnPreparedListener(mp -> {
                     mp.start();
+                    sendPlayAction();
                     updateNotification("Playing music");
                     startSeekbarUpdate();
                 });
@@ -162,6 +184,7 @@
                 });
 
                 mediaPlayer.setOnErrorListener((mp, what, extra) -> {
+                    sendPauseAction();
                     return true;
                 });
 
@@ -187,25 +210,23 @@
             if(index>nextUpItems.size()) throw new ArrayIndexOutOfBoundsException("Index is out of size");
             currentIndex = index;
             playUrl(UrlHelper.getAudioUrl(nextUpItems.get(currentIndex).getFileName()));
-            sendPlayAction();
             sendTrackInfo();
         }
 
         public void pauseCurrentMusic() {
-            if (mediaPlayer != null && mediaPlayer.isPlaying()) {
-                mediaPlayer.pause();
-                updateNotification("Paused");
-            }
+            if (mediaPlayer == null || !mediaPlayer.isPlaying()) return;
+            mediaPlayer.pause();
+            updateNotification("Paused");
             sendPauseAction();
         }
 
         public void playCurrentMusic(){
-            sendPlayAction();
             if(mediaPlayer==null){
                 playUrl(UrlHelper.getAudioUrl(nextUpItems.get(currentIndex).getFileName()));
                 return;
             }
             mediaPlayer.start();
+            sendPlayAction();
             startSeekbarUpdate();
             updateNotification("Play");
         }

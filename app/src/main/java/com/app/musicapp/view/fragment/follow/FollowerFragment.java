@@ -4,6 +4,7 @@ import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,18 +12,27 @@ import android.widget.*;
 
 import com.app.musicapp.R;
 import com.app.musicapp.adapter.FollowingAdapter;
+import com.app.musicapp.api.ApiClient;
+import com.app.musicapp.helper.SharedPreferencesManager;
 import com.app.musicapp.model.FollowingUser;
+import com.app.musicapp.model.response.ApiResponse;
+import com.app.musicapp.model.response.PageFollowResponse;
+import com.app.musicapp.model.response.ProfileWithCountFollowResponse;
 import com.app.musicapp.view.fragment.UserProfileFragment;
 
 import java.time.LocalDateTime;
 import java.util.*;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 
 public class FollowerFragment extends Fragment {
     private ListView listViewFollower;
     private ImageView ivBack;
     private FollowingAdapter followerAdapter;
-    private List<FollowingUser> followerList;
+    private List<ProfileWithCountFollowResponse> followerList;
 
     public FollowerFragment() {
         // Required empty public constructor
@@ -36,7 +46,6 @@ public class FollowerFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         followerList = new ArrayList<>();
-        mockFollowerData();
     }
 
     @Override
@@ -51,8 +60,12 @@ public class FollowerFragment extends Fragment {
         // Khởi tạo adapter cho danh sách follower
         followerAdapter = new FollowingAdapter(getContext(), followerList);
         listViewFollower.setAdapter(followerAdapter);
+
+        getFollowers();
+
+
         listViewFollower.setOnItemClickListener((parent, view1, position, id) -> {
-            FollowingUser user = followerList.get(position);
+            ProfileWithCountFollowResponse user = followerList.get(position);
             navigateToUserProfile(user);
         });
         // Xử lý nút Quay lại
@@ -64,7 +77,8 @@ public class FollowerFragment extends Fragment {
 
         return view;
     }
-    private void navigateToUserProfile(FollowingUser user) {
+    private void navigateToUserProfile(ProfileWithCountFollowResponse user) {
+        //tam
         UserProfileFragment fragment = UserProfileFragment.newInstance(user,"following");
         if (getActivity() != null) {
             getActivity().getSupportFragmentManager()
@@ -74,27 +88,24 @@ public class FollowerFragment extends Fragment {
                     .commit();
         }
     }
-    private void mockFollowerData() {
-        if (followerList == null) {
-            followerList = new ArrayList<>();
-        }
-        followerList.add(new FollowingUser(
-                "1",
-                "tranvietquang3110",
-                "Unknown",
-                1,
-                "https://cdn11.dienmaycholon.vn/filewebdmclnew/public/userupload/files/Image%20FP_2024/avatar-cute-3.jpg",
-                LocalDateTime.now(),
-                true
-        ));
-        followerList.add(new FollowingUser(
-                "2",
-                "Follower2",
-                "Unknown",
-                5000,
-                "https://toigingiuvedep.vn/wp-content/uploads/2022/01/hinh-avatar-cute-nu.jpg",
-                LocalDateTime.now(),
-                true
-        ));
+
+    private void getFollowers(){
+        String userId = SharedPreferencesManager.getInstance(getContext()).getUserId();
+        ApiClient.getUserService().getFollowers(userId,0,1000).enqueue(new Callback<ApiResponse<PageFollowResponse>>() {
+            @Override
+            public void onResponse(Call<ApiResponse<PageFollowResponse>> call, Response<ApiResponse<PageFollowResponse>> response) {
+                Log.i("follower",response.body().getData().getContent().get(0).getDisplayName());
+                if(response.isSuccessful()&&response.body().getData()!=null){
+                    followerList.clear();
+                    followerList.addAll(response.body().getData().getContent());
+                    followerAdapter.notifyDataSetChanged();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponse<PageFollowResponse>> call, Throwable t) {
+
+            }
+        });
     }
 }

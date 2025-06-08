@@ -19,15 +19,21 @@ import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.app.musicapp.R;
+import com.app.musicapp.api.ApiClient;
 import com.app.musicapp.helper.UrlHelper;
+import com.app.musicapp.model.response.ApiResponse;
 import com.app.musicapp.model.response.TrackResponse;
 import com.app.musicapp.service.MusicService;
 import com.bumptech.glide.Glide;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class MusicPlayer extends AppCompatActivity {
-    TextView songName, artistName, durationPlayed, durationTotal, headerTrackName;
-    ImageView coverArt, nextBtn, prevBtn, backBtn, shuffleBtn, repeatBtn;
+    TextView trackTitle, artistName, durationPlayed, durationTotal, headerTrackTitle, commentCount, likeCount;
+    ImageView coverArt, nextBtn, prevBtn, backBtn, shuffleBtn, repeatBtn, likeBtn;
     FloatingActionButton playPauseBtn;
     SeekBar seekBar;
 
@@ -52,10 +58,8 @@ public class MusicPlayer extends AppCompatActivity {
                 }
 
             }else if(MusicService.ACTION_CHANGED_CURRENT_TRACK.equals(action)){
-                Log.i("TAG", "onReceive: a");
-                currentTrackResponse = musicService.getCurrentTrack();
-                songName.setText(currentTrackResponse.getTitle());
-                artistName.setText(currentTrackResponse.getArtist());
+                updateTrackInfo();
+
             }
             else if(MusicService.ACTION_PLAY.equals(action)&&!isPlaying){
                 playPauseBtn.setImageResource(R.drawable.play_icon);
@@ -71,6 +75,46 @@ public class MusicPlayer extends AppCompatActivity {
         }
     };
 
+    private String convertIntToString(Integer value){
+        if(value<1000)
+            return String.valueOf(value);
+        Double val = value/1000.0;
+        val = Math.floor(val*10)/10;
+        return String.valueOf(val)+"k";
+    }
+    private void updateCommentCount(String trackId){
+        ApiClient.getCommentService().getCommentCountByTrackId(trackId).enqueue(new Callback<ApiResponse<Integer>>() {
+
+            @Override
+            public void onResponse(Call<ApiResponse<Integer>> call, Response<ApiResponse<Integer>> response) {
+                if(response.isSuccessful()&&response.body()!=null&&response.body().getData()!=null){
+                    Integer count = response.body().getData();
+                    commentCount.setText(convertIntToString(count));
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponse<Integer>> call, Throwable t) {
+
+            }
+        });
+    }private void updateLikeCount(String trackId){
+        ApiClient.getLikedTrackService().getTrackLikeCount(trackId).enqueue(new Callback<ApiResponse<Integer>>() {
+
+            @Override
+            public void onResponse(Call<ApiResponse<Integer>> call, Response<ApiResponse<Integer>> response) {
+                if(response.isSuccessful()&&response.body()!=null&&response.body().getData()!=null){
+                    Integer count = response.body().getData();
+                    likeCount.setText(convertIntToString(count));
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponse<Integer>> call, Throwable t) {
+                likeCount.setText(convertIntToString(0));
+            }
+        });
+    }
     private void updatePlayBackModeBtn(String action){
         repeatBtn.setColorFilter(this.getResources().getColor(R.color.white));
         repeatBtn.setImageResource(R.drawable.repeat_icon);
@@ -87,6 +131,18 @@ public class MusicPlayer extends AppCompatActivity {
             shuffleBtn.setColorFilter(this.getResources().getColor(R.color.soundcloud));
         }
     }
+    private void updateTrackInfo(){
+        currentTrackResponse = musicService.getCurrentTrack();
+        if(currentTrackResponse==null) return;
+        trackTitle.setText(currentTrackResponse.getTitle());
+        headerTrackTitle.setText(currentTrackResponse.getTitle());
+        artistName.setText(currentTrackResponse.getArtist());
+        Log.i("like",currentTrackResponse.getLiked().toString());
+        if(currentTrackResponse.getLiked()!=null&&currentTrackResponse.getLiked()) likeBtn.setImageResource(R.drawable.red_heart_icon);
+        Glide.with(MusicPlayer.this).load(UrlHelper.getCoverImageUrl(currentTrackResponse.getCoverImageName())).into(coverArt);
+        updateCommentCount(currentTrackResponse.getId());
+        updateLikeCount(currentTrackResponse.getId());
+    }
     private ServiceConnection connection = new ServiceConnection() {
 
         @Override
@@ -95,12 +151,10 @@ public class MusicPlayer extends AppCompatActivity {
             // We've bound to LocalService, cast the IBinder and get LocalService instance.
             MusicService.LocalBinder binder = (MusicService.LocalBinder) service;
             musicService = binder.getService();
-            currentTrackResponse = musicService.getCurrentTrack();
-            songName.setText(currentTrackResponse.getTitle());
-            headerTrackName.setText(currentTrackResponse.getTitle());
-            artistName.setText(currentTrackResponse.getArtist());
-            Glide.with(MusicPlayer.this).load(UrlHelper.getCoverImageUrl(currentTrackResponse.getCoverImageName())).into(coverArt);
             updatePlayBackModeBtn(musicService.getPlayBackMode());
+            updateTrackInfo();
+            if(musicService.isPlaying()) playPauseBtn.setImageResource(R.drawable.play_icon);
+            else playPauseBtn.setImageResource(R.drawable.pause_icon);
         }
 
         @Override
@@ -156,7 +210,7 @@ public class MusicPlayer extends AppCompatActivity {
     }
 
     private void initViews() {
-        songName = findViewById(R.id.track_name);
+        trackTitle = findViewById(R.id.track_title);
         artistName = findViewById(R.id.artist);
         durationPlayed = findViewById(R.id.durationPlayed);
         durationTotal = findViewById(R.id.durationTotal);
@@ -170,7 +224,10 @@ public class MusicPlayer extends AppCompatActivity {
         seekBar = findViewById(R.id.seekBar);
         comment = findViewById(R.id.commentWrapper);
         nextUp = findViewById(R.id.nextUp);
-        headerTrackName = findViewById(R.id.tv_track_name_header);
+        commentCount = findViewById(R.id.text_comment_count);
+        likeCount = findViewById(R.id.text_like_count);
+        likeBtn = findViewById(R.id.image_like_btn);
+        headerTrackTitle = findViewById(R.id.text_track_title_header);
 
         playPauseBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -191,6 +248,10 @@ public class MusicPlayer extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(MusicPlayer.this,CommentActivity.class);
+                intent.putExtra("track_id",currentTrackResponse.getId());
+                intent.putExtra("track_title",currentTrackResponse.getTitle());
+                intent.putExtra("track_artist","temp");
+                intent.putExtra("track_cover",currentTrackResponse.getCoverImageName());
                 startActivity(intent);
             }
         });

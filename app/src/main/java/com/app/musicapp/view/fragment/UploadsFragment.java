@@ -17,6 +17,7 @@ import com.app.musicapp.adapter.UploadsAdapter;
 import com.app.musicapp.helper.SharedPreferencesManager;
 import com.app.musicapp.model.response.ApiResponse;
 import com.app.musicapp.model.response.TrackResponse;
+import com.app.musicapp.view.fragment.track.SongOptionsBottomSheet;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.app.musicapp.api.ApiClient;
 import retrofit2.Call;
@@ -30,7 +31,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.app.musicapp.R;
 
-public class UploadsFragment extends Fragment {
+public class UploadsFragment extends Fragment implements SongOptionsBottomSheet.TrackOptionsListener {
 
     private ListView listViewUploads;
     private ImageView ivBack;
@@ -192,13 +193,12 @@ public class UploadsFragment extends Fragment {
         requireActivity().getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.fragment_container, uploadFragment)
-                .addToBackStack(null)
+                .addToBackStack("UploadsFragment")
                 .commit();
+    }
 
-        // Add tag to this fragment for later reference
-        requireActivity().getSupportFragmentManager()
-                .beginTransaction()
-                .add(this, "UploadsFragment")
-                .commit();
+    @Override
+    public void onTrackDeleted(TrackResponse track) {
+        loadUserTracks();
     }
 }

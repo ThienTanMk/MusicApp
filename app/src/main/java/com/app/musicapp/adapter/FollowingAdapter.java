@@ -8,27 +8,34 @@ import android.widget.BaseAdapter;
 import android.widget.*;
 
 import com.app.musicapp.R;
+import com.app.musicapp.api.ApiClient;
+import com.app.musicapp.helper.UrlHelper;
 import com.app.musicapp.model.FollowingUser;
+import com.app.musicapp.model.request.AddFollowRequest;
+import com.app.musicapp.model.response.ApiResponse;
+import com.app.musicapp.model.response.ProfileWithCountFollowResponse;
 import com.bumptech.glide.Glide;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class FollowingAdapter extends BaseAdapter {
     private Context context;
-    private List<FollowingUser> followingList;
+    private List<ProfileWithCountFollowResponse> followingList;
 
-    public FollowingAdapter(Context context, List<FollowingUser> followingList) {
+    public FollowingAdapter(Context context, List<ProfileWithCountFollowResponse> followingList) {
         this.context = context;
-        this.followingList = followingList != null ? followingList : new ArrayList<>();
+        this.followingList = followingList;
     }
 
     @Override
     public int getCount() {
-        int count = followingList.size();
-        System.out.println("getCount: " + count);
-        return count;
+        return followingList.size();
     }
 
     @Override
@@ -55,20 +62,45 @@ public class FollowingAdapter extends BaseAdapter {
         Button btnFollowing = view.findViewById(R.id.btn_following);
 
         if (i >= 0 && i < followingList.size()) {
-            FollowingUser user = followingList.get(i);
-            // Gán dữ liệu vào view
-            tvUserName.setText(user.getName() != null ? user.getName() : "Unknown Name");
-            tvUserFrom.setText(user.getLocation() != null ? user.getLocation() : "Unknown");
-            tvUserDetails.setText(formatFollowersCount(user.getFollowersCount()) + " Followers");
-            btnFollowing.setText(user.isFollowing() ? "Following" : "Follow");
+            ProfileWithCountFollowResponse user = followingList.get(i);
+            tvUserName.setText(user.getDisplayName() != null ? user.getDisplayName() : "Unknown Name");
+            tvUserDetails.setText(formatFollowersCount(user.getFollowerCount()) + " Followers");
+            btnFollowing.setText( user.isFollowing()? "Following":"Follow");
             btnFollowing.setOnClickListener(v -> {
-                user.setFollowing(!user.isFollowing());
-                btnFollowing.setText(user.isFollowing() ? "Following" : "Follow");
+                String followStatus = btnFollowing.getText().toString();
+                if(followStatus.equals("Follow")){
+                    AddFollowRequest addFollowRequest = new AddFollowRequest(user.getUserId());
+                    ApiClient.getUserService().follow(addFollowRequest).enqueue(new Callback<ApiResponse<Object>>() {
+                        @Override
+                        public void onResponse(Call<ApiResponse<Object>> call, Response<ApiResponse<Object>> response) {
+                            if(response.isSuccessful())
+                                btnFollowing.setText("Following");
+                        }
+
+                        @Override
+                        public void onFailure(Call<ApiResponse<Object>> call, Throwable t) {
+
+                        }
+                    });
+                }else{
+                    ApiClient.getUserService().unfollow(user.getUserId()).enqueue(new Callback<ApiResponse<Object>>() {
+                        @Override
+                        public void onResponse(Call<ApiResponse<Object>> call, Response<ApiResponse<Object>> response) {
+                            if(response.isSuccessful())
+                                btnFollowing.setText("Follow");
+                        }
+
+                        @Override
+                        public void onFailure(Call<ApiResponse<Object>> call, Throwable t) {
+
+                        }
+                    });
+                }
             });
 
             try {
                 Glide.with(context)
-                        .load(user.getAvatarUrl() != null && !user.getAvatarUrl().isEmpty() ? user.getAvatarUrl() : R.drawable.logo)
+                        .load(user.getAvatar()!=null?UrlHelper.getAvatarImageUrl(user.getAvatar()): R.drawable.logo)
                         .placeholder(R.drawable.logo)
                         .error(R.drawable.logo)
                         .into(ivUserImage);

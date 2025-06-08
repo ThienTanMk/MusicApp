@@ -48,7 +48,7 @@
                 android:layout_height="match_parent"
                 android:text="We dont talk anymore"
                 android:gravity="center_horizontal"
-                android:id="@+id/tv_track_name_header"
+                android:id="@+id/text_track_title_header"
                 android:textSize="18sp"
                 android:textColor="@color/white"
                 android:background="@android:color/transparent"
@@ -83,7 +83,7 @@
     </RelativeLayout>
 
     <TextView
-        android:id="@+id/track_name"
+        android:id="@+id/track_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_above="@+id/artist"
@@ -230,12 +230,13 @@
                 android:layout_width="25dp"
                 android:layout_height="25dp"
                 android:src="@drawable/heart_icon"
-                android:id="@+id/like"
+                android:id="@+id/image_like_btn"
                 android:layout_marginRight="10dp"/>
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:id="@+id/text_like_count"
                 android:text="44,8k" />
         </LinearLayout>
 
@@ -255,6 +256,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:id="@+id/text_comment_count"
                 android:text="44,8k"/>
 
         </LinearLayout>
