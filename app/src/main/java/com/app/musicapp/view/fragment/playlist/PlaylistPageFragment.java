@@ -1,9 +1,12 @@
 package com.app.musicapp.view.fragment.playlist;
 
+import android.content.Intent;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -15,9 +18,13 @@ import android.widget.*;
 
 import com.app.musicapp.R;
 import com.app.musicapp.adapter.TrackRVAdapter;
+import com.app.musicapp.api.ApiClient;
+import com.app.musicapp.interfaces.OnLikeChangeListener;
+import com.app.musicapp.model.response.ApiResponse;
 import com.app.musicapp.model.response.LikedPlaylistResponse;
 import com.app.musicapp.model.response.PlaylistResponse;
 import com.app.musicapp.model.response.TrackResponse;
+import com.app.musicapp.view.activity.SignIn;
 import com.bumptech.glide.Glide;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 
@@ -25,8 +32,13 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PlaylistPageFragment extends Fragment {
+import retrofit2.*;
+
+public class PlaylistPageFragment extends Fragment implements OnLikeChangeListener {
     private List<PlaylistResponse> playlist;
+    private PlaylistResponse playlistResponseData;
+    private ImageView ivLike;
+    private TextView tvLikeCount;
 
     public static PlaylistPageFragment newInstance(List<PlaylistResponse> playlist) {
         PlaylistPageFragment fragment = new PlaylistPageFragment();
@@ -61,22 +73,23 @@ public class PlaylistPageFragment extends Fragment {
         TextView tvCreatedAt = view.findViewById(R.id.tv_created_at);
         TextView tvNumOfTracks = view.findViewById(R.id.tv_num_of_tracks);
         TextView tvTotalDuration = view.findViewById(R.id.tv_total_duration);
-        ImageView ivLike = view.findViewById(R.id.iv_like);
-        TextView tvLikeCount = view.findViewById(R.id.tv_like_count);
+        ivLike = view.findViewById(R.id.iv_like);
+        tvLikeCount = view.findViewById(R.id.tv_like_count);
         ImageView ivMenu = view.findViewById(R.id.iv_menu);
         ImageView ivPlay = view.findViewById(R.id.iv_play);
         TextView tvDescription = view.findViewById(R.id.tv_description);
         TextView tvShowMore = view.findViewById(R.id.tv_show_more);
         RecyclerView rvTracks = view.findViewById(R.id.rv_tracks);
 
-        final PlaylistResponse playlistResponseData = (playlist != null && !playlist.isEmpty()) ? playlist.get(0) : null;
+
+        playlistResponseData = (playlist != null && !playlist.isEmpty()) ? playlist.get(0) : null;
 
         if (playlistResponseData != null) {
             tvPlaylistTitleHeader.setText("Playlist " + (playlistResponseData.getCreatedAt() != null ? playlistResponseData.getCreatedAt().getYear() : "Unknown"));
             tvPlaylistTitle.setText(playlistResponseData.getTitle() != null ? playlistResponseData.getTitle() : "Untitled");
             tvPlaylistArtists.setText(playlistResponseData.getUserId() != null ? playlistResponseData.getUserId() : "Unknown User");
 
-            Glide.with(ivPlaylistCover.getContext())
+            Glide.with(getContext())
                     .load(playlistResponseData.getImagePath() != null ? playlistResponseData.getImagePath() : R.drawable.logo)
                     .placeholder(R.drawable.logo)
                     .into(ivPlaylistCover);
@@ -89,24 +102,24 @@ public class PlaylistPageFragment extends Fragment {
             String duration = String.format("%d:%02d", totalDurationSeconds / 60, totalDurationSeconds % 60);
             tvTotalDuration.setText(" · " + duration);
 
-            tvLikeCount.setText("210");
             tvDescription.setText(playlistResponseData.getDescription() != null ? playlistResponseData.getDescription() : "No description");
 
             rvTracks.setLayoutManager(new LinearLayoutManager(getContext()));
             TrackRVAdapter trackAdapter = new TrackRVAdapter(this, playlistResponseData.getPlaylistTracks() != null ?
-                        playlistResponseData.getPlaylistTracks() : new ArrayList<>());
+                    playlistResponseData.getPlaylistTracks() : new ArrayList<>());
             rvTracks.setAdapter(trackAdapter);
+            updateLikeUI();
+            fetchLikeCount();
         } else {
             Log.w("PlaylistPageFragment", "No playlist data available");
         }
 
         ivBack.setOnClickListener(v -> getParentFragmentManager().popBackStack());
-        ivLike.setOnClickListener(v -> {
-            Toast.makeText(getContext(), "Liked: " + (playlist != null && !playlist.isEmpty() ? ((PlaylistResponse) playlist.get(0)).getTitle() : "Unknown"), Toast.LENGTH_SHORT).show();
-        });
+        ivLike.setOnClickListener(v -> toggleLikeStatus());
         ivMenu.setOnClickListener(v -> {
             if (playlistResponseData != null) {
                 PlaylistOptionsBottomSheet bottomSheet = PlaylistOptionsBottomSheet.newInstance(playlistResponseData);
+                bottomSheet.setTargetFragment(this, 0);
                 bottomSheet.show(getParentFragmentManager(), bottomSheet.getTag());
             } else {
                 Log.w("PlaylistPageFragment", "Cannot open bottom sheet: playlistResponseData is null");
@@ -124,7 +137,90 @@ public class PlaylistPageFragment extends Fragment {
 
         return view;
     }
+    private void updateLikeUI() {
+        if (playlistResponseData != null && ivLike != null) {
+            boolean isLiked = playlistResponseData.getIsLiked() != null && playlistResponseData.getIsLiked();
+            ivLike.setImageResource(R.drawable.ic_favorite);
+            ivLike.setColorFilter(getResources().getColor(isLiked ? R.color.like_active : R.color.like_inactive));
+        }
+    }
+    private void fetchLikeCount() {
+        if (playlistResponseData == null || playlistResponseData.getId() == null) {
+            Log.e("PlaylistPageFragment", "fetchLikeCount: Invalid playlist or null ID");
+            tvLikeCount.setText("0");
+            return;
+        }
 
+        Log.d("PlaylistPageFragment", "Fetching like count for playlistId=" + playlistResponseData.getId());
+        ApiClient.getLikedPlaylistService().getLikedCount(playlistResponseData.getId()).enqueue(new Callback<ApiResponse<Integer>>() {
+            @Override
+            public void onResponse(@NonNull Call<ApiResponse<Integer>> call, @NonNull Response<ApiResponse<Integer>> response) {
+                if (response.isSuccessful() && response.body() != null && response.body().getCode() == 200) {
+                    Integer likeCount = response.body().getData();
+                    tvLikeCount.setText(String.valueOf(likeCount != null ? likeCount : 0));
+                    Log.d("PlaylistPageFragment", "Like count fetched: " + likeCount);
+                } else if (response.body() != null && response.body().getCode() == 1401) {
+                    Toast.makeText(getContext(), "Vui lòng đăng nhập lại", Toast.LENGTH_SHORT).show();
+                    startActivity(new Intent(requireContext(), SignIn.class));
+                    requireActivity().finish();
+                } else {
+                    Log.e("PlaylistPageFragment", "Failed to fetch like count: " + (response.body() != null ? response.body().getMessage() : "Unknown"));
+                    tvLikeCount.setText("0");
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<ApiResponse<Integer>> call, @NonNull Throwable t) {
+                Log.e("PlaylistPageFragment", "Network error fetching like count: " + t.getMessage());
+                tvLikeCount.setText("0");
+                Toast.makeText(getContext(), "Network error", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+    private void toggleLikeStatus() {
+        if (playlistResponseData == null || playlistResponseData.getId() == null) {
+            Log.e("PlaylistPageFragment", "toggleLikeStatus: Invalid playlist or null ID");
+            Toast.makeText(getContext(), "Cannot perform action", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        boolean isCurrentlyLiked = playlistResponseData.getIsLiked() != null && playlistResponseData.getIsLiked();
+        Call<ApiResponse<Boolean>> call = isCurrentlyLiked ?
+                ApiClient.getLikedPlaylistService().unlikePlaylist(playlistResponseData.getId()) :
+                ApiClient.getLikedPlaylistService().likePlaylist(playlistResponseData.getId());
+
+        call.enqueue(new Callback<ApiResponse<Boolean>>() {
+            @Override
+            public void onResponse(@NonNull Call<ApiResponse<Boolean>> call, @NonNull Response<ApiResponse<Boolean>> response) {
+                if (response.isSuccessful() && response.body() != null && response.body().getCode() == 200) {
+                    boolean newIsLiked = !isCurrentlyLiked;
+                    playlistResponseData.setIsLiked(newIsLiked);
+                    updateLikeUI();
+                    fetchLikeCount(); // Cập nhật số lượt thích sau khi like/unlike
+                    Toast.makeText(getContext(), newIsLiked ? "Đã thích playlist" : "Đã bỏ thích", Toast.LENGTH_SHORT).show();
+
+                    // Thông báo cho PlaylistsFragment
+                    Intent intent = new Intent("PLAYLIST_LIKE_STATUS_CHANGED");
+                    intent.putExtra("playlistId", playlistResponseData.getId());
+                    intent.putExtra("isLiked", newIsLiked);
+                    LocalBroadcastManager.getInstance(requireContext()).sendBroadcast(intent);
+                } else if (response.body() != null && response.body().getCode() == 1401) {
+                    Toast.makeText(getContext(), "Vui lòng đăng nhập lại", Toast.LENGTH_SHORT).show();
+                    startActivity(new Intent(requireContext(), SignIn.class));
+                    requireActivity().finish();
+                } else {
+                    Log.e("PlaylistPageFragment", "API error: " + (response.body() != null ? response.body().getMessage() : "Unknown"));
+                    Toast.makeText(getContext(), "Cannot toggle like status", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<ApiResponse<Boolean>> call, @NonNull Throwable t) {
+                Log.e("PlaylistPageFragment", "Network error: " + t.getMessage());
+                Toast.makeText(getContext(), "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
     private long calculateTotalDuration(List<TrackResponse> trackResponses) {
         long totalSeconds = 0;
         if (trackResponses != null) {
@@ -138,4 +234,18 @@ public class PlaylistPageFragment extends Fragment {
         return totalSeconds;
     }
 
+    @Override
+    public void onLikeChanged(String id, boolean isLiked) {
+        if (playlistResponseData != null && playlistResponseData.getId().equals(id)) {
+            playlistResponseData.setIsLiked(isLiked);
+            updateLikeUI();
+            fetchLikeCount(); // Cập nhật số lượt thích sau callback
+
+            // Thông báo cho PlaylistsFragment
+            Intent intent = new Intent("PLAYLIST_LIKE_STATUS_CHANGED");
+            intent.putExtra("playlistId", id);
+            intent.putExtra("isLiked", isLiked);
+            LocalBroadcastManager.getInstance(requireContext()).sendBroadcast(intent);
+        }
+    }
 }

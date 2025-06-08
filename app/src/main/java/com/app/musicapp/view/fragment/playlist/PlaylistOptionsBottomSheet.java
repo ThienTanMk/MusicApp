@@ -1,6 +1,7 @@
 package com.app.musicapp.view.fragment.playlist;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -13,13 +14,21 @@ import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 
 import com.app.musicapp.R;
+import com.app.musicapp.api.ApiClient;
 import com.app.musicapp.helper.UrlHelper;
+import com.app.musicapp.interfaces.OnLikeChangeListener;
+import com.app.musicapp.model.response.ApiResponse;
 import com.app.musicapp.model.response.LikedPlaylistResponse;
 import com.app.musicapp.model.response.PlaylistResponse;
+import com.app.musicapp.view.activity.SignIn;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.bumptech.glide.request.RequestOptions;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class PlaylistOptionsBottomSheet extends BottomSheetDialogFragment {
     private static final String ARG_PLAYLIST = "playlist";
@@ -40,9 +49,6 @@ public class PlaylistOptionsBottomSheet extends BottomSheetDialogFragment {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             playlistResponse = (PlaylistResponse) getArguments().getSerializable(ARG_PLAYLIST);
-            Log.d("PlaylistOptionsBottomSheet", "onCreate: playlistTitle=" +
-                    (playlistResponse != null && playlistResponse.getTitle() != null ? playlistResponse.getTitle() : "null") +
-                    ", isLiked=" + (playlistResponse != null && playlistResponse.getIsLiked() != null ? playlistResponse.getIsLiked() : "null"));
         } else {
             Log.e("PlaylistOptionsBottomSheet", "onCreate: Arguments null");
         }
@@ -54,16 +60,107 @@ public class PlaylistOptionsBottomSheet extends BottomSheetDialogFragment {
         }
     }
     private void updateLikeUI() {
-        if (playlistResponse != null && isAdded()) {
+        if (playlistResponse != null && isAdded() && ivLikeImage != null && tvLikeText != null) {
             boolean isLiked = playlistResponse.getIsLiked() != null && playlistResponse.getIsLiked();
-            Log.d("PlaylistOptionsBottomSheet", "updateLikeUI: isLiked=" + isLiked);
             ivLikeImage.setImageResource(R.drawable.ic_favorite);
             ivLikeImage.setColorFilter(ContextCompat.getColor(requireContext(),
                     isLiked ? R.color.like_active : R.color.like_inactive));
             tvLikeText.setText(isLiked ? "Bỏ thích" : "Thích");
+        } else {
+            Log.w("PlaylistOptionsBottomSheet", "updateLikeUI: No State");
         }
     }
 
+    private void checkLikeStatus() {
+        if (playlistResponse == null || playlistResponse.getId() == null) {
+            Log.e("PlaylistOptionsBottomSheet", "checkLikeStatus: Invalid playlist or playlistId");
+            showToast("Không thể kiểm tra trạng thái thích");
+            return;
+        }
+
+        ApiClient.getLikedPlaylistService().isLiked(playlistResponse.getId()).enqueue(new Callback<ApiResponse<Boolean>>() {
+            @Override
+            public void onResponse(@NonNull Call<ApiResponse<Boolean>> call, @NonNull Response<ApiResponse<Boolean>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    ApiResponse<Boolean> apiResponse = response.body();
+                    if (apiResponse.getCode() == 200 && apiResponse.getData() != null) {
+                        playlistResponse.setIsLiked(apiResponse.getData());
+                        Log.d("PlaylistOptionsBottomSheet", "checkLikeStatus: isLiked=" + apiResponse.getData());
+                        updateLikeUI();
+                    } else if (apiResponse.getCode() == 1401) {
+                        Log.e("PlaylistOptionsBottomSheet", "Unauthorized: Please log in again");
+                        showToast("Vui lòng đăng nhập lại");
+                        startActivity(new Intent(requireContext(), SignIn.class));
+                        requireActivity().finish();
+                    } else {
+                        Log.e("PlaylistOptionsBottomSheet", "API error: Code=" + apiResponse.getCode() + ", Message=" + apiResponse.getMessage());
+                        showToast("Lỗi: " + apiResponse.getMessage());
+                    }
+                } else {
+                    showToast("Không thể kiểm tra trạng thái thích. Mã lỗi: " + response.code());
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<ApiResponse<Boolean>> call, @NonNull Throwable t) {
+                Log.e("PlaylistOptionsBottomSheet", "Network error: " + t.getMessage());
+                showToast("Lỗi mạng: " + t.getMessage());
+            }
+        });
+    }
+
+    private void toggleLikeStatus() {
+        if (playlistResponse == null || playlistResponse.getId() == null) {
+            Log.e("PlaylistOptionsBottomSheet", "toggleLikeStatus: Invalid playlist or playlistId");
+            showToast("Không thể thực hiện hành động thích");
+            return;
+        }
+
+        boolean isCurrentlyLiked = playlistResponse.getIsLiked() != null && playlistResponse.getIsLiked();
+        Call<ApiResponse<Boolean>> apiCall = isCurrentlyLiked ?
+                ApiClient.getLikedPlaylistService().unlikePlaylist(playlistResponse.getId()) :
+                ApiClient.getLikedPlaylistService().likePlaylist(playlistResponse.getId());
+
+        apiCall.enqueue(new Callback<ApiResponse<Boolean>>() {
+            @Override
+            public void onResponse(@NonNull Call<ApiResponse<Boolean>> call, @NonNull Response<ApiResponse<Boolean>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    ApiResponse<Boolean> apiResponse = response.body();
+                    if (apiResponse.getCode() == 200) {
+                        boolean newIsLiked = !isCurrentlyLiked; // unlike -> false, like -> true
+                        playlistResponse.setIsLiked(newIsLiked);
+                        Log.d("PlaylistOptionsBottomSheet", "toggleLikeStatus: isLiked=" + newIsLiked);
+                        showToast(newIsLiked ? "Đã thích playlist" : "Đã bỏ thích playlist");
+                        updateLikeUI();
+
+                        if (getTargetFragment() instanceof OnLikeChangeListener) {
+                            ((OnLikeChangeListener) getTargetFragment()).onLikeChanged(
+                                    playlistResponse.getId(), newIsLiked);
+                        } else if (getParentFragment() instanceof OnLikeChangeListener) {
+                            ((OnLikeChangeListener) getParentFragment()).onLikeChanged(
+                                    playlistResponse.getId(), newIsLiked);
+                        }
+                    } else if (apiResponse.getCode() == 1401) {
+                        Log.e("PlaylistOptionsBottomSheet", "Unauthorized: Please log in again");
+                        showToast("Vui lòng đăng nhập lại");
+                        startActivity(new Intent(requireContext(), SignIn.class));
+                        requireActivity().finish();
+                    } else {
+                        Log.e("PlaylistOptionsBottomSheet", "API error: Code=" + apiResponse.getCode() + ", Message=" + apiResponse.getMessage());
+                        showToast("Lỗi: " + apiResponse.getMessage());
+                    }
+                } else {
+                    showToast("Không thể thực hiện hành động thích. Mã lỗi: " + response.code());
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<ApiResponse<Boolean>> call, @NonNull Throwable t) {
+                Log.e("PlaylistOptionsBottomSheet", "Network error: " + t.getMessage());
+                showToast("Lỗi mạng: " + t.getMessage());
+            }
+        });
+    }
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -106,14 +203,13 @@ public class PlaylistOptionsBottomSheet extends BottomSheetDialogFragment {
                 tvLikeText = optionLiked.findViewById(R.id.tv_like_text);
 
                 if (ivLikeImage != null && tvLikeText != null) {
-                    updateLikeUI();
+                    checkLikeStatus();
                 } else {
                     Log.e("PlaylistOptionsBottomSheet", "ivLikeImage or tvLikeText is null");
+                    showToast("Lỗi giao diện, vui lòng kiểm tra lại");
                 }
 
-                optionLiked.setOnClickListener(v -> {
-                    showToast("Chức năng thích chưa được triển khai");
-                });
+                optionLiked.setOnClickListener(v -> toggleLikeStatus());
 
                 optionArtistProfile.setOnClickListener(v -> {
                     showToast("Chuyển đến hồ sơ người dùng: " + playlistResponse.getUserId());

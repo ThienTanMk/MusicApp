@@ -16,6 +16,7 @@ import com.app.musicapp.R;
 import com.app.musicapp.adapter.PlaylistAdapter;
 import com.app.musicapp.api.ApiClient;
 import com.app.musicapp.helper.SharedPreferencesManager;
+import com.app.musicapp.interfaces.OnLikeChangeListener;
 import com.app.musicapp.model.response.ApiResponse;
 import com.app.musicapp.model.response.GenreResponse;
 import com.app.musicapp.model.response.LikedPlaylistResponse;
@@ -30,7 +31,7 @@ import java.util.*;
 import retrofit2.*;
 
 
-public class PlaylistsFragment extends Fragment {
+public class PlaylistsFragment extends Fragment implements OnLikeChangeListener {
     private ListView listViewPlaylists;
     private PlaylistAdapter playlistAdapter;
     private ProgressBar progressBar;
@@ -46,7 +47,7 @@ public class PlaylistsFragment extends Fragment {
         listViewPlaylists = view.findViewById(R.id.listViewPlaylists);
         progressBar = view.findViewById(R.id.progressBar);
 
-        playlistAdapter = new PlaylistAdapter(getContext(), playlists);
+        playlistAdapter = new PlaylistAdapter(this, playlists);
         listViewPlaylists.setAdapter(playlistAdapter);
 
         loadPlaylists();
@@ -154,5 +155,23 @@ public class PlaylistsFragment extends Fragment {
                 Toast.makeText(requireContext(), "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
+    }
+    @Override
+    public void onLikeChanged(String playlistId, boolean isLiked) {
+        for (int i = 0; i < playlists.size(); i++) {
+            PlaylistResponse playlist = playlists.get(i);
+            if (playlist.getId().equals(playlistId)) {
+                if (!isLiked) {
+                    playlists.remove(i);
+                    playlistAdapter.notifyDataSetChanged();
+                    Log.d("PlaylistsFragment", "Removed playlist id=" + playlistId + " from list");
+                } else {
+                    playlist.setIsLiked(true);
+                    playlistAdapter.notifyDataSetChanged();
+                    Log.d("PlaylistsFragment", "Updated isLiked=true for playlist id=" + playlistId);
+                }
+                break;
+            }
+        }
     }
 }

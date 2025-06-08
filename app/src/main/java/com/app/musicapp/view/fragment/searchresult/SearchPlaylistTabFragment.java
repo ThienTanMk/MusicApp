@@ -17,7 +17,6 @@ import com.app.musicapp.view.fragment.playlist.PlaylistPageFragment;
 import java.util.*;
 
 public class SearchPlaylistTabFragment extends Fragment {
-
     private static final String ARG_PLAYLISTS = "playlists";
     private List<PlaylistResponse> playlistResults;
 
@@ -44,7 +43,7 @@ public class SearchPlaylistTabFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_search_playlist_tab, container, false);
 
         ListView listView = view.findViewById(R.id.list_view_playlist_results);
-        PlaylistAdapter playlistAdapter = new PlaylistAdapter(getContext(), playlistResults);
+        PlaylistAdapter playlistAdapter = new PlaylistAdapter(this, playlistResults);
         listView.setAdapter(playlistAdapter);
 
         listView.setOnItemClickListener((parent, view1, position, id) -> {
