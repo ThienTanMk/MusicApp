@@ -31,7 +31,7 @@ public interface PlaylistApiService {
 
     @GET("/api/user-library/playlist/{id}")
     Call<ApiResponse<PlaylistResponse>> getPlaylistById(@Path("id") String id);
-
+//search
     @GET("/api/user-library/playlist/bulk")
     Call<ApiResponse<List<PlaylistResponse>>> getPlaylistsByIds(@Query("playlist_ids") List<String> ids);
 

@@ -20,7 +20,7 @@ import retrofit2.http.Query;
 
 public interface AlbumApiService {
     // Public endpoints
-    @GET("/api/user-library/album/bulk")
+    @GET("/api/user-library/album/bulk")//search
     Call<ApiResponse<List<AlbumResponse>>> getAlbumsByIds(@Query("album_ids") List<String> ids);
 
     @GET("/api/user-library/album/find-by-album-id/{albumId}")

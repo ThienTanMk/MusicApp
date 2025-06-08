@@ -20,7 +20,7 @@ public class SearchPlaylistTabFragment extends Fragment {
     private static final String ARG_PLAYLISTS = "playlists";
     private List<PlaylistResponse> playlistResults;
 
-    public static SearchPlaylistTabFragment newInstance(List<Object> playlists) {
+    public static SearchPlaylistTabFragment newInstance(List<PlaylistResponse> playlists) {
         SearchPlaylistTabFragment fragment = new SearchPlaylistTabFragment();
         Bundle args = new Bundle();
         args.putSerializable(ARG_PLAYLISTS, new ArrayList<>(playlists));
