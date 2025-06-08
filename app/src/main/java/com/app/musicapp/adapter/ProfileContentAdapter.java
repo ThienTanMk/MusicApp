@@ -224,7 +224,7 @@ public class ProfileContentAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         }
         void bind(LikedPlaylistResponse likedPlaylistResponse) {
             if (likedPlaylistResponse != null) {
-                PlaylistResponse playlistResponse = likedPlaylistResponse.getPlaylist();
+                PlaylistResponse playlistResponse = likedPlaylistResponse.getPlaylistResponse();
                 if (playlistResponse != null) {
                     tvPlaylistTitle.setText(playlistResponse.getTitle() != null ? playlistResponse.getTitle() : "Untitled");
                     tvPlaylistArtist.setText(playlistResponse.getUserId() != null ? playlistResponse.getUserId() : "Unknown User");

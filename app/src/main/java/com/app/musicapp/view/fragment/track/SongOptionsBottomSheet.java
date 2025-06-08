@@ -11,12 +11,15 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 
 import com.app.musicapp.R;
 import com.app.musicapp.api.ApiClient;
+import com.app.musicapp.helper.SharedPreferencesManager;
 import com.app.musicapp.helper.UrlHelper;
 import com.app.musicapp.model.response.TrackResponse;
 import com.app.musicapp.model.response.ApiResponse;
+import com.app.musicapp.view.fragment.UploadTrackFragment;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.bumptech.glide.request.RequestOptions;
@@ -64,7 +67,7 @@ public class SongOptionsBottomSheet extends BottomSheetDialogFragment {
 
         if (trackResponse != null) {
             tvSongTitle.setText(trackResponse.getTitle());
-            tvUserSong.setText(trackResponse.getUserId());
+            tvUserSong.setText(trackResponse.getUser().getDisplayName());
 
             // Load song cover image using Glide
             RequestOptions requestOptions = new RequestOptions()
@@ -127,6 +130,25 @@ public class SongOptionsBottomSheet extends BottomSheetDialogFragment {
         return view;
     }
 
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        
+        String currentUserId = SharedPreferencesManager.getInstance(requireContext()).getUserId();
+        View editOption = view.findViewById(R.id.option_edit_track);
+        
+        // Chỉ hiển thị option edit nếu là track của user hiện tại
+        if (trackResponse.getUserId().equals(currentUserId)) {
+            editOption.setVisibility(View.VISIBLE);
+            editOption.setOnClickListener(v -> {
+                showEditTrackFragment();
+                dismiss();
+            });
+        } else {
+            editOption.setVisibility(View.GONE);
+        }
+    }
+
     private void checkLikeStatus() {
         ApiClient.getLikedTrackService().isLiked(trackResponse.getId()).enqueue(new Callback<ApiResponse<Boolean>>() {
             @Override
@@ -187,10 +209,23 @@ public class SongOptionsBottomSheet extends BottomSheetDialogFragment {
     private void updateLikeUI() {
         if (isLiked) {
             tvLikeText.setText("Bỏ thích");
-            ivLikeIcon.setImageResource(R.drawable.ic_favorite);
         } else {
             tvLikeText.setText("Thích");
-            ivLikeIcon.setImageResource(R.drawable.ic_favorite);
         }
+        ivLikeIcon.setColorFilter(ContextCompat.getColor(requireContext(), isLiked ? R.color.like_active : R.color.like_inactive));
+    }
+
+    private void showEditTrackFragment() {
+        UploadTrackFragment editFragment = new UploadTrackFragment();
+        Bundle args = new Bundle();
+        args.putBoolean("isEdit", true);
+        args.putSerializable("track", trackResponse);
+        editFragment.setArguments(args);
+        
+        requireActivity().getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.fragment_container, editFragment)
+                .addToBackStack(null)
+                .commit();
     }
 }

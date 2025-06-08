@@ -35,12 +35,20 @@ public class PlaylistResponse implements Serializable {
         this.user = user;
     }
 
-    public Boolean getLiked() {
+    public GenreResponse getGenreResponse() {
+        return genreResponse;
+    }
+
+    public void setGenreResponse(GenreResponse genreResponse) {
+        this.genreResponse = genreResponse;
+    }
+
+    public Boolean getIsLiked() {
         return isLiked;
     }
 
-    public void setLiked(Boolean liked) {
-        isLiked = liked;
+    public void setIsLiked(Boolean isliked) {
+        this.isLiked = isliked;
     }
 
     public List<TrackResponse> getPlaylistTrackResponses() {

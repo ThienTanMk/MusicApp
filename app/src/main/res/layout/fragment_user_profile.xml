@@ -94,29 +94,15 @@
                 android:padding="6dp" />
 
             <!-- Email, Share, Play buttons -->
-            <ImageButton
-                android:id="@+id/btn_email"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:src="@android:drawable/ic_dialog_email"
-                app:tint="#FFFFFF" />
-
-            <ImageButton
-                android:id="@+id/btn_share"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:src="@android:drawable/ic_menu_share"
-                app:tint="#FFFFFF" />
 
             <ImageButton
                 android:id="@+id/btn_play"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
                 android:gravity="right"
-                android:src="@android:drawable/ic_media_play"
-                app:tint="#FFFFFF" />
+                android:src="@drawable/ic_play"
+                android:contentDescription="Play"
+                app:tint="#3F3A3A" />
         </LinearLayout>
 
         <androidx.recyclerview.widget.RecyclerView

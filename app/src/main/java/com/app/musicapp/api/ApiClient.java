@@ -2,10 +2,12 @@ package com.app.musicapp.api;
 
 import android.content.Context;
 
+import com.app.musicapp.util.LocalDateAdapter;
 import com.app.musicapp.util.LocalDateTimeAdapter;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import okhttp3.OkHttpClient;
@@ -14,7 +16,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class ApiClient {
     // Replace 192.168.1.x with your computer's actual IP address
-    private static final String BASE_URL = "http://192.168.1.4:8888/";
+    private static final String BASE_URL = "http://192.168.1.167:8888/";
     private static Retrofit retrofit = null;
     private static Context context;
 
@@ -27,6 +29,7 @@ public class ApiClient {
             // Create Gson instance with LocalDateTime adapter
             Gson gson = new GsonBuilder()
                     .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
+                    .registerTypeAdapter(LocalDate.class, new LocalDateAdapter())
                     .create();
 
             // Create OkHttpClient with interceptor
@@ -75,6 +78,27 @@ public class ApiClient {
         }
         return getClient().create(UserService.class);
 
+    public static PlaylistApiService getPlaylistService() {
+        if (context == null) {
+            throw new IllegalStateException("ApiClient must be initialized with context first");
+        }
+        return getClient().create(PlaylistApiService.class);
+    }
+    public static LikedPlaylistApiService getLikedPlaylistService() {
+        if (context == null) {
+            throw new IllegalStateException("ApiClient must be initialized with context first");
+        }
+        return getClient().create(LikedPlaylistApiService.class);
+    }
+    public static TrackApiService getTrackApiService() {
+        if (context == null) {
+            throw new IllegalStateException("ApiClient must be initialized with context first");
+        }
+        return getClient().create(TrackApiService.class);
+    }
+
+    public static GenreService getGenreService() {
+        return getClient().create(GenreService.class);
     }
 
     // Call this when you need to clear the retrofit instance (e.g., on logout)

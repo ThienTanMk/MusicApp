@@ -10,8 +10,10 @@ import android.widget.*;
 import androidx.fragment.app.Fragment;
 
 import com.app.musicapp.R;
+import com.app.musicapp.helper.UrlHelper;
 import com.app.musicapp.model.response.TrackResponse;
 import com.app.musicapp.view.fragment.track.SongOptionsBottomSheet;
+import com.bumptech.glide.Glide;
 
 import java.util.List;
 
@@ -64,9 +66,17 @@ public class UploadsAdapter extends BaseAdapter {
         // Gán dữ liệu
         TrackResponse trackResponse = trackResponseList.get(i);
         holder.tvTrackTitle.setText(trackResponse.getTitle());
-        holder.tvTrackArtist.setText(trackResponse.getUserId());
+        holder.tvTrackArtist.setText(trackResponse.getUser().getDisplayName());
         holder.tvDuration.setText(trackResponse.getDuration());
-        holder.ivTrackImage.setImageResource(R.drawable.logo);
+        if (trackResponse.getCoverImageName() != null) {
+            Glide.with(context)
+                    .load(UrlHelper.getCoverImageUrl(trackResponse.getCoverImageName()))
+                    .placeholder(R.drawable.logo)
+                    .error(R.drawable.logo)
+                    .into(holder.ivTrackImage);
+        } else {
+            holder.ivTrackImage.setImageResource(R.drawable.logo);
+        }
 
         // Xử lý sự kiện click cho nút menu
         holder.ivMenu.setOnClickListener(v -> {

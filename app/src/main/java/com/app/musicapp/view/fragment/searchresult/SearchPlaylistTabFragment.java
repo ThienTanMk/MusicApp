@@ -11,14 +11,14 @@ import android.widget.ListView;
 
 import com.app.musicapp.R;
 import com.app.musicapp.adapter.PlaylistAdapter;
+import com.app.musicapp.model.response.PlaylistResponse;
 import com.app.musicapp.view.fragment.playlist.PlaylistPageFragment;
 
 import java.util.*;
 
 public class SearchPlaylistTabFragment extends Fragment {
-
     private static final String ARG_PLAYLISTS = "playlists";
-    private List<Object> playlistResults;
+    private List<PlaylistResponse> playlistResults;
 
     public static SearchPlaylistTabFragment newInstance(List<Object> playlists) {
         SearchPlaylistTabFragment fragment = new SearchPlaylistTabFragment();
@@ -32,7 +32,7 @@ public class SearchPlaylistTabFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            playlistResults = (List<Object>) getArguments().getSerializable(ARG_PLAYLISTS);
+            playlistResults = (List<PlaylistResponse>) getArguments().getSerializable(ARG_PLAYLISTS);
         }
     }
 
@@ -43,11 +43,11 @@ public class SearchPlaylistTabFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_search_playlist_tab, container, false);
 
         ListView listView = view.findViewById(R.id.list_view_playlist_results);
-        PlaylistAdapter playlistAdapter = new PlaylistAdapter(getContext(), playlistResults);
+        PlaylistAdapter playlistAdapter = new PlaylistAdapter(this, playlistResults);
         listView.setAdapter(playlistAdapter);
 
         listView.setOnItemClickListener((parent, view1, position, id) -> {
-            List<Object> selectedPlaylist = new ArrayList<>();
+            List<PlaylistResponse> selectedPlaylist = new ArrayList<>();
             selectedPlaylist.add(playlistResults.get(position));
             PlaylistPageFragment playlistFragment = PlaylistPageFragment.newInstance(selectedPlaylist);
             requireActivity().getSupportFragmentManager()

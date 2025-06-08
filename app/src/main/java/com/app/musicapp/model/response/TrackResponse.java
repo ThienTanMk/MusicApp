@@ -17,9 +17,9 @@ public class TrackResponse implements Serializable {
     private String privacy;
     private int countPlay;
     private Boolean isLiked;
-    private GenreResponse genreResponse;
+    private GenreResponse genre;
     private List<TagResponse> tagResponses;
-
+    private ProfileWithCountFollowResponse user;
     public TrackResponse(String id, String title, String description, String fileName, String coverImageName, LocalDateTime createdAt, String userId, String duration, String privacy, int countPlay, GenreResponse genreResponse, List<TagResponse> tagResponses) {
         this.id = id;
         this.title = title;
@@ -31,7 +31,7 @@ public class TrackResponse implements Serializable {
         this.duration = duration;
         this.privacy = privacy;
         this.countPlay = countPlay;
-        this.genreResponse = genreResponse;
+        this.genre = genreResponse;
         this.tagResponses = tagResponses;
     }
 
@@ -47,7 +47,7 @@ public class TrackResponse implements Serializable {
         this.duration = duration;
         this.privacy = privacy;
         this.countPlay = countPlay;
-        this.genreResponse = genreResponse;
+        this.genre = genreResponse;
         this.tagResponses = tagResponses;
     }
 
@@ -132,11 +132,11 @@ public class TrackResponse implements Serializable {
     }
 
     public GenreResponse getGenre() {
-        return genreResponse;
+        return genre;
     }
 
     public void setGenre(GenreResponse genreResponse) {
-        this.genreResponse = genreResponse;
+        this.genre = genreResponse;
     }
 
     public List<TagResponse> getTags() {
@@ -153,6 +153,14 @@ public class TrackResponse implements Serializable {
 
     public void setArtist(String artist) {
         this.artist = artist;
+    }
+
+    public void setUser(ProfileWithCountFollowResponse user) {
+        this.user = user;
+    }
+
+    public ProfileWithCountFollowResponse getUser() {
+        return this.user;
     }
 
     public Boolean getLiked() { return isLiked;  }

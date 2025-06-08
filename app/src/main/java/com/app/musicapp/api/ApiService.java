@@ -4,6 +4,7 @@ import com.app.musicapp.model.request.LoginRequest;
 import com.app.musicapp.model.response.ApiResponse;
 import com.app.musicapp.model.response.LoginResponse;
 import com.app.musicapp.model.response.PlaylistResponse;
+import com.app.musicapp.model.response.ProfileWithCountFollowResponse;
 import com.app.musicapp.model.response.TrackResponse;
 
 import retrofit2.Call;
@@ -26,4 +27,7 @@ public interface ApiService {
 
     @GET("api/user-library/playlist/you/all")
     Call<ApiResponse<List<PlaylistResponse>>> getAllPlaylist();
+
+    @GET("api/profile/users/{userId}")
+    Call<ApiResponse<ProfileWithCountFollowResponse>> getUserProfile();
 }

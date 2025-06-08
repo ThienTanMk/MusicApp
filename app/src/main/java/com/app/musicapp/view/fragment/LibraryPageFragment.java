@@ -116,50 +116,50 @@ public class LibraryPageFragment extends Fragment {
         listViewHistory = view.findViewById(R.id.listViewHistory);
 
         trackResponseList = new ArrayList<>();
-        trackResponseList.add(new TrackResponse(
-                "1", // id
-                "Khóc Cùng Em", // title
-                "Description 1", // description
-                "file1.mp3", // fileName
-                "cover1.jpg", // coverImageName
-                LocalDateTime.now(), // createdAt
-                "Mr.Siro X Gray", // userId
-                "3:10", // duration
-                "public", // privacy
-                67, // countPlay
-                new GenreResponse("1","Pop",LocalDateTime.now()), // genre
-                Arrays.asList(new TagResponse("tag3", "gentlebad", LocalDateTime.now(), "user3")) // tags
-        ));
+//        trackResponseList.add(new TrackResponse(
+//                "1", // id
+//                "Khóc Cùng Em", // title
+//                "Description 1", // description
+//                "file1.mp3", // fileName
+//                "cover1.jpg", // coverImageName
+//                LocalDateTime.now(), // createdAt
+//                "Mr.Siro X Gray", // userId
+//                "3:10", // duration
+//                "public", // privacy
+//                67, // countPlay
+//                new GenreResponse("1","Pop",LocalDateTime.now()), // genre
+//                Arrays.asList(new TagResponse("tag3", "gentlebad", LocalDateTime.now(), "user3")) // tags
+//        ));
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            trackResponseList.add(new TrackResponse(
-                    "2", // id
-                    "(slowed) Khiếp Chông Chung", // title
-                    "Description 2", // description
-                    "file2.mp3", // fileName
-                    "cover2.jpg", // coverImageName
-                    LocalDateTime.now(), // createdAt
-                    "qwrld s.simp", // userId
-                    "4:28", // duration
-                    "public", // privacy
-                    165000, // countPlay
-                    new GenreResponse("2","Hip Hop",LocalDateTime.now()), // genre
-                    Arrays.asList(new TagResponse("tag3", "gentlebad", LocalDateTime.now(), "user3")) // tags
-            ));
+//            trackResponseList.add(new TrackResponse(
+//                    "2", // id
+//                    "(slowed) Khiếp Chông Chung", // title
+//                    "Description 2", // description
+//                    "file2.mp3", // fileName
+//                    "cover2.jpg", // coverImageName
+//                    LocalDateTime.now(), // createdAt
+//                    "qwrld s.simp", // userId
+//                    "4:28", // duration
+//                    "public", // privacy
+//                    165000, // countPlay
+//                    new GenreResponse("2","Hip Hop",LocalDateTime.now()), // genre
+//                    Arrays.asList(new TagResponse("tag3", "gentlebad", LocalDateTime.now(), "user3")) // tags
+//            ));
         }
-        trackResponseList.add(new TrackResponse(
-                "3", // id
-                "Đế Anh Lừng Thiền Linh Hương", // title
-                "Description 3", // description
-                "file3.mp3", // fileName
-                "cover3.jpg", // coverImageName
-                LocalDateTime.now(), // createdAt
-                "Trương Anh 2", // userId
-                "4:34", // duration
-                "public", // privacy
-                2400000, // countPlay
-                new GenreResponse("3","Ballad",LocalDateTime.now()), // genre
-                Arrays.asList(new TagResponse("tag3", "gentlebad", LocalDateTime.now(), "user3")) // tags
-        ));
+//        trackResponseList.add(new TrackResponse(
+//                "3", // id
+//                "Đế Anh Lừng Thiền Linh Hương", // title
+//                "Description 3", // description
+//                "file3.mp3", // fileName
+//                "cover3.jpg", // coverImageName
+//                LocalDateTime.now(), // createdAt
+//                "Trương Anh 2", // userId
+//                "4:34", // duration
+//                "public", // privacy
+//                2400000, // countPlay
+//                new GenreResponse("3","Ballad",LocalDateTime.now()), // genre
+//                Arrays.asList(new TagResponse("tag3", "gentlebad", LocalDateTime.now(), "user3")) // tags
+//        ));
 
         // Khởi tạo và gắn adapter vào ListView history
         historyAdapter = new TrackAdapter(this, trackResponseList);

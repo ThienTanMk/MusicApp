@@ -1,7 +1,12 @@
 package com.app.musicapp.adapter;
 
+import static androidx.core.content.ContentProviderCompat.requireContext;
+import static androidx.core.content.ContextCompat.startActivity;
+
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.Resources;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,23 +14,37 @@ import android.widget.ArrayAdapter;
 import android.widget.*;
 
 import androidx.annotation.*;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 
 import com.app.musicapp.R;
+import com.app.musicapp.api.ApiClient;
+import com.app.musicapp.model.response.ApiResponse;
 import com.app.musicapp.model.response.LikedPlaylistResponse;
 import com.app.musicapp.model.response.PlaylistResponse;
+import com.app.musicapp.view.activity.SignIn;
+import com.app.musicapp.view.fragment.playlist.PlaylistOptionsBottomSheet;
 import com.app.musicapp.view.fragment.playlist.PlaylistPageFragment;
+import com.app.musicapp.view.fragment.playlist.PlaylistsFragment;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class PlaylistAdapter extends ArrayAdapter<Object> {
-    private List<Object> playlists; // Danh sách chứa cả Playlist và LikedPlaylist
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
-    public PlaylistAdapter(@NonNull Context context, @NonNull List<Object> playlists) {
-        super(context, 0, playlists);
-        this.playlists = playlists;
+public class PlaylistAdapter extends ArrayAdapter<PlaylistResponse> {
+    private Fragment fragment;
+    private TextView tvLikeCount;
+    private ImageView ivLike;
+    private List<PlaylistResponse> playlists; // Danh sách chứa cả Playlist và LikedPlaylist
+    public PlaylistAdapter(@NonNull Fragment fragment ,@NonNull List<PlaylistResponse> playlists) {
+        super(fragment.getContext(), 0, playlists);
+        this.fragment = fragment;
+        this.playlists = playlists != null ? playlists : new ArrayList<>();
     }
 
     @NonNull
@@ -39,28 +58,20 @@ public class PlaylistAdapter extends ArrayAdapter<Object> {
         ImageView ivPlaylistImage = convertView.findViewById(R.id.iv_playlist_image);
         TextView tvPlaylistTitle = convertView.findViewById(R.id.tv_playlist_title);
         TextView tvPlaylistArtist = convertView.findViewById(R.id.tv_artist);
-        TextView tvLikeCount = convertView.findViewById(R.id.tv_like_count);
+        tvLikeCount = convertView.findViewById(R.id.tv_like_count);
+        ivLike = convertView.findViewById(R.id.iv_like);
+        TextView tvPlaylist = convertView.findViewById(R.id.tv_playlist);
         TextView tvTrackCount = convertView.findViewById(R.id.tv_track_count);
         ImageView ivMenu = convertView.findViewById(R.id.iv_menu);
 
         // Lấy đối tượng tại vị trí position
-        Object item = playlists.get(position);
-        PlaylistResponse playlistResponse;
-
-        // Kiểm tra xem item là Playlist hay LikedPlaylist
-        if (item instanceof PlaylistResponse) {
-            playlistResponse = (PlaylistResponse) item;
-        } else if (item instanceof LikedPlaylistResponse) {
-            playlistResponse = ((LikedPlaylistResponse) item).getPlaylist();
-        } else {
-            return convertView;
-        }
+        PlaylistResponse playlistResponse = playlists.get(position);
 
         // Hiển thị thông tin playlist
-        tvPlaylistTitle.setText(playlistResponse.getTitle());
-        tvPlaylistArtist.setText(playlistResponse.getUserId());
-        tvTrackCount.setText(playlistResponse.getPlaylistTracks().size() + " Tracks");
-        tvLikeCount.setText(String.valueOf((int) (Math.random() * 1000)));
+        tvPlaylistTitle.setText(playlistResponse.getTitle() != null ? playlistResponse.getTitle() : "Untitled");
+        tvPlaylistArtist.setText(playlistResponse.getUserId() != null ? playlistResponse.getUserId() : "Unknown User");
+        int trackCount = (playlistResponse.getPlaylistTrackResponses() != null) ? playlistResponse.getPlaylistTrackResponses().size() : 0;
+        tvTrackCount.setText(trackCount + " Tracks");
 
         try {
             String imagePath = playlistResponse.getImagePath();
@@ -68,65 +79,36 @@ public class PlaylistAdapter extends ArrayAdapter<Object> {
             if (!resourceName.isEmpty()) {
                 Resources resources = getContext().getResources();
                 int resourceId = resources.getIdentifier(resourceName, "drawable", getContext().getPackageName());
-                if (resourceId != 0) {
-                    ivPlaylistImage.setImageResource(resourceId);
-                } else {
-                    ivPlaylistImage.setImageResource(R.drawable.logo);
-                }
+                ivPlaylistImage.setImageResource(resourceId != 0 ? resourceId : R.drawable.logo);
             } else {
                 ivPlaylistImage.setImageResource(R.drawable.logo);
             }
         } catch (Exception e) {
             ivPlaylistImage.setImageResource(R.drawable.logo);
-            e.printStackTrace();
+        }
+
+        if (playlistResponse.getIsLiked() != null && playlistResponse.getIsLiked()) {
+            tvLikeCount.setVisibility(View.VISIBLE);
+            fetchLikeCount(playlistResponse.getId(), tvLikeCount);
+        } else {
+            tvPlaylist.setText(" Playlist • ");
+            ivLike.setVisibility(View.GONE);
+            tvLikeCount.setVisibility(View.GONE);
         }
 
         // Xử lý sự kiện bấm vào nút More
         ivMenu.setOnClickListener(v -> {
-            BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(getContext());
-            View bottomSheetView;
-            if (item instanceof PlaylistResponse) {
-                // Playlist tự tạo
-                bottomSheetView = LayoutInflater.from(getContext()).inflate(R.layout.bottom_sheet_user_playlist, null);
-            } else {
-                // Playlist thích
-                bottomSheetView = LayoutInflater.from(getContext()).inflate(R.layout.bottom_sheet_liked_playlist_options, null);
-            }
-
-            // Ánh xạ các view trong bottom sheet
-            ImageView ivPlaylistImageSheet = bottomSheetView.findViewById(R.id.iv_playlist_image);
-            TextView tvPlaylistTitleSheet = bottomSheetView.findViewById(R.id.tv_playlist_title);
-            TextView tvPlaylistDescriptionSheet = bottomSheetView.findViewById(R.id.tv_user_playlist);
-
-            // Hiển thị thông tin playlist trong bottom sheet
-            tvPlaylistTitleSheet.setText(playlistResponse.getTitle());
-            tvPlaylistDescriptionSheet.setText(playlistResponse.getDescription());
-            try {
-                String imagePath = playlistResponse.getImagePath();
-                String resourceName = imagePath != null ? imagePath.replace(".jpg", "") : "";
-                if (!resourceName.isEmpty()) {
-                    Resources resources = getContext().getResources();
-                    int resourceId = resources.getIdentifier(resourceName, "drawable", getContext().getPackageName());
-                    if (resourceId != 0) {
-                        ivPlaylistImageSheet.setImageResource(resourceId);
-                    } else {
-                        ivPlaylistImageSheet.setImageResource(R.drawable.logo);
-                    }
-                } else {
-                    ivPlaylistImageSheet.setImageResource(R.drawable.logo);
-                }
-            } catch (Exception e) {
-                ivPlaylistImageSheet.setImageResource(R.drawable.logo);
-                e.printStackTrace();
-            }
-            bottomSheetDialog.setContentView(bottomSheetView);
-            bottomSheetDialog.show();
+            PlaylistOptionsBottomSheet bottomSheet = PlaylistOptionsBottomSheet.newInstance(playlistResponse);
+            Log.d("PlaylistAdapter", "Opening bottom sheet for item " + position + ", isLiked=" +
+                    (playlistResponse.getIsLiked() != null ? playlistResponse.getIsLiked() : "null"));
+            bottomSheet.setTargetFragment(fragment, 0);
+            bottomSheet.show(fragment.getParentFragmentManager(), bottomSheet.getTag());
         });
+
         convertView.setOnClickListener(v -> {
-            List<Object> selectedPlaylist = new ArrayList<>();
-            selectedPlaylist.add(item); // Tạo danh sách chỉ chứa playlist được chọn
+            List<PlaylistResponse> selectedPlaylist = new ArrayList<>();
+            selectedPlaylist.add(playlistResponse);
             PlaylistPageFragment playlistPageFragment = PlaylistPageFragment.newInstance(selectedPlaylist);
-            // Điều hướng đến PlaylistPageFragment
             if (getContext() instanceof FragmentActivity) {
                 FragmentActivity activity = (FragmentActivity) getContext();
                 View mainView = activity.findViewById(R.id.main);
@@ -145,5 +127,30 @@ public class PlaylistAdapter extends ArrayAdapter<Object> {
             }
         });
         return convertView;
+    }
+    private void fetchLikeCount(String playlistId, TextView tvLikeCount) {
+        if (playlistId == null) {
+            Log.e("PlaylistAdapter", "fetchLikeCount: Invalid playlistId");
+            tvLikeCount.setText("0");
+            return;
+        }
+        ApiClient.getLikedPlaylistService().getLikedCount(playlistId).enqueue(new Callback<ApiResponse<Integer>>() {
+            @Override
+            public void onResponse(@NonNull Call<ApiResponse<Integer>> call, @NonNull Response<ApiResponse<Integer>> response) {
+                if (response.isSuccessful() && response.body() != null && response.body().getCode() == 200) {
+                    Integer likeCount = response.body().getData();
+                    tvLikeCount.setText(String.valueOf(likeCount != null ? likeCount : 0));
+                } else {
+                    Log.e("PlaylistAdapter", "Failed to fetch like count: " + (response.body() != null ? response.body().getMessage() : "Unknown"));
+                    tvLikeCount.setText("0");
+                }
+            }
+            @Override
+            public void onFailure(@NonNull Call<ApiResponse<Integer>> call, @NonNull Throwable t) {
+                Log.e("PlaylistAdapter", "Network error fetching like count: " + t.getMessage());
+                tvLikeCount.setText("0");
+                Toast.makeText(getContext(), "Network error", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }

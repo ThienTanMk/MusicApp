@@ -1,6 +1,9 @@
 package com.app.musicapp.view.fragment.album;
 
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
 
 import androidx.core.content.ContextCompat;
@@ -8,6 +11,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.os.IBinder;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,6 +24,8 @@ import com.app.musicapp.helper.UrlHelper;
 import com.app.musicapp.model.response.AlbumResponse;
 import com.app.musicapp.model.response.ApiResponse;
 import com.app.musicapp.model.response.TrackResponse;
+import com.app.musicapp.service.MusicService;
+import com.app.musicapp.view.activity.MusicPlayer;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 
@@ -27,6 +33,8 @@ import java.io.Serializable;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -35,7 +43,8 @@ import retrofit2.Response;
 public class AlbumPageFragment extends Fragment {
     private AlbumResponse album;
     private ImageView ivLike;
-
+    private MusicService musicService;
+    private TrackRVAdapter trackAdapter;
     public static AlbumPageFragment newInstance(AlbumResponse album) {
         AlbumPageFragment fragment = new AlbumPageFragment();
         Bundle args = new Bundle();
@@ -43,7 +52,21 @@ public class AlbumPageFragment extends Fragment {
         fragment.setArguments(args);
         return fragment;
     }
+    private ServiceConnection connection = new ServiceConnection() {
 
+        @Override
+        public void onServiceConnected(ComponentName className,
+                                       IBinder service) {
+            // We've bound to LocalService, cast the IBinder and get LocalService instance.
+            MusicService.LocalBinder binder = (MusicService.LocalBinder) service;
+            musicService = binder.getService();
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+
+        }
+    };
     public AlbumPageFragment() {
         // Required empty public constructor
     }
@@ -78,7 +101,9 @@ public class AlbumPageFragment extends Fragment {
         TextView tvDescription = view.findViewById(R.id.tv_description);
         TextView tvShowMore = view.findViewById(R.id.tv_show_more);
         RecyclerView rvTracks = view.findViewById(R.id.rv_tracks);
-
+        Intent intent = new Intent(getContext(), MusicService.class);
+        getContext().bindService(intent, connection, Context.BIND_AUTO_CREATE);
+        getContext().startForegroundService(intent);
         if (album != null) {
             tvAlbumTitleHeader.setText("Album " + album.getCreatedAt().getYear());
             tvAlbumTitle.setText(album.getAlbumTitle());
@@ -113,7 +138,23 @@ public class AlbumPageFragment extends Fragment {
             tvLikeCount.setText("210");
             tvDescription.setText(album.getDescription() != null ? album.getDescription() : "No description");
             rvTracks.setLayoutManager(new LinearLayoutManager(getContext()));
-            TrackRVAdapter trackAdapter = new TrackRVAdapter(this, album.getTracks() != null ? album.getTracks() : new ArrayList<>());
+            trackAdapter = new TrackRVAdapter(this, album.getTracks() != null ? album.getTracks() : new ArrayList<>());
+            trackAdapter.setOnTrackClickListener(track -> {
+                // Handle track click
+                if (musicService != null) {
+                    musicService.setNextUpItems(album.getTracks());
+                    // Start playing the track
+                    if (Objects.equals(musicService.getCurrentTrack().getId(), track.getId())) {
+                        musicService.playCurrentMusic();
+                    } else {
+                        musicService.playMusicAtIndex(album.getTracks().indexOf(track));
+                    }
+                    Intent musicIntent = new Intent(getContext(), MusicPlayer.class);
+                    startActivity(musicIntent);
+                } else {
+                    Toast.makeText(getContext(), "Music service not connected", Toast.LENGTH_SHORT).show();
+                }
+            });
             rvTracks.setAdapter(trackAdapter);
         }
 

@@ -15,13 +15,13 @@ import com.bumptech.glide.Glide;
 import java.util.List;
 
 public class PlayListRVAdapter extends RecyclerView.Adapter<PlayListRVAdapter.ViewHolder>{
-    private List<Object> playlist;
+    private List<PlaylistResponse> playlist;
     private OnItemClickListener listener;
     public interface OnItemClickListener {
-        void onItemClick(Object item);
+        void onItemClick(PlaylistResponse item);
     }
 
-    public PlayListRVAdapter(List<Object> playlist, OnItemClickListener listener) {
+    public PlayListRVAdapter(List<PlaylistResponse> playlist, OnItemClickListener listener) {
         this.playlist = playlist;
         this.listener = listener;
     }
@@ -35,25 +35,21 @@ public class PlayListRVAdapter extends RecyclerView.Adapter<PlayListRVAdapter.Vi
 
     @Override
     public void onBindViewHolder(@NonNull PlayListRVAdapter.ViewHolder holder, int position) {
-        Object item = playlist.get(position);
-        if (item instanceof PlaylistResponse) {
-            PlaylistResponse playlistResponse = (PlaylistResponse) item;
-            holder.tvPlaylistTitle.setText(playlistResponse.getTitle());
-            holder.tvPlaylistArtist.setText(playlistResponse.getUserId());
-            Glide.with(holder.itemView.getContext()).load(playlistResponse.getImagePath()).placeholder(R.drawable.logo).into(holder.ivPlaylistImage);
-        } else if (item instanceof LikedPlaylistResponse) {
-            LikedPlaylistResponse likedPlaylistResponse = (LikedPlaylistResponse) item;
-            holder.tvPlaylistTitle.setText(likedPlaylistResponse.getPlaylist().getTitle());
-            holder.tvPlaylistArtist.setText(likedPlaylistResponse.getPlaylist().getUserId());
-            Glide.with(holder.itemView.getContext()).load(likedPlaylistResponse.getPlaylist().getImagePath()).placeholder(R.drawable.logo).into(holder.ivPlaylistImage);
-        }
-        holder.itemView.setOnClickListener(v -> listener.onItemClick(item));
+        PlaylistResponse playlistResponse = playlist.get(position);
+        holder.tvPlaylistTitle.setText(playlistResponse.getTitle() != null ? playlistResponse.getTitle() : "Untitled");
+        holder.tvPlaylistArtist.setText(playlistResponse.getUserId() != null ? playlistResponse.getUserId() : "Unknown User");
+        Glide.with(holder.itemView.getContext())
+                .load(playlistResponse.getImagePath() != null ? playlistResponse.getImagePath() : R.drawable.logo)
+                .placeholder(R.drawable.logo)
+                .into(holder.ivPlaylistImage);
+
+        holder.itemView.setOnClickListener(v -> listener.onItemClick(playlistResponse));
     }
 
 
     @Override
     public int getItemCount() {
-        return playlist.size();
+        return playlist != null ? playlist.size() : 0;
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {

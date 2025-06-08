@@ -253,7 +253,7 @@ public class SearchPageFragment extends Fragment {
         for (Object playlist : allPlaylists) {
             if (playlist instanceof PlaylistResponse && ((PlaylistResponse) playlist).getTitle().toLowerCase().contains(query.toLowerCase())) {
                 filteredPlaylists.add(playlist);
-            } else if (playlist instanceof LikedPlaylistResponse && ((LikedPlaylistResponse) playlist).getPlaylist().getTitle().toLowerCase().contains(query.toLowerCase())) {
+            } else if (playlist instanceof LikedPlaylistResponse && ((LikedPlaylistResponse) playlist).getPlaylistResponse().getTitle().toLowerCase().contains(query.toLowerCase())) {
                 filteredPlaylists.add(playlist);
             }
         }

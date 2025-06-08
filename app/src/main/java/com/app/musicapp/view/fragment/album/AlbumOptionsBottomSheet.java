@@ -1,7 +1,11 @@
 package com.app.musicapp.view.fragment.album;
 
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.view.*;
 import android.widget.*;
 
@@ -14,6 +18,9 @@ import com.app.musicapp.api.ApiClient;
 import com.app.musicapp.helper.UrlHelper;
 import com.app.musicapp.model.response.AlbumResponse;
 import com.app.musicapp.model.response.ApiResponse;
+import com.app.musicapp.model.response.TrackResponse;
+import com.app.musicapp.service.MusicService;
+import com.app.musicapp.view.activity.MusicPlayer;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.bumptech.glide.request.RequestOptions;
@@ -25,13 +32,30 @@ import retrofit2.Response;
 
 import com.app.musicapp.interfaces.OnLikeChangeListener;
 
+import java.util.List;
+
 public class AlbumOptionsBottomSheet extends BottomSheetDialogFragment {
     private static final String ARG_ALBUM = "album";
     private AlbumResponse album;
     private ImageView ivLikeIcon;
     private TextView tvLikeText;
     private OnLikeChangeListener likeChangeListener;
+    private MusicService musicService;
+    private ServiceConnection connection = new ServiceConnection() {
 
+        @Override
+        public void onServiceConnected(ComponentName className,
+                                       IBinder service) {
+            // We've bound to LocalService, cast the IBinder and get LocalService instance.
+            MusicService.LocalBinder binder = (MusicService.LocalBinder) service;
+            musicService = binder.getService();
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+
+        }
+    };
     public void setOnLikeChangeListener(OnLikeChangeListener listener) {
         this.likeChangeListener = listener;
     }
@@ -141,7 +165,9 @@ public class AlbumOptionsBottomSheet extends BottomSheetDialogFragment {
         LinearLayout optionLiked = view.findViewById(R.id.option_liked);
         LinearLayout optionArtistProfile = view.findViewById(R.id.option_artist_profile);
         LinearLayout optionPlayNext = view.findViewById(R.id.option_play_next);
-
+        Intent intent = new Intent(getContext(), MusicService.class);
+        getContext().bindService(intent, connection, Context.BIND_AUTO_CREATE);
+        getContext().startForegroundService(intent);
         // Ánh xạ view cho like option
         ivLikeIcon = optionLiked.findViewById(R.id.iv_like_icon);
         tvLikeText = optionLiked.findViewById(R.id.tv_like_text);
@@ -185,9 +211,12 @@ public class AlbumOptionsBottomSheet extends BottomSheetDialogFragment {
             });
 
             optionPlayNext.setOnClickListener(v -> {
-                showToast("Play Next: " + album.getAlbumTitle());
+                List<TrackResponse> tracks = musicService.getNextUpItems();
+                tracks.addAll(album.getTracks());
+                musicService.setNextUpItems(tracks);
+                Intent musicIntent = new Intent(getContext(), MusicPlayer.class);
+                startActivity(musicIntent);
                 dismiss();
-                // Thêm logic phát album tiếp theo
             });
         }
         return view;
