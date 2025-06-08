@@ -14,14 +14,21 @@ import android.widget.*;
 import androidx.appcompat.widget.SearchView;
 import com.app.musicapp.R;
 import com.app.musicapp.adapter.UploadsAdapter;
-import com.app.musicapp.model.response.GenreResponse;
-import com.app.musicapp.model.response.TagResponse;
+import com.app.musicapp.helper.SharedPreferencesManager;
+import com.app.musicapp.model.response.ApiResponse;
 import com.app.musicapp.model.response.TrackResponse;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.app.musicapp.api.ApiClient;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 import java.time.LocalDateTime;
 import java.util.*;
 
-
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import com.app.musicapp.R;
 public class UploadsFragment extends Fragment {
 
     private ListView listViewUploads;
@@ -43,8 +50,7 @@ public class UploadsFragment extends Fragment {
         super.onCreate(savedInstanceState);
         trackResponseList = new ArrayList<>();
         filteredTrackResponseList = new ArrayList<>();
-        mockTrackData();
-        filteredTrackResponseList.addAll(trackResponseList);
+        loadUserTracks();
     }
 
     @Override
@@ -59,7 +65,8 @@ public class UploadsFragment extends Fragment {
         // Bỏ trạng thái iconified (ẩn) mặc định
         searchView.setIconifiedByDefault(false);
         searchView.setQueryHint("Search in your uploads");
-
+        FloatingActionButton fabUpload = view.findViewById(R.id.fab_upload);
+        fabUpload.setOnClickListener(v -> showUploadFragment());
         // Lấy EditText trong SearchView để chỉnh màu chữ
         EditText searchEditText = searchView.findViewById(androidx.appcompat.R.id.search_src_text);
         searchEditText.setHintTextColor(Color.WHITE);
@@ -95,7 +102,8 @@ public class UploadsFragment extends Fragment {
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                return false;
+                filterTracks(query);
+                return true;
             }
 
             @Override
@@ -108,51 +116,79 @@ public class UploadsFragment extends Fragment {
         return view;
     }
 
-    private void mockTrackData() {
-        if (trackResponseList == null) {
-            trackResponseList = new ArrayList<>();
-        }
-        trackResponseList.add(new TrackResponse(
-                "1",
-                "output_audio",
-                "A sample track description",
-                "output_audio.mp3",
-                "cover_image_1.jpg",
-                LocalDateTime.now(),
-                "user123",
-                "0:05",
-                "public",
-                10,
-                new GenreResponse("1","Rock",LocalDateTime.now()),
-                List.of(new TagResponse("1", "pop", LocalDateTime.now(), "user123"))
-        ));
-        trackResponseList.add(new TrackResponse(
-                "2",
-                "Song 2",
-                "Another track by Artist 2",
-                "song2.mp3",
-                "cover_image_2.jpg",
-                LocalDateTime.now(),
-                "user123",
-                "3:45",
-                "private",
-                5,
-                new GenreResponse("1","Rock",LocalDateTime.now()),
-                List.of(new TagResponse("2", "rock", LocalDateTime.now(), "user123"))
-        ));
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        
+        // Setup search functionality
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                filterTracks(query);
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                filterTracks(newText);
+                return true;
+            }
+        });
     }
+
+    private void loadUserTracks() {
+        String userId = SharedPreferencesManager.getInstance(requireContext()).getUserId();
+        ApiClient.getTrackApiService()
+                .getTracksByUserId(userId)
+                .enqueue(new Callback<ApiResponse<List<TrackResponse>>>() {
+                    @Override
+                    public void onResponse(Call<ApiResponse<List<TrackResponse>>> call, Response<ApiResponse<List<TrackResponse>>> response) {
+                        if (response.isSuccessful() && response.body() != null) {
+                            trackResponseList.clear();
+                            trackResponseList.addAll(response.body().getData());
+                            filteredTrackResponseList.clear();
+                            filteredTrackResponseList.addAll(trackResponseList);
+                            uploadsAdapter.notifyDataSetChanged();
+                        } else {
+                            Toast.makeText(getContext(), "Failed to load tracks", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<ApiResponse<List<TrackResponse>>> call, Throwable t) {
+                        Toast.makeText(getContext(), "Error loading tracks: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
     private void filterTracks(String query) {
         filteredTrackResponseList.clear();
-        if (query.isEmpty()) {
+        
+        if (query == null || query.trim().isEmpty()) {
             filteredTrackResponseList.addAll(trackResponseList);
         } else {
-            for (TrackResponse trackResponse : trackResponseList) {
-                if (trackResponse.getTitle().toLowerCase().contains(query.toLowerCase()) ||
-                        trackResponse.getDescription().toLowerCase().contains(query.toLowerCase())) {
-                    filteredTrackResponseList.add(trackResponse);
+            String searchQuery = query.toLowerCase().trim();
+            for (TrackResponse track : trackResponseList) {
+                if (track.getTitle() != null && track.getTitle().toLowerCase().contains(searchQuery) ||
+                    track.getDescription() != null && track.getDescription().toLowerCase().contains(searchQuery) ||
+                    (track.getGenre() != null && track.getGenre().getName() != null && 
+                     track.getGenre().getName().toLowerCase().contains(searchQuery))) {
+                    filteredTrackResponseList.add(track);
                 }
             }
         }
-        uploadsAdapter.notifyDataSetChanged();
+        
+        if (uploadsAdapter != null) {
+            uploadsAdapter.notifyDataSetChanged();
+        }
+    }
+
+    private void showUploadFragment() {
+        UploadTrackFragment uploadFragment = new UploadTrackFragment();
+        requireActivity().getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.fragment_container, uploadFragment)
+                .addToBackStack(null)
+                .commit();
     }
 }

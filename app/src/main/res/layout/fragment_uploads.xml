@@ -7,6 +7,19 @@
     android:background="@color/background"
     tools:context=".view.fragment.UploadsFragment">
 
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_upload"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="16dp"
+        android:contentDescription="Upload music"
+        android:src="@drawable/ic_upload"
+        app:backgroundTint="@color/like_active"
+        app:tint="@color/white"
+        app:fabSize="normal"
+        app:elevation="6dp" />
+
     <ImageView
         android:id="@+id/img_background"
         android:layout_width="match_parent"
