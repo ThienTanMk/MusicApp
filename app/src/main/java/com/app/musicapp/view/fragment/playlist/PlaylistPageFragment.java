@@ -108,8 +108,16 @@ public class PlaylistPageFragment extends Fragment implements OnLikeChangeListen
             TrackRVAdapter trackAdapter = new TrackRVAdapter(this, playlistResponseData.getPlaylistTracks() != null ?
                     playlistResponseData.getPlaylistTracks() : new ArrayList<>());
             rvTracks.setAdapter(trackAdapter);
-            updateLikeUI();
-            fetchLikeCount();
+
+            if (playlistResponseData.getIsLiked() != null && playlistResponseData.getIsLiked()) {
+                ivLike.setVisibility(View.VISIBLE);
+                tvLikeCount.setVisibility(View.VISIBLE);
+                updateLikeUI();
+                fetchLikeCount();
+            } else {
+                ivLike.setVisibility(View.GONE);
+                tvLikeCount.setVisibility(View.GONE);
+            }
         } else {
             Log.w("PlaylistPageFragment", "No playlist data available");
         }
@@ -138,16 +146,16 @@ public class PlaylistPageFragment extends Fragment implements OnLikeChangeListen
         return view;
     }
     private void updateLikeUI() {
-        if (playlistResponseData != null && ivLike != null) {
+        if (playlistResponseData != null && ivLike != null ) {
             boolean isLiked = playlistResponseData.getIsLiked() != null && playlistResponseData.getIsLiked();
             ivLike.setImageResource(R.drawable.ic_favorite);
             ivLike.setColorFilter(getResources().getColor(isLiked ? R.color.like_active : R.color.like_inactive));
         }
     }
     private void fetchLikeCount() {
-        if (playlistResponseData == null || playlistResponseData.getId() == null) {
+        if (playlistResponseData == null || playlistResponseData.getId() == null || playlistResponseData.getIsLiked() == null || !playlistResponseData.getIsLiked()) {
             Log.e("PlaylistPageFragment", "fetchLikeCount: Invalid playlist or null ID");
-            tvLikeCount.setText("0");
+            tvLikeCount.setVisibility(View.GONE);
             return;
         }
 

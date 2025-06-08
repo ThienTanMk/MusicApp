@@ -54,7 +54,6 @@ public class AllTabFragment extends Fragment {
             v.getParent().requestDisallowInterceptTouchEvent(true);
             return false;
         });
-
         RecyclerView recyclerViewPlaylists = view.findViewById(R.id.recyclerViewPlaylists);
         recyclerViewPlaylists.setLayoutManager(new GridLayoutManager(getContext(), 2));
         recyclerViewPlaylists.setOnTouchListener((v, event) -> {
@@ -71,15 +70,14 @@ public class AllTabFragment extends Fragment {
         });
         recyclerViewAlbums.setHasFixedSize(true);
         recyclerViewAlbums.setNestedScrollingEnabled(false);
-        mockDataTrack();
-        mockDataPlaylists();
-        mockDataAlbums();
-
         // Gán adapter
         recyclerViewTrending.setAdapter(new TrackInVibeAdapter(this, trackResponseList.subList(0, Math.min(4, trackResponseList.size()))));
         recyclerViewPlaylists.setAdapter(new PlaylistInVibeAdapter(getContext(),playlistsList.subList(0, Math.min(4, playlistsList.size()))));
         recyclerViewAlbums.setAdapter(new AlbumInVibeAdapter(getContext(), albumsList.subList(0, Math.min(4, albumsList.size()))));
 
+        mockDataTrack();
+        mockDataPlaylists();
+        mockDataAlbums();
         TextView seeAllTrending = view.findViewById(R.id.seeAllTrending);
         seeAllTrending.setOnClickListener(v -> {
             Log.d(TAG, "See all Trending clicked");

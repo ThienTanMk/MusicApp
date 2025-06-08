@@ -5,12 +5,12 @@ import com.app.musicapp.model.response.PlaylistResponse;
 
 import java.util.List;
 
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
 import retrofit2.Call;
-import retrofit2.http.Body;
 import retrofit2.http.DELETE;
 import retrofit2.http.GET;
 import retrofit2.http.Multipart;
-import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.http.Part;
 import retrofit2.http.Path;
@@ -35,10 +35,14 @@ public interface PlaylistApiService {
     @GET("/api/user-library/playlist/bulk")
     Call<ApiResponse<List<PlaylistResponse>>> getPlaylistsByIds(@Query("playlist_ids") List<String> ids);
 
-    @Deprecated
-    @DELETE("/api/user-library/playlist/delete/{id}")
-    Call<ApiResponse<String>> deletePlaylistById(@Path("id") String id);
-
     @DELETE("/api/user-library/playlist/{id}")
     Call<ApiResponse<String>> deletePlaylistByIdV1(@Path("id") String id);
+
+    @Multipart
+    @PUT("/api/user-library/playlist")
+    Call<ApiResponse<PlaylistResponse>> updatePlaylistInfoV1(
+            @Part MultipartBody.Part image,
+            @Part("playlist") RequestBody updatePlaylistInfoRequest
+    );
+
 }

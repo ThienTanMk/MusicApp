@@ -35,8 +35,6 @@ public class UserProfileFragment extends Fragment {
     private TextView tvFollowInfo;
     private ImageView imgAvatar;
     private Button btnFollowing;
-    private ImageView btnEmail;
-    private ImageView btnShare;
     private ImageView btnPlay;
     private ImageView ivBack;
     private RecyclerView rvProfileContent;
@@ -111,8 +109,6 @@ public class UserProfileFragment extends Fragment {
         imgAvatar = view.findViewById(R.id.img_avatar);
         ivBack = view.findViewById(R.id.iv_back);
         btnFollowing = view.findViewById(R.id.btn_following);
-        btnEmail = view.findViewById(R.id.btn_email);
-        btnShare = view.findViewById(R.id.btn_share);
         btnPlay = view.findViewById(R.id.btn_play);
         rvProfileContent = view.findViewById(R.id.rv_profile_content);
 
@@ -185,14 +181,6 @@ public class UserProfileFragment extends Fragment {
             }
         });
 
-        btnEmail.setOnClickListener(v -> {
-            if (profile != null && profile.getEmail() != null) {
-            }
-        });
-
-        btnShare.setOnClickListener(v -> {
-            // Logic cho nút Share
-        });
 
         btnPlay.setOnClickListener(v -> {
             // Logic cho nút Play

@@ -12,6 +12,7 @@ import android.widget.*;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.app.musicapp.R;
 import com.app.musicapp.api.ApiClient;
@@ -161,6 +162,8 @@ public class PlaylistOptionsBottomSheet extends BottomSheetDialogFragment {
             }
         });
     }
+
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -228,11 +231,6 @@ public class PlaylistOptionsBottomSheet extends BottomSheetDialogFragment {
                 LinearLayout layoutDelete = view.findViewById(R.id.layout_delete);
                 LinearLayout optionPlayNext = view.findViewById(R.id.option_play_next);
 
-                layoutEdit.setOnClickListener(v -> {
-                    showToast("Chỉnh sửa playlist: " + playlistResponse.getTitle());
-                    dismiss();
-                });
-
                 layoutMakePublic.setOnClickListener(v -> {
                     showToast("Đặt chế độ công khai: " + playlistResponse.getTitle());
                     dismiss();
@@ -244,7 +242,43 @@ public class PlaylistOptionsBottomSheet extends BottomSheetDialogFragment {
                 });
 
                 layoutDelete.setOnClickListener(v -> {
-                    showToast("Xóa playlist: " + playlistResponse.getTitle());
+                    if (playlistResponse == null || playlistResponse.getId() == null) {
+                        Log.e("PlaylistOptionsBottomSheet", "deletePlaylist: Invalid playlist or playlistId");
+                        showToast("Không thể xóa playlist");
+                        return;
+                    }
+
+                    ApiClient.getPlaylistService().deletePlaylistByIdV1(playlistResponse.getId()).enqueue(new Callback<ApiResponse<String>>() {
+                        @Override
+                        public void onResponse(@NonNull Call<ApiResponse<String>> call, @NonNull Response<ApiResponse<String>> response) {
+                            if (response.isSuccessful() && response.body() != null && response.body().getCode() == 200) {
+                                showToast("Đã xóa playlist: " + playlistResponse.getTitle());
+                                // Gửi broadcast để thông báo xóa playlist
+                                Intent intent = new Intent("PLAYLIST_DELETED");
+                                intent.putExtra("playlistId", playlistResponse.getId());
+                                LocalBroadcastManager.getInstance(requireContext()).sendBroadcast(intent);
+                                dismiss();
+                            } else if (response.body() != null && response.body().getCode() == 1401) {
+                                Log.e("PlaylistOptionsBottomSheet", "Unauthorized: Please log in again");
+                                showToast("Vui lòng đăng nhập lại");
+                                startActivity(new Intent(requireContext(), SignIn.class));
+                                requireActivity().finish();
+                            } else {
+                                Log.e("PlaylistOptionsBottomSheet", "API error: Code=" + (response.body() != null ? response.body().getCode() : "Unknown") + ", Message=" + (response.body() != null ? response.body().getMessage() : "Unknown"));
+                                showToast("Không thể xóa playlist. Mã lỗi: " + response.code());
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(@NonNull Call<ApiResponse<String>> call, @NonNull Throwable t) {
+                            Log.e("PlaylistOptionsBottomSheet", "Network error: " + t.getMessage());
+                            showToast("Lỗi mạng: " + t.getMessage());
+                        }
+                    });
+                });
+
+                optionPlayNext.setOnClickListener(v -> {
+                    showToast("Phát tiếp theo: " + playlistResponse.getTitle());
                     dismiss();
                 });
 
