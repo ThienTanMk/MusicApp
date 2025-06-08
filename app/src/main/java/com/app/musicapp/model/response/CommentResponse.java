@@ -14,6 +14,8 @@ public class CommentResponse {
     int likeCount;
     List<CommentResponse> replies;
 
+    UserProfileResponse user;
+
     public CommentResponse() {
     }
 
@@ -100,4 +102,8 @@ public class CommentResponse {
     public void setReplies(List<CommentResponse> replies) {
         this.replies = replies;
     }
+
+    public UserProfileResponse getUser() { return user; }
+//
+    public void setUser(UserProfileResponse user) { this.user = user;}
 }

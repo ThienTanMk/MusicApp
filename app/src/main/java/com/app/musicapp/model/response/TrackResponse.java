@@ -16,6 +16,7 @@ public class TrackResponse implements Serializable {
     private String duration;
     private String privacy;
     private int countPlay;
+    private Boolean isLiked;
     private GenreResponse genreResponse;
     private List<TagResponse> tagResponses;
 
@@ -153,4 +154,9 @@ public class TrackResponse implements Serializable {
     public void setArtist(String artist) {
         this.artist = artist;
     }
+
+    public Boolean getLiked() { return isLiked;  }
+
+    public void setLiked(Boolean liked) { isLiked = liked;   }
+
 }
