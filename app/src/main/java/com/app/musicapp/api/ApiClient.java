@@ -77,7 +77,7 @@ public class ApiClient {
             throw new IllegalStateException("ApiClient must be initialized with context first");
         }
         return getClient().create(UserService.class);
-
+    }
     public static PlaylistApiService getPlaylistService() {
         if (context == null) {
             throw new IllegalStateException("ApiClient must be initialized with context first");
