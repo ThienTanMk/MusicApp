@@ -29,6 +29,7 @@ import java.util.*;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.app.musicapp.R;
+
 public class UploadsFragment extends Fragment {
 
     private ListView listViewUploads;
@@ -50,55 +51,27 @@ public class UploadsFragment extends Fragment {
         super.onCreate(savedInstanceState);
         trackResponseList = new ArrayList<>();
         filteredTrackResponseList = new ArrayList<>();
-        loadUserTracks();
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_uploads, container, false);
 
         listViewUploads = view.findViewById(R.id.listViewUploads);
         ivBack = view.findViewById(R.id.iv_back);
         searchView = view.findViewById(R.id.search_view);
-        // Bỏ trạng thái iconified (ẩn) mặc định
+        
+        // Setup SearchView
         searchView.setIconifiedByDefault(false);
         searchView.setQueryHint("Search in your uploads");
-        FloatingActionButton fabUpload = view.findViewById(R.id.fab_upload);
-        fabUpload.setOnClickListener(v -> showUploadFragment());
-        // Lấy EditText trong SearchView để chỉnh màu chữ
+        
+        // Style SearchView's EditText
         EditText searchEditText = searchView.findViewById(androidx.appcompat.R.id.search_src_text);
         searchEditText.setHintTextColor(Color.WHITE);
         searchEditText.setTextColor(Color.WHITE);
 
-        // Bấm vào SearchView là focus + mở bàn phím
-        searchView.setOnClickListener(v -> {
-            searchView.setIconified(false);
-            searchView.requestFocus();
-
-            InputMethodManager imm = (InputMethodManager) requireContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-            if (imm != null) {
-                imm.showSoftInput(searchEditText, InputMethodManager.SHOW_IMPLICIT);
-            }
-        });
-        uploadsAdapter = new UploadsAdapter(this, filteredTrackResponseList);
-        listViewUploads.setAdapter(uploadsAdapter);
-
-        // Xử lý nút Quay lại
-        ivBack.setOnClickListener(v -> {
-            if (getActivity() != null) {
-                View mainView = requireActivity().findViewById(R.id.main);
-                View viewPager = mainView.findViewById(R.id.view_pager);
-                View fragmentContainer = mainView.findViewById(R.id.fragment_container);
-
-                if (viewPager != null && fragmentContainer != null) {
-                    viewPager.setVisibility(View.VISIBLE);
-                    fragmentContainer.setVisibility(View.GONE);
-                }
-                getActivity().getSupportFragmentManager().popBackStack();
-            }
-        });
+        // Setup search functionality
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
@@ -113,7 +86,32 @@ public class UploadsFragment extends Fragment {
             }
         });
 
+        // Setup other views
+        FloatingActionButton fabUpload = view.findViewById(R.id.fab_upload);
+        fabUpload.setOnClickListener(v -> showUploadFragment());
+        
+        uploadsAdapter = new UploadsAdapter(this, filteredTrackResponseList);
+        listViewUploads.setAdapter(uploadsAdapter);
+
+        setupBackButton();
+        
         return view;
+    }
+
+    private void setupBackButton() {
+        ivBack.setOnClickListener(v -> {
+            if (getActivity() != null) {
+                View mainView = requireActivity().findViewById(R.id.main);
+                View viewPager = mainView.findViewById(R.id.view_pager);
+                View fragmentContainer = mainView.findViewById(R.id.fragment_container);
+
+                if (viewPager != null && fragmentContainer != null) {
+                    viewPager.setVisibility(View.VISIBLE);
+                    fragmentContainer.setVisibility(View.GONE);
+                }
+                getActivity().getSupportFragmentManager().popBackStack();
+            }
+        });
     }
 
     @Override
@@ -134,6 +132,12 @@ public class UploadsFragment extends Fragment {
                 return true;
             }
         });
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        loadUserTracks();
     }
 
     private void loadUserTracks() {
@@ -189,6 +193,12 @@ public class UploadsFragment extends Fragment {
                 .beginTransaction()
                 .replace(R.id.fragment_container, uploadFragment)
                 .addToBackStack(null)
+                .commit();
+
+        // Add tag to this fragment for later reference
+        requireActivity().getSupportFragmentManager()
+                .beginTransaction()
+                .add(this, "UploadsFragment")
                 .commit();
     }
 }

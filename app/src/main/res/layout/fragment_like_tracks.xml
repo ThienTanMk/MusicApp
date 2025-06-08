@@ -37,19 +37,14 @@
 
     </LinearLayout>
 
-    <EditText
-        android:id="@+id/et_search"
+    <androidx.appcompat.widget.SearchView
+        android:id="@+id/search_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/search_background"
-        android:hint="Search"
-        android:textColor="#FFFFFF"
-        android:textColorHint="#BBBBBB"
-        android:padding="12dp"
-        android:textSize="16sp"
-        android:drawableStart="@android:drawable/ic_menu_search"
-        android:drawablePadding="8dp"
-        android:layout_marginBottom="16dp" />
+        android:layout_marginBottom="16dp"
+        app:queryHint="Search in your liked tracks"
+        app:iconifiedByDefault="false" />
 
     <!-- ListView cho danh sách bài hát đã thích -->
     <ListView

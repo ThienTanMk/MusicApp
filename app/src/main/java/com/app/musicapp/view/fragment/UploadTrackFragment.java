@@ -25,9 +25,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 
 import com.app.musicapp.api.ApiClient;
 import com.app.musicapp.helper.SharedPreferencesManager;
+import com.app.musicapp.helper.UrlHelper;
 import com.app.musicapp.model.request.TrackRequest;
 import com.app.musicapp.model.response.ApiResponse;
 import com.app.musicapp.model.response.GenreResponse;
@@ -53,6 +55,9 @@ import retrofit2.Response;
 import android.text.InputType;
 import android.view.Gravity;
 
+
+
+
 public class UploadTrackFragment extends Fragment {
     private static final int MAX_TITLE_LENGTH = 100;
 
@@ -70,6 +75,9 @@ public class UploadTrackFragment extends Fragment {
     private Uri selectedAudioUri;
     private String selectedGenre;
     private String description;
+
+    private boolean isEdit = false;
+    private TrackResponse trackToEdit;
 
     private final ActivityResultLauncher<Intent> pickImage = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
@@ -94,6 +102,17 @@ public class UploadTrackFragment extends Fragment {
             }
     );
 
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (getArguments() != null) {
+            isEdit = getArguments().getBoolean("isEdit", false);
+            if (isEdit) {
+                trackToEdit = (TrackResponse) getArguments().getSerializable("track");
+            }
+        }
+    }
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -105,6 +124,10 @@ public class UploadTrackFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         initViews(view);
         setupListeners(view);
+
+        if (isEdit && trackToEdit != null) {
+            fillTrackData();
+        }
     }
 
     private void initViews(View view) {
@@ -210,7 +233,45 @@ public class UploadTrackFragment extends Fragment {
         builder.show();
     }
 
+    private void fillTrackData() {
+        // Fill title
+        etTitle.setText(trackToEdit.getTitle());
+        tvTitleCount.setText(trackToEdit.getTitle().length() + "/" + MAX_TITLE_LENGTH);
+
+        // Fill description
+        description = trackToEdit.getDescription();
+        tvDescription.setText(description != null ? description : "Add a description");
+
+        // Fill genre with null check
+        if (trackToEdit.getGenre() != null) {
+            selectedGenre = trackToEdit.getGenre().getId();
+            tvGenre.setText(trackToEdit.getGenre().getName());
+        } else {
+            selectedGenre = null;
+            tvGenre.setText("Select genre");
+        }
+
+        // Fill privacy
+        switchPublic.setChecked(trackToEdit.getPrivacy().equalsIgnoreCase("PUBLIC"));
+
+        // Load cover image if exists
+        if (trackToEdit.getCoverImageName() != null) {
+            Glide.with(this)
+                    .load(UrlHelper.getCoverImageUrl(trackToEdit.getCoverImageName()))
+                    .centerCrop()
+                    .into(ivCoverImage);
+        }
+
+        // Update UI for edit mode
+        btnSave.setText("Update Track");
+    }
+
     private void uploadTrack() {
+        if (isEdit) {
+            updateTrack();
+            return;
+        }
+
         if (selectedAudioUri == null) {
             openAudioPicker();
             return;
@@ -265,7 +326,7 @@ public class UploadTrackFragment extends Fragment {
                         public void onResponse(Call<ApiResponse<TrackResponse>> call, Response<ApiResponse<TrackResponse>> response) {
                             if (response.isSuccessful() && response.body() != null) {
                                 Toast.makeText(getContext(), "Upload successful", Toast.LENGTH_SHORT).show();
-                                requireActivity().onBackPressed();
+                                requireActivity().getSupportFragmentManager().popBackStack();
                             } else {
                                 Toast.makeText(getContext(), "Upload failed", Toast.LENGTH_SHORT).show();
                             }
@@ -274,6 +335,68 @@ public class UploadTrackFragment extends Fragment {
                         @Override
                         public void onFailure(Call<ApiResponse<TrackResponse>> call, Throwable t) {
                             Toast.makeText(getContext(), "Upload failed: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+
+        } catch (Exception e) {
+            Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void updateTrack() {
+        String title = etTitle.getText().toString().trim();
+        if (title.isEmpty()) {
+            Toast.makeText(getContext(), "Please enter a title", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        try {
+            // Create track request
+            TrackRequest trackRequest = new TrackRequest();
+            trackRequest.setTitle(title);
+            trackRequest.setDescription(description);
+            trackRequest.setGenreId(selectedGenre);
+            trackRequest.setTagIds(new ArrayList<>(){});
+            trackRequest.setPrivacy(switchPublic.isChecked() ? "PUBLIC" : "PRIVATE");
+
+            // Convert to RequestBody
+            Gson gson = new Gson();
+            String trackJson = gson.toJson(trackRequest);
+            RequestBody metadataBody = RequestBody.create(MediaType.parse("application/json"), trackJson);
+
+            // Create image part if new image selected
+            MultipartBody.Part imagePart = null;
+            if (selectedImageUri != null) {
+                File imageFile = FileUtil.getFile(getContext(), selectedImageUri);
+                RequestBody imageRequestBody = RequestBody.create(MediaType.parse("image/*"), imageFile);
+                imagePart = MultipartBody.Part.createFormData("cover_image", imageFile.getName(), imageRequestBody);
+            }
+
+            // Create audio part if new audio selected
+            MultipartBody.Part audioPart = null;
+            if (selectedAudioUri != null) {
+                File audioFile = FileUtil.getFile(getContext(), selectedAudioUri);
+                RequestBody audioRequestBody = RequestBody.create(MediaType.parse("audio/*"), audioFile);
+                audioPart = MultipartBody.Part.createFormData("track_audio", audioFile.getName(), audioRequestBody);
+            }
+
+            // Call update API
+            ApiClient.getTrackApiService()
+                    .updateTrack(trackToEdit.getId(), metadataBody, imagePart, audioPart)
+                    .enqueue(new Callback<ApiResponse<TrackResponse>>() {
+                        @Override
+                        public void onResponse(Call<ApiResponse<TrackResponse>> call, Response<ApiResponse<TrackResponse>> response) {
+                            if (response.isSuccessful() && response.body() != null) {
+                                Toast.makeText(getContext(), "Track updated successfully", Toast.LENGTH_SHORT).show();
+                                requireActivity().getSupportFragmentManager().popBackStack();
+                            } else {
+                                Toast.makeText(getContext(), "Failed to update track", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Call<ApiResponse<TrackResponse>> call, Throwable t) {
+                            Toast.makeText(getContext(), "Error updating track: " + t.getMessage(), Toast.LENGTH_SHORT).show();
                         }
                     });
 
