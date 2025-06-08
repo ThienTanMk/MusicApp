@@ -16,6 +16,7 @@ public class TrackResponse implements Serializable {
     private String duration;
     private String privacy;
     private int countPlay;
+    private Boolean isLiked;
     private GenreResponse genre;
     private List<TagResponse> tagResponses;
     private ProfileWithCountFollowResponse user;
@@ -161,4 +162,9 @@ public class TrackResponse implements Serializable {
     public ProfileWithCountFollowResponse getUser() {
         return this.user;
     }
+
+    public Boolean getLiked() { return isLiked;  }
+
+    public void setLiked(Boolean liked) { isLiked = liked;   }
+
 }

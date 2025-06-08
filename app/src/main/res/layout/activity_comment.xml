@@ -7,8 +7,8 @@
     android:layout_height="match_parent"
     android:background="@color/primary"
     android:orientation="vertical"
-    tools:context=".activity.CommentActivity"
-    android:paddingLeft="15dp">
+    tools:context=".view.activity.CommentActivity"
+    android:paddingLeft="25dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/action"
@@ -17,7 +17,7 @@
         android:layout_marginTop="10dp">
 
         <ImageView
-            android:id="@+id/closeBtn"
+            android:id="@+id/image_close_btn"
             android:layout_width="35dp"
             android:layout_height="35dp"
             android:src="@drawable/close_icon"
@@ -25,7 +25,7 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
-            android:id="@+id/numComment"
+            android:id="@+id/text_comment_count"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="40dp"
@@ -33,11 +33,11 @@
             android:text="605 Comments"
             android:textColor="@color/white"
             android:textSize="24dp"
-            app:layout_constraintStart_toEndOf="@id/closeBtn"
+            app:layout_constraintStart_toEndOf="@id/image_close_btn"
             app:layout_constraintTop_toTopOf="parent" />
 
         <ImageView
-            android:id="@+id/sortBtn"
+            android:id="@+id/image_sorted_btn"
             android:layout_width="35dp"
             android:layout_height="35dp"
             android:layout_marginEnd="16dp"
@@ -54,7 +54,7 @@
         app:layout_constraintTop_toBottomOf="@+id/action">
 
         <ImageView
-            android:id="@+id/cover_image"
+            android:id="@+id/image_cover"
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_marginTop="8dp"
@@ -63,31 +63,31 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
-            android:id="@+id/track_name"
+            android:id="@+id/text_track_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="20dp"
             android:layout_marginTop="12dp"
             android:text="Suýt nữa thì"
             android:textColor="@color/white"
-            app:layout_constraintStart_toEndOf="@id/cover_image"
+            app:layout_constraintStart_toEndOf="@id/image_cover"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
-            android:id="@+id/artist"
+            android:id="@+id/text_artist"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="20dp"
             android:layout_marginTop="8dp"
             android:text="Andizen.."
-            app:layout_constraintStart_toEndOf="@id/cover_image"
-            app:layout_constraintTop_toBottomOf="@id/track_name"
+            app:layout_constraintStart_toEndOf="@id/image_cover"
+            app:layout_constraintTop_toBottomOf="@id/text_track_title"
 
             />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <ListView
-        android:id="@+id/comment_listview"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycle_comments"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_weight="1"
@@ -110,6 +110,7 @@
             android:layout_marginRight="10dp"
             android:background="@drawable/rounded"
             android:clipToOutline="true"
+            android:id="@+id/image_user_cover"
             />
         <EditText
             android:layout_width="wrap_content"
@@ -118,10 +119,13 @@
             android:background="@drawable/comment_border"
             android:hint="Comment"
             android:textColor="@color/white"
-            android:id="@+id/comment_input"/>
+            android:id="@+id/edit_text_comment"
+            android:paddingHorizontal="15dp"
+            android:inputType="textCapSentences|textMultiLine"
+            />
 
         <ImageView
-            android:id="@+id/send_btn"
+            android:id="@+id/image_send_btn"
             android:layout_width="35dp"
             android:layout_height="35dp"
             android:padding="5dp"

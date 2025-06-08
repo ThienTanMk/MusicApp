@@ -8,7 +8,7 @@ public class ProfileWithCountFollowResponse implements Serializable {
     private String firstName;
     private String lastName;
     private String displayName;
-    private LocalDate dob;
+    private String dob;
     private Boolean gender;
     private String email;
     private String cover;
@@ -17,10 +17,12 @@ public class ProfileWithCountFollowResponse implements Serializable {
     private int followerCount;
     private int followingCount;
 
+    private boolean following;
+
     public ProfileWithCountFollowResponse() {
     }
 
-    public ProfileWithCountFollowResponse(String id, String firstName, String lastName, String displayName, LocalDate dob, Boolean gender, String email, String cover, String avatar, String userId, int followerCount, int followingCount) {
+    public ProfileWithCountFollowResponse(String id, String firstName, String lastName, String displayName, String dob, Boolean gender, String email, String cover, String avatar, String userId, int followerCount, int followingCount) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -67,11 +69,11 @@ public class ProfileWithCountFollowResponse implements Serializable {
         this.displayName = displayName;
     }
 
-    public LocalDate getDob() {
+    public String getDob() {
         return dob;
     }
 
-    public void setDob(LocalDate dob) {
+    public void setDob(String dob) {
         this.dob = dob;
     }
 
@@ -129,5 +131,11 @@ public class ProfileWithCountFollowResponse implements Serializable {
 
     public void setFollowingCount(int followingCount) {
         this.followingCount = followingCount;
+    }
+    public boolean isFollowing() {
+        return following;
+    }
+    public void setFollowing(boolean isFollowing){
+        this.following = isFollowing;
     }
 }

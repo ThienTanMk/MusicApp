@@ -8,7 +8,7 @@ public class UserProfileResponse implements Serializable {
     private String firstName;
     private String lastName;
     private String displayName;
-    private LocalDate dob;
+    private String dob;
     private Boolean gender;
     private String email;
     private String cover;
@@ -18,7 +18,7 @@ public class UserProfileResponse implements Serializable {
     public UserProfileResponse() {
     }
 
-    public UserProfileResponse(String id, String firstName, String lastName, String displayName, LocalDate dob, Boolean gender, String email, String cover, String avatar, String userId) {
+    public UserProfileResponse(String id, String firstName, String lastName, String displayName, String dob, Boolean gender, String email, String cover, String avatar, String userId) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -63,11 +63,11 @@ public class UserProfileResponse implements Serializable {
         this.displayName = displayName;
     }
 
-    public LocalDate getDob() {
+    public String getDob() {
         return dob;
     }
 
-    public void setDob(LocalDate dob) {
+    public void setDob(String dob) {
         this.dob = dob;
     }
 

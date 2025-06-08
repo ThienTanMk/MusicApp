@@ -166,11 +166,11 @@ public class SearchPageFragment extends Fragment {
     private void initializeSampleData() {
         // Dữ liệu mẫu cho User
         allUsers.add(new ProfileWithCountFollowResponse(
-                "user123", "Tran", "Viet Quang", "tranvietquang3110", LocalDate.now(),
+                "user123", "Tran", "Viet Quang", "tranvietquang3110", "",
                 true, "email@example.com", "login", "login", "user123", 100, 500
         ));
         allUsers.add(new ProfileWithCountFollowResponse(
-                "user456", "Nguyen", "Van A", "nguyenvana", LocalDate.now(),
+                "user456", "Nguyen", "Van A", "nguyenvana", "LocalDate.now()",
                 false, "a@example.com", "logo", "logo", "user456", 50, 80
         ));
 
