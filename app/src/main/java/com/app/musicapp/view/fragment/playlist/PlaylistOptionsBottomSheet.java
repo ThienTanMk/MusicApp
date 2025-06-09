@@ -1,5 +1,6 @@
 package com.app.musicapp.view.fragment.playlist;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -36,7 +37,11 @@ public class PlaylistOptionsBottomSheet extends BottomSheetDialogFragment {
     private PlaylistResponse playlistResponse;
     private ImageView ivLikeImage;
     private TextView tvLikeText;
+    private PlaylistOptionsListener playlistOptionsListener;
 
+    public void setPlaylistOptionsListener(PlaylistOptionsListener listener) {
+        this.playlistOptionsListener = listener;
+    }
     public static PlaylistOptionsBottomSheet newInstance(PlaylistResponse playlist) {
         PlaylistOptionsBottomSheet fragment = new PlaylistOptionsBottomSheet();
         Bundle args = new Bundle();
@@ -133,7 +138,6 @@ public class PlaylistOptionsBottomSheet extends BottomSheetDialogFragment {
                         Log.d("PlaylistOptionsBottomSheet", "toggleLikeStatus: isLiked=" + newIsLiked);
                         showToast(newIsLiked ? "Đã thích playlist" : "Đã bỏ thích playlist");
                         updateLikeUI();
-
                         if (getTargetFragment() instanceof OnLikeChangeListener) {
                             ((OnLikeChangeListener) getTargetFragment()).onLikeChanged(
                                     playlistResponse.getId(), newIsLiked);
@@ -141,6 +145,8 @@ public class PlaylistOptionsBottomSheet extends BottomSheetDialogFragment {
                             ((OnLikeChangeListener) getParentFragment()).onLikeChanged(
                                     playlistResponse.getId(), newIsLiked);
                         }
+
+
                     } else if (apiResponse.getCode() == 1401) {
                         Log.e("PlaylistOptionsBottomSheet", "Unauthorized: Please log in again");
                         showToast("Vui lòng đăng nhập lại");
@@ -163,7 +169,9 @@ public class PlaylistOptionsBottomSheet extends BottomSheetDialogFragment {
         });
     }
 
-
+    public interface PlaylistOptionsListener {
+        void onPlaylistDeleted(PlaylistResponse playlist);
+    }
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -231,6 +239,16 @@ public class PlaylistOptionsBottomSheet extends BottomSheetDialogFragment {
                 LinearLayout layoutDelete = view.findViewById(R.id.layout_delete);
                 LinearLayout optionPlayNext = view.findViewById(R.id.option_play_next);
 
+                layoutEdit.setOnClickListener(v -> {
+                    EditPlaylistFragment editFragment = EditPlaylistFragment.newInstance(playlistResponse);
+                    dismiss();
+                    requireActivity().getSupportFragmentManager()
+                            .beginTransaction()
+                            .replace(R.id.fragment_container, editFragment)
+                            .addToBackStack(null)
+                            .commit();
+                });
+
                 layoutMakePublic.setOnClickListener(v -> {
                     showToast("Đặt chế độ công khai: " + playlistResponse.getTitle());
                     dismiss();
@@ -248,38 +266,45 @@ public class PlaylistOptionsBottomSheet extends BottomSheetDialogFragment {
                         return;
                     }
 
-                    ApiClient.getPlaylistService().deletePlaylistByIdV1(playlistResponse.getId()).enqueue(new Callback<ApiResponse<String>>() {
-                        @Override
-                        public void onResponse(@NonNull Call<ApiResponse<String>> call, @NonNull Response<ApiResponse<String>> response) {
-                            if (response.isSuccessful() && response.body() != null && response.body().getCode() == 200) {
-                                showToast("Đã xóa playlist: " + playlistResponse.getTitle());
-                                // Gửi broadcast để thông báo xóa playlist
-                                Intent intent = new Intent("PLAYLIST_DELETED");
-                                intent.putExtra("playlistId", playlistResponse.getId());
-                                LocalBroadcastManager.getInstance(requireContext()).sendBroadcast(intent);
-                                dismiss();
-                            } else if (response.body() != null && response.body().getCode() == 1401) {
-                                Log.e("PlaylistOptionsBottomSheet", "Unauthorized: Please log in again");
-                                showToast("Vui lòng đăng nhập lại");
-                                startActivity(new Intent(requireContext(), SignIn.class));
-                                requireActivity().finish();
-                            } else {
-                                Log.e("PlaylistOptionsBottomSheet", "API error: Code=" + (response.body() != null ? response.body().getCode() : "Unknown") + ", Message=" + (response.body() != null ? response.body().getMessage() : "Unknown"));
-                                showToast("Không thể xóa playlist. Mã lỗi: " + response.code());
-                            }
-                        }
+                    // Show confirmation dialog
+                    new AlertDialog.Builder(requireContext())
+                            .setTitle("Delete Playlist")
+                            .setMessage("Are you sure you want to delete this playlist?")
+                            .setPositiveButton("Delete", (dialog, which) -> {
+                                // Call delete API after confirmation
+                                ApiClient.getPlaylistService().deletePlaylistByIdV1(playlistResponse.getId())
+                                        .enqueue(new Callback<ApiResponse<String>>() {
+                                            @Override
+                                            public void onResponse(@NonNull Call<ApiResponse<String>> call,
+                                                                @NonNull Response<ApiResponse<String>> response) {
+                                                if (response.isSuccessful() && response.body() != null) {
+                                                    showToast("Đã xóa playlist: " + playlistResponse.getTitle());
+                                                    // Broadcast the change
+                                                    Intent intent = new Intent("PLAYLIST_DELETED");
+                                                    intent.putExtra("playlistId", playlistResponse.getId());
+                                                    playlistOptionsListener.onPlaylistDeleted(playlistResponse);
+                                                    LocalBroadcastManager.getInstance(requireContext()).sendBroadcast(intent);
+                                                    dismiss();
+                                                } else if (response.body() != null && response.body().getCode() == 1401) {
+                                                    Log.e("PlaylistOptionsBottomSheet", "Unauthorized: Please log in again");
+                                                    showToast("Vui lòng đăng nhập lại");
+                                                    startActivity(new Intent(requireContext(), SignIn.class));
+                                                    requireActivity().finish();
+                                                } else {
+                                                    Log.e("PlaylistOptionsBottomSheet", "API error: Code=" + (response.body() != null ? response.body().getCode() : "Unknown") + ", Message=" + (response.body() != null ? response.body().getMessage() : "Unknown"));
+                                                    showToast("Không thể xóa playlist. Mã lỗi: " + response.code());
+                                                }
+                                            }
 
-                        @Override
-                        public void onFailure(@NonNull Call<ApiResponse<String>> call, @NonNull Throwable t) {
-                            Log.e("PlaylistOptionsBottomSheet", "Network error: " + t.getMessage());
-                            showToast("Lỗi mạng: " + t.getMessage());
-                        }
-                    });
-                });
-
-                optionPlayNext.setOnClickListener(v -> {
-                    showToast("Phát tiếp theo: " + playlistResponse.getTitle());
-                    dismiss();
+                                            @Override
+                                            public void onFailure(@NonNull Call<ApiResponse<String>> call, @NonNull Throwable t) {
+                                                Log.e("PlaylistOptionsBottomSheet", "Network error: " + t.getMessage());
+                                                showToast("Lỗi mạng: " + t.getMessage());
+                                            }
+                                        });
+                            })
+                            .setNegativeButton("Cancel", null)
+                            .show();
                 });
 
                 optionPlayNext.setOnClickListener(v -> {

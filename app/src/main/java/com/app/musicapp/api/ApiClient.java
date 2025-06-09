@@ -1,7 +1,9 @@
 package com.app.musicapp.api;
 
 import android.content.Context;
+import android.nfc.Tag;
 
+import com.app.musicapp.api.TagApiService;
 import com.app.musicapp.util.LocalDateAdapter;
 import com.app.musicapp.util.LocalDateTimeAdapter;
 import com.google.gson.Gson;
@@ -103,7 +105,16 @@ public class ApiClient {
         return getClient().create(HistoryApiService.class);
     }
     public static GenreService getGenreService() {
+        if (context == null) {
+            throw new IllegalStateException("ApiClient must be initialized with context first");
+        }
         return getClient().create(GenreService.class);
+    }
+    public static TagApiService getTagService() {
+        if (context == null) {
+            throw new IllegalStateException("ApiClient must be initialized with context first");
+        }
+        return getClient().create(TagApiService.class);
     }
 
     // Call this when you need to clear the retrofit instance (e.g., on logout)
