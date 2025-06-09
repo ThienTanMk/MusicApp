@@ -16,7 +16,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class ApiClient {
     // Replace 192.168.1.x with your computer's actual IP address
-    private static final String BASE_URL = "http://192.168.1.167:8888/";
+    private static final String BASE_URL = "http://192.168.1.4:8888/";
     private static Retrofit retrofit = null;
     private static Context context;
 
@@ -97,6 +97,12 @@ public class ApiClient {
         return getClient().create(TrackApiService.class);
     }
 
+    public static HistoryApiService getHistoryApiService() {
+        if (context == null) {
+            throw new IllegalStateException("ApiClient must be initialized with context first");
+        }
+        return getClient().create(HistoryApiService.class);
+    }
     public static GenreService getGenreService() {
         return getClient().create(GenreService.class);
     }

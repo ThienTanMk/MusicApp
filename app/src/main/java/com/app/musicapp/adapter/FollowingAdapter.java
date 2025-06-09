@@ -73,8 +73,11 @@ public class FollowingAdapter extends BaseAdapter {
                     ApiClient.getUserService().follow(addFollowRequest).enqueue(new Callback<ApiResponse<Object>>() {
                         @Override
                         public void onResponse(Call<ApiResponse<Object>> call, Response<ApiResponse<Object>> response) {
-                            if(response.isSuccessful())
+                            if(response.isSuccessful()){
                                 btnFollowing.setText("Following");
+                                user.setFollowerCount(user.getFollowerCount()+1);
+                                tvUserDetails.setText(formatFollowersCount(user.getFollowerCount()) + " Followers");
+                            }
                         }
 
                         @Override
@@ -87,7 +90,9 @@ public class FollowingAdapter extends BaseAdapter {
                         @Override
                         public void onResponse(Call<ApiResponse<Object>> call, Response<ApiResponse<Object>> response) {
                             if(response.isSuccessful())
+                                user.setFollowerCount(user.getFollowerCount()-1);
                                 btnFollowing.setText("Follow");
+                                tvUserDetails.setText(formatFollowersCount(user.getFollowerCount()) + " Followers");
                         }
 
                         @Override

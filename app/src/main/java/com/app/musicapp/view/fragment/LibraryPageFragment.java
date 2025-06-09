@@ -11,11 +11,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.app.musicapp.R;
 import com.app.musicapp.adapter.LibraryListAdapter;
 import com.app.musicapp.adapter.TrackAdapter;
+import com.app.musicapp.api.ApiClient;
+import com.app.musicapp.model.response.ApiResponse;
 import com.app.musicapp.model.response.GenreResponse;
 import com.app.musicapp.model.ListView.LibraryList;
 import com.app.musicapp.model.response.TagResponse;
@@ -30,12 +33,17 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class LibraryPageFragment extends Fragment {
 
     private ListView listViewMenu;
     private ListView listViewHistory;
     private LibraryListAdapter menuAdapter;
     private TrackAdapter historyAdapter;
+    private TextView seeAllTextView;
     private List<LibraryList> libraryLists;
     private List<TrackResponse> trackResponseList;
     public LibraryPageFragment() {
@@ -49,6 +57,7 @@ public class LibraryPageFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_library_page, container, false);
 
+        seeAllTextView = view.findViewById(R.id.tv_see_all);
         // Khởi tạo ListView
         listViewMenu = view.findViewById(R.id.listViewMenu);
 
@@ -116,54 +125,43 @@ public class LibraryPageFragment extends Fragment {
         listViewHistory = view.findViewById(R.id.listViewHistory);
 
         trackResponseList = new ArrayList<>();
-//        trackResponseList.add(new TrackResponse(
-//                "1", // id
-//                "Khóc Cùng Em", // title
-//                "Description 1", // description
-//                "file1.mp3", // fileName
-//                "cover1.jpg", // coverImageName
-//                LocalDateTime.now(), // createdAt
-//                "Mr.Siro X Gray", // userId
-//                "3:10", // duration
-//                "public", // privacy
-//                67, // countPlay
-//                new GenreResponse("1","Pop",LocalDateTime.now()), // genre
-//                Arrays.asList(new TagResponse("tag3", "gentlebad", LocalDateTime.now(), "user3")) // tags
-//        ));
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-//            trackResponseList.add(new TrackResponse(
-//                    "2", // id
-//                    "(slowed) Khiếp Chông Chung", // title
-//                    "Description 2", // description
-//                    "file2.mp3", // fileName
-//                    "cover2.jpg", // coverImageName
-//                    LocalDateTime.now(), // createdAt
-//                    "qwrld s.simp", // userId
-//                    "4:28", // duration
-//                    "public", // privacy
-//                    165000, // countPlay
-//                    new GenreResponse("2","Hip Hop",LocalDateTime.now()), // genre
-//                    Arrays.asList(new TagResponse("tag3", "gentlebad", LocalDateTime.now(), "user3")) // tags
-//            ));
-        }
-//        trackResponseList.add(new TrackResponse(
-//                "3", // id
-//                "Đế Anh Lừng Thiền Linh Hương", // title
-//                "Description 3", // description
-//                "file3.mp3", // fileName
-//                "cover3.jpg", // coverImageName
-//                LocalDateTime.now(), // createdAt
-//                "Trương Anh 2", // userId
-//                "4:34", // duration
-//                "public", // privacy
-//                2400000, // countPlay
-//                new GenreResponse("3","Ballad",LocalDateTime.now()), // genre
-//                Arrays.asList(new TagResponse("tag3", "gentlebad", LocalDateTime.now(), "user3")) // tags
-//        ));
-
+        getHistory();
         // Khởi tạo và gắn adapter vào ListView history
         historyAdapter = new TrackAdapter(this, trackResponseList);
         listViewHistory.setAdapter(historyAdapter);
+
+        seeAllTextView.setOnClickListener(v -> {
+            FragmentTransaction fragmentTransaction = requireActivity().getSupportFragmentManager().beginTransaction();
+            fragmentTransaction.replace(R.id.fragment_container, new HistoryFragment());
+            fragmentTransaction.addToBackStack(null);
+            fragmentTransaction.commit();
+        });
+
         return view;
+    }
+
+    private void getHistory(){
+        ApiClient.getHistoryApiService().getAllHistory().enqueue(new Callback<ApiResponse<List<TrackResponse>>>() {
+
+            @Override
+            public void onResponse(Call<ApiResponse<List<TrackResponse>>> call, Response<ApiResponse<List<TrackResponse>>> response) {
+                if(response.isSuccessful()&&response.body()!=null){
+                    trackResponseList.clear();
+                    trackResponseList.addAll(response.body().getData());
+                    historyAdapter.notifyDataSetChanged();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponse<List<TrackResponse>>> call, Throwable t) {
+
+            }
+        });
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        getHistory();
     }
 }
