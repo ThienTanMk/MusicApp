@@ -9,12 +9,14 @@ public class UpdatePlaylistInfoRequest extends AddPlaylistRequest implements Ser
     private LocalDateTime releaseDate;
     private String description;
     private List<String> tagIds;
+    private String genreId;
 
-    public UpdatePlaylistInfoRequest(String title, String privacy, List<String> trackIds, String id, LocalDateTime releaseDate, String description, List<String> tagIds) {
+    public UpdatePlaylistInfoRequest(String title, String privacy, List<String> trackIds, String id, LocalDateTime releaseDate, String description, String genreId, List<String> tagIds) {
         super(title, privacy, trackIds);
         this.id = id;
         this.releaseDate = releaseDate;
         this.description = description;
+        this.genreId = genreId;
         this.tagIds = tagIds;
     }
 
@@ -48,5 +50,12 @@ public class UpdatePlaylistInfoRequest extends AddPlaylistRequest implements Ser
 
     public void setTagIds(List<String> tagIds) {
         this.tagIds = tagIds;
+    }
+    public String getGenreId() {
+        return genreId;
+    }
+
+    public void setGenreId(String genreId) {
+        this.genreId = genreId;
     }
 }

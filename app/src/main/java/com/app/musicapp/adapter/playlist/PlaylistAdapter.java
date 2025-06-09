@@ -9,15 +9,20 @@ import android.widget.ArrayAdapter;
 import android.widget.*;
 
 import androidx.annotation.*;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 
 import com.app.musicapp.R;
 import com.app.musicapp.api.ApiClient;
+import com.app.musicapp.helper.UrlHelper;
 import com.app.musicapp.model.response.ApiResponse;
 import com.app.musicapp.model.response.PlaylistResponse;
 import com.app.musicapp.view.fragment.playlist.PlaylistOptionsBottomSheet;
 import com.app.musicapp.view.fragment.playlist.PlaylistPageFragment;
+import com.app.musicapp.view.fragment.playlist.PlaylistsFragment;
+import com.bumptech.glide.Glide;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -59,21 +64,31 @@ public class PlaylistAdapter extends ArrayAdapter<PlaylistResponse> {
 
         // Hiển thị thông tin playlist
         tvPlaylistTitle.setText(playlistResponse.getTitle() != null ? playlistResponse.getTitle() : "Untitled");
-        tvPlaylistArtist.setText(playlistResponse.getUserId() != null ? playlistResponse.getUserId() : "Unknown User");
+        tvPlaylistArtist.setText(playlistResponse.getUser().getDisplayName());
         int trackCount = (playlistResponse.getPlaylistTrackResponses() != null) ? playlistResponse.getPlaylistTrackResponses().size() : 0;
         tvTrackCount.setText(trackCount + " Tracks");
 
-        try {
-            String imagePath = playlistResponse.getImagePath();
-            String resourceName = imagePath != null ? imagePath.replace(".jpg", "") : "";
-            if (!resourceName.isEmpty()) {
-                Resources resources = getContext().getResources();
-                int resourceId = resources.getIdentifier(resourceName, "drawable", getContext().getPackageName());
-                ivPlaylistImage.setImageResource(resourceId != 0 ? resourceId : R.drawable.logo);
-            } else {
-                ivPlaylistImage.setImageResource(R.drawable.logo);
-            }
-        } catch (Exception e) {
+//        try {
+//            String imagePath = playlistResponse.getImagePath();
+//            String resourceName = imagePath != null ? imagePath.replace(".jpg", "") : "";
+//            if (!resourceName.isEmpty()) {
+//                Resources resources = getContext().getResources();
+//                int resourceId = resources.getIdentifier(resourceName, "drawable", getContext().getPackageName());
+//                ivPlaylistImage.setImageResource(resourceId != 0 ? resourceId : R.drawable.logo);
+//            } else {
+//                ivPlaylistImage.setImageResource(R.drawable.logo);
+//            }
+//        } catch (Exception e) {
+//            ivPlaylistImage.setImageResource(R.drawable.logo);
+//        }
+
+        if (playlistResponse.getImagePath() != null) {
+            Glide.with(getContext())
+                    .load(UrlHelper.getCoverImageUrl(playlistResponse.getImagePath()))
+                    .placeholder(R.drawable.logo)
+                    .error(R.drawable.logo)
+                    .into(ivPlaylistImage);
+        } else {
             ivPlaylistImage.setImageResource(R.drawable.logo);
         }
 
@@ -91,7 +106,11 @@ public class PlaylistAdapter extends ArrayAdapter<PlaylistResponse> {
             PlaylistOptionsBottomSheet bottomSheet = PlaylistOptionsBottomSheet.newInstance(playlistResponse);
             Log.d("PlaylistAdapter", "Opening bottom sheet for item " + position + ", isLiked=" +
                     (playlistResponse.getIsLiked() != null ? playlistResponse.getIsLiked() : "null"));
-            bottomSheet.setTargetFragment(fragment, 0);
+            if (fragment instanceof PlaylistOptionsBottomSheet.PlaylistOptionsListener) {
+                bottomSheet.setPlaylistOptionsListener((PlaylistOptionsBottomSheet.PlaylistOptionsListener) fragment);
+            } else {
+                Log.e("PlaylistAdapter", "Fragment does not implement PlaylistOptionsListener");
+            }
             bottomSheet.show(fragment.getParentFragmentManager(), bottomSheet.getTag());
         });
 

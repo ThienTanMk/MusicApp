@@ -37,8 +37,9 @@
         private MediaPlayer mediaPlayer;
         private final Handler handler = new Handler();
 
-        private String playBackMode = PLAY_ONCE;
+        private String playBackMode;
         private int currentIndex;
+
         // nhận yêu cầu tiếp tục bài nhạc
         public static final String ACTION_PLAY = "ACTION_PLAY";
         // nhận yêu cầu ngừng phát
@@ -50,35 +51,38 @@
         // VÍ DỤ CLICK LIKE TRONG DANH SÁCH NHẠC -> ACTIVITY MUSIC PLAYER HAY NOTICATION CŨNG PHẢI THAY ĐỔI
         public static final String ACTION_CHANGED_CURRENT_TRACK="ACTION_CHANGED_CURRENT_TRACK";
 
+        public static final String REPEAT_ONE = "REPEAT_ONE";
+        public static final String REPEAT_ALL = "REPEAT_ALL";
+        public static final String SHUFFLE = "SHUFFLE";
 
-        public static final String REPEAT_ONE = "ACTION_REPEAT_ONE";
-        public static final String REPEAT_ALL = "ACTION_REPEAT_ALL";
-        public static final String SHUFFLE = "ACION_SHUFFLE";
+        public static final String PLAY_ONCE = "PLAY_ONCE";
 
-        public static final String PLAY_ONCE = "ACTION_PLAY_ONCE";
 
+        // bind serivce ko dung
         @Override
         public int onStartCommand(Intent intent, int flags, int startId) {
-
-            createNotificationChannel();
-            startForeground(1, buildNotification("Music Service Ready"));
-            getLikedTrack();
-            currentIndex = 0;
+            Log.i("start command","start command on music service");
             return super.onStartCommand(intent, flags, startId);
         }
+
 
         //TEST DATA
         private void getLikedTrack(){
             ApiClient.getApiService().getLikedTrack().enqueue(new Callback<ApiResponse<List<TrackResponse>>>() {
                 @Override
                 public void onResponse(Call<ApiResponse<List<TrackResponse>>> call, Response<ApiResponse<List<TrackResponse>>> response) {
-                    MusicService.this.nextUpItems = response.body().getData();
-                }
+                    if(response.isSuccessful()&&response.body()!=null&&response.body().getData()!=null){
+                        nextUpItems = response.body().getData();
+                        currentIndex = 0;
+                        sendTrackInfo();
+                    }
+                    else{
+                        currentIndex = -1;
+                    }
 
+                }
                 @Override
-                public void onFailure(Call<ApiResponse<List<TrackResponse>>> call, Throwable t) {
-
-                }
+                public void onFailure(Call<ApiResponse<List<TrackResponse>>> call, Throwable t) {}
             });
 
         }
@@ -87,9 +91,19 @@
         public void onCreate() {
             super.onCreate();
 
+            this.currentIndex = -1;
+            this.playBackMode = PLAY_ONCE;
+
+            // tạo notification
+            createNotificationChannel();
+
+            getLikedTrack();
         }
         public TrackResponse getCurrentTrack(){
-            if(this.nextUpItems==null||this.nextUpItems.isEmpty()) return null;
+            if(this.nextUpItems==null||this.nextUpItems.isEmpty()) {
+                Toast.makeText(getBaseContext(),"Can not play now. Track is empty",Toast.LENGTH_SHORT).show();
+                return null;
+            }
             return this.nextUpItems.get(currentIndex);
         }
         public List<TrackResponse> getNextUpItems(){
@@ -109,9 +123,7 @@
             startSeekbarUpdate();
         }
         private void sendTrackInfo(){
-            TrackResponse trackResponse = this.nextUpItems.get(currentIndex);
             Intent intent = new Intent(ACTION_CHANGED_CURRENT_TRACK);
-            intent.putExtra("track_info", trackResponse);
             sendBroadcast(intent);
         }
         public String getPlayBackMode(){
@@ -139,7 +151,10 @@
                 playMusicAtIndex(currentIndex);
             }
             else{
-                if(currentIndex==nextUpItems.size()-1)return;
+                if(currentIndex==nextUpItems.size()-1){
+                    sendPauseAction();
+                    return;
+                }
                 currentIndex++;
                 playMusicAtIndex(currentIndex);
             }
@@ -151,34 +166,65 @@
                 else return;
             }
             currentIndex++;
-            playMusicAtIndex(currentIndex);
+            if(!isPlaying()){
+                changeMediaPlayerResource(UrlHelper.getAudioUrl(getCurrentTrack().getFileName()));
+            }
+            else
+                playMusicAtIndex(currentIndex);
         }
         public void playBack(){
             if(this.currentIndex==0) return;
             currentIndex --;
-            playMusicAtIndex(currentIndex);
+            if(!isPlaying()){
+                changeMediaPlayerResource(UrlHelper.getAudioUrl(getCurrentTrack().getFileName()));
+            }
+            else
+                playMusicAtIndex(currentIndex);
         }
+
+        private void changeMediaPlayerResource(String url){
+            try{
+                if(mediaPlayer==null){
+                    mediaPlayer = new MediaPlayer();
+                    mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+                }
+                mediaPlayer.reset();
+                mediaPlayer.setDataSource(url);
+                mediaPlayer.prepareAsync();
+                mediaPlayer.setOnPreparedListener(mp -> {
+                    Intent intent = new Intent(ACTION_UPDATE_SEEKBAR_PROGRESS);
+                    intent.putExtra("current_position", mediaPlayer.getCurrentPosition());
+                    intent.putExtra("duration", 0);
+                    sendBroadcast(intent);
+                    sendTrackInfo();
+                });
+            }
+            catch (Exception ex){
+                ex.printStackTrace();
+            }
+        }
+        // nghe nhac + gui start + gui track info + update seek bar + pause
         private void playUrl(String url) {
+            
             try {
-                if (mediaPlayer != null) {
+                if(mediaPlayer==null){
+                    mediaPlayer = new MediaPlayer();
+                    mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+                }
+                else  {
                     mediaPlayer.reset();
-                    mediaPlayer.release();
-                    mediaPlayer = null;
                 }
 
-                mediaPlayer = new MediaPlayer();
-                mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
                 mediaPlayer.setDataSource(url);
                 mediaPlayer.prepareAsync();
 
                 mediaPlayer.setOnPreparedListener(mp -> {
                     mp.start();
                     sendPlayAction();
+                    sendTrackInfo();
                     updateNotification("Playing music");
                     startSeekbarUpdate();
                 });
-
-                sendTrackInfo();
                 mediaPlayer.setOnCompletionListener(mp -> {
                     determineNextSong();
                 });
@@ -207,10 +253,12 @@
         }
 
         public void playMusicAtIndex(int index){
-            if(index>nextUpItems.size()) throw new ArrayIndexOutOfBoundsException("Index is out of size");
+            if(index>nextUpItems.size()) {
+                Toast.makeText(getBaseContext(),"Can not play now",Toast.LENGTH_SHORT).show();
+            }
             currentIndex = index;
-            playUrl(UrlHelper.getAudioUrl(nextUpItems.get(currentIndex).getFileName()));
-            sendTrackInfo();
+            TrackResponse track = this.nextUpItems.get(currentIndex);
+            playUrl(UrlHelper.getAudioUrl(track.getFileName()));
         }
 
         public void pauseCurrentMusic() {
@@ -220,13 +268,20 @@
             sendPauseAction();
         }
 
+        // check next up tracks and send play + track 
         public void playCurrentMusic(){
+            if(nextUpItems==null||nextUpItems.isEmpty()||currentIndex==-1||currentIndex>=nextUpItems.size()){
+                Toast.makeText(getBaseContext(),"Can not play now",Toast.LENGTH_SHORT).show();
+                return;
+            }
+            var track = nextUpItems.get(currentIndex);
             if(mediaPlayer==null){
-                playUrl(UrlHelper.getAudioUrl(nextUpItems.get(currentIndex).getFileName()));
+                playUrl(UrlHelper.getAudioUrl(track.getFileName()));
                 return;
             }
             mediaPlayer.start();
             sendPlayAction();
+            sendTrackInfo();
             startSeekbarUpdate();
             updateNotification("Play");
         }

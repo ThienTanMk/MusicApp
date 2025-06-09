@@ -167,7 +167,9 @@ public class LikedTracksFragment extends Fragment implements SongOptionsBottomSh
             @Override
             public void onFailure(Call<ApiResponse<List<TrackResponse>>> call, Throwable t) {
                 System.out.println(t.getMessage());
-                Toast.makeText(getContext(), "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_LONG).show();
+                if (getContext() != null) {
+                    Toast.makeText(getContext(), "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_LONG).show();
+                }
             }
         });
     }

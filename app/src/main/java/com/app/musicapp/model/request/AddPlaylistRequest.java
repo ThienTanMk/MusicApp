@@ -8,6 +8,9 @@ public class AddPlaylistRequest implements Serializable {
     private String privacy;
     private List<String> trackIds;
 
+    public AddPlaylistRequest() {
+    }
+
     public AddPlaylistRequest(String title, String privacy, List<String> trackIds) {
         this.title = title;
         this.privacy = privacy;

@@ -14,6 +14,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -36,11 +37,8 @@ public class MusicPlayer extends AppCompatActivity {
     ImageView coverArt, nextBtn, prevBtn, backBtn, shuffleBtn, repeatBtn, likeBtn;
     FloatingActionButton playPauseBtn;
     SeekBar seekBar;
-
     LinearLayout comment;
     ImageView nextUp;
-    private boolean isPlaying = false;
-    private TrackResponse currentTrackResponse;
     MusicService  musicService;
 
     private final BroadcastReceiver receiver = new BroadcastReceiver() {
@@ -61,16 +59,15 @@ public class MusicPlayer extends AppCompatActivity {
                 updateTrackInfo();
 
             }
-            else if(MusicService.ACTION_PLAY.equals(action)&&!isPlaying){
+            else if(MusicService.ACTION_PLAY.equals(action)){
                 playPauseBtn.setImageResource(R.drawable.play_icon);
-                isPlaying=true;
             }
-            else if(MusicService.ACTION_PAUSE.equals(action)&&isPlaying){
+            else if(MusicService.ACTION_PAUSE.equals(action)){
                 playPauseBtn.setImageResource(R.drawable.pause_icon);
-                isPlaying=false;
+
             }
             else if(MusicService.PLAY_ONCE.equals(action)||MusicService.REPEAT_ALL.equals(action)||MusicService.REPEAT_ONE.equals(action)||MusicService.SHUFFLE.equals(action)){
-                updatePlayBackModeBtn(action);
+                updatePlayBackModeBtn();
             }
         }
     };
@@ -98,7 +95,8 @@ public class MusicPlayer extends AppCompatActivity {
 
             }
         });
-    }private void updateLikeCount(String trackId){
+    }
+    private void updateLikeCount(String trackId){
         ApiClient.getLikedTrackService().getTrackLikeCount(trackId).enqueue(new Callback<ApiResponse<Integer>>() {
 
             @Override
@@ -115,7 +113,8 @@ public class MusicPlayer extends AppCompatActivity {
             }
         });
     }
-    private void updatePlayBackModeBtn(String action){
+    private void updatePlayBackModeBtn(){
+        String action = musicService.getPlayBackMode();
         repeatBtn.setColorFilter(this.getResources().getColor(R.color.white));
         repeatBtn.setImageResource(R.drawable.repeat_icon);
         shuffleBtn.setColorFilter(this.getResources().getColor(R.color.white));
@@ -132,16 +131,23 @@ public class MusicPlayer extends AppCompatActivity {
         }
     }
     private void updateTrackInfo(){
-        currentTrackResponse = musicService.getCurrentTrack();
+        var currentTrackResponse = musicService.getCurrentTrack();
         if(currentTrackResponse==null) return;
         trackTitle.setText(currentTrackResponse.getTitle());
         headerTrackTitle.setText(currentTrackResponse.getTitle());
         artistName.setText(currentTrackResponse.getArtist());
-        Log.i("like",currentTrackResponse.getLiked().toString());
         if(currentTrackResponse.getLiked()!=null&&currentTrackResponse.getLiked()) likeBtn.setImageResource(R.drawable.red_heart_icon);
-        Glide.with(MusicPlayer.this).load(UrlHelper.getCoverImageUrl(currentTrackResponse.getCoverImageName())).into(coverArt);
+        Glide.with(MusicPlayer.this)
+                .load(UrlHelper.getCoverImageUrl(currentTrackResponse.getCoverImageName()))
+                .placeholder(R.drawable.logo)
+                .error(R.drawable.logo)
+                .into(coverArt);
+
         updateCommentCount(currentTrackResponse.getId());
         updateLikeCount(currentTrackResponse.getId());
+        if(musicService.isPlaying()) playPauseBtn.setImageResource(R.drawable.play_icon);
+        else playPauseBtn.setImageResource(R.drawable.pause_icon);
+        updatePlayBackModeBtn();
     }
     private ServiceConnection connection = new ServiceConnection() {
 
@@ -151,10 +157,7 @@ public class MusicPlayer extends AppCompatActivity {
             // We've bound to LocalService, cast the IBinder and get LocalService instance.
             MusicService.LocalBinder binder = (MusicService.LocalBinder) service;
             musicService = binder.getService();
-            updatePlayBackModeBtn(musicService.getPlayBackMode());
             updateTrackInfo();
-            if(musicService.isPlaying()) playPauseBtn.setImageResource(R.drawable.play_icon);
-            else playPauseBtn.setImageResource(R.drawable.pause_icon);
         }
 
         @Override
@@ -186,7 +189,6 @@ public class MusicPlayer extends AppCompatActivity {
         super.onStart();
         Intent intent = new Intent(this, MusicService.class);
         bindService(intent, connection, Context.BIND_AUTO_CREATE);
-        startForegroundService(intent);
     }
 
     private String formattedTime(int mCurrentPosition) {
@@ -206,7 +208,7 @@ public class MusicPlayer extends AppCompatActivity {
     @Override
     protected void onRestart() {
         super.onRestart();
-        updatePlayBackModeBtn(musicService.getPlayBackMode());
+        updatePlayBackModeBtn();
     }
 
     private void initViews() {
@@ -232,8 +234,12 @@ public class MusicPlayer extends AppCompatActivity {
         playPauseBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(musicService==null) return;
-                if(!isPlaying){
+                if(musicService==null) {
+                    Toast.makeText(getBaseContext(),"Can not play now",Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                if(!musicService.isPlaying()){
                     musicService.playCurrentMusic();
                     playPauseBtn.setImageResource(R.drawable.play_icon);
                 }
@@ -241,17 +247,22 @@ public class MusicPlayer extends AppCompatActivity {
                     musicService.pauseCurrentMusic();
                     playPauseBtn.setImageResource(R.drawable.pause_icon);
                 }
-                isPlaying = !isPlaying;
+
             }
         });
         comment.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if(musicService==null){
+                    Toast.makeText(getBaseContext(),"Can not open comment. Try again later",Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                var currentTrack = musicService.getCurrentTrack();
                 Intent intent = new Intent(MusicPlayer.this,CommentActivity.class);
-                intent.putExtra("track_id",currentTrackResponse.getId());
-                intent.putExtra("track_title",currentTrackResponse.getTitle());
+                intent.putExtra("track_id",currentTrack.getId());
+                intent.putExtra("track_title",currentTrack.getTitle());
                 intent.putExtra("track_artist","temp");
-                intent.putExtra("track_cover",currentTrackResponse.getCoverImageName());
+                intent.putExtra("track_cover",currentTrack.getCoverImageName());
                 startActivity(intent);
             }
         });

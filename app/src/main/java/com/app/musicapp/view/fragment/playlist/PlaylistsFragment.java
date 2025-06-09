@@ -28,7 +28,7 @@ import java.util.*;
 import retrofit2.*;
 
 
-public class PlaylistsFragment extends Fragment implements OnLikeChangeListener {
+public class PlaylistsFragment extends Fragment implements OnLikeChangeListener, PlaylistOptionsBottomSheet.PlaylistOptionsListener {
     private ListView listViewPlaylists;
     private PlaylistAdapter playlistAdapter;
     private ProgressBar progressBar;
@@ -170,5 +170,10 @@ public class PlaylistsFragment extends Fragment implements OnLikeChangeListener 
                 break;
             }
         }
+    }
+    @Override
+    public void onPlaylistDeleted(PlaylistResponse playlist) {
+        playlists.remove(playlist);
+        playlistAdapter.notifyDataSetChanged();
     }
 }

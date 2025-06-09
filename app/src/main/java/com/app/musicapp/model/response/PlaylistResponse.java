@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
 
+
+
 public class PlaylistResponse implements Serializable {
     private String id;
     private String title;
@@ -11,13 +13,13 @@ public class PlaylistResponse implements Serializable {
     private String description;
     private String privacy;
     private String userId;
-    private GenreResponse genreResponse;
+    private GenreResponse genre;
     private String imagePath;
     private LocalDateTime createdAt;
-    private List<TrackResponse> playlistTrackResponses;
-    private List<TagResponse> playlistTagResponses;
+    private List<TrackResponse> playlistTracks;
+    private List<TagResponse> playlistTags;
     private Boolean isLiked;
-    ProfileWithCountFollowResponse user;
+    private ProfileWithCountFollowResponse user;
 
     public PlaylistResponse(String id, String title, LocalDateTime releaseDate, String description, String privacy, String userId, GenreResponse genreResponse, String imagePath, LocalDateTime createdAt, List<TrackResponse> playlistTrackResponses, List<TagResponse> playlistTagResponses, Boolean isLiked , ProfileWithCountFollowResponse user) {
         this.id = id;
@@ -26,21 +28,21 @@ public class PlaylistResponse implements Serializable {
         this.description = description;
         this.privacy = privacy;
         this.userId = userId;
-        this.genreResponse = genreResponse;
+        this.genre = genreResponse;
         this.imagePath = imagePath;
         this.createdAt = createdAt;
-        this.playlistTrackResponses = playlistTrackResponses;
-        this.playlistTagResponses = playlistTagResponses;
+        this.playlistTracks = playlistTrackResponses;
+        this.playlistTags = playlistTagResponses;
         this.isLiked = isLiked;
         this.user = user;
     }
 
     public GenreResponse getGenreResponse() {
-        return genreResponse;
+        return genre;
     }
 
     public void setGenreResponse(GenreResponse genreResponse) {
-        this.genreResponse = genreResponse;
+        this.genre = genreResponse;
     }
 
     public Boolean getIsLiked() {
@@ -52,19 +54,19 @@ public class PlaylistResponse implements Serializable {
     }
 
     public List<TrackResponse> getPlaylistTrackResponses() {
-        return playlistTrackResponses;
+        return playlistTracks;
     }
 
     public void setPlaylistTrackResponses(List<TrackResponse> playlistTrackResponses) {
-        this.playlistTrackResponses = playlistTrackResponses;
+        this.playlistTracks = playlistTrackResponses;
     }
 
     public List<TagResponse> getPlaylistTagResponses() {
-        return playlistTagResponses;
+        return playlistTags;
     }
 
     public void setPlaylistTagResponses(List<TagResponse> playlistTagResponses) {
-        this.playlistTagResponses = playlistTagResponses;
+        this.playlistTags = playlistTagResponses;
     }
 
     public ProfileWithCountFollowResponse getUser() {
@@ -124,11 +126,11 @@ public class PlaylistResponse implements Serializable {
     }
 
     public GenreResponse getGenre() {
-        return genreResponse;
+        return genre;
     }
 
     public void setGenre(GenreResponse genreResponse) {
-        this.genreResponse = genreResponse;
+        this.genre = genreResponse;
     }
 
     public String getImagePath() {
@@ -148,18 +150,18 @@ public class PlaylistResponse implements Serializable {
     }
 
     public List<TrackResponse> getPlaylistTracks() {
-        return playlistTrackResponses;
+        return playlistTracks;
     }
 
     public void setPlaylistTracks(List<TrackResponse> playlistTrackResponses) {
-        this.playlistTrackResponses = playlistTrackResponses;
+        this.playlistTracks = playlistTrackResponses;
     }
 
     public List<TagResponse> getPlaylistTags() {
-        return playlistTagResponses;
+        return playlistTags;
     }
 
     public void setPlaylistTags(List<TagResponse> playlistTagResponses) {
-        this.playlistTagResponses = playlistTagResponses;
+        this.playlistTags = playlistTagResponses;
     }
 }
