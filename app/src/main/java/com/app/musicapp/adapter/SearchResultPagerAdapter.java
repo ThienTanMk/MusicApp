@@ -5,6 +5,7 @@ import androidx.fragment.app.Fragment;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
 import com.app.musicapp.model.AlbumResponse;
+import com.app.musicapp.model.response.PlaylistResponse;
 import com.app.musicapp.model.response.TrackResponse;
 import com.app.musicapp.model.response.ProfileWithCountFollowResponse;
 import com.app.musicapp.view.fragment.searchresult.SearchAlbumTabFragment;
@@ -17,17 +18,17 @@ import java.util.*;
 public class SearchResultPagerAdapter extends FragmentStateAdapter {
     private List<TrackResponse> trackResponseResults;
     private List<ProfileWithCountFollowResponse> userResults;
-    private List<Object> playlistResults;
+    private List<PlaylistResponse> playlistResults;
     private List<AlbumResponse> albumResponseResults;
 
-    public SearchResultPagerAdapter(@NonNull Fragment fragment, List<TrackResponse> trackResponseResults,
-                                    List<ProfileWithCountFollowResponse> userResults,
-                                    List<Object> playlistResults, List<AlbumResponse> albumResponseResults) {
+    public SearchResultPagerAdapter(Fragment fragment, List<TrackResponse> trackResponses,
+                                    List<ProfileWithCountFollowResponse> users,
+                                    List<PlaylistResponse> playlists, List<AlbumResponse> albums) {
         super(fragment);
-        this.trackResponseResults = trackResponseResults;
-        this.userResults = userResults;
-        this.playlistResults = playlistResults;
-        this.albumResponseResults = albumResponseResults;
+        this.trackResponseResults = trackResponses;
+        this.userResults = users;
+        this.playlistResults = playlists;
+        this.albumResponseResults = albums;
     }
 
     @NonNull
@@ -52,12 +53,11 @@ public class SearchResultPagerAdapter extends FragmentStateAdapter {
         return 4; // 4 tabs: Song, User, Playlist, Album
     }
 
-    public void updateData(List<TrackResponse> trackResponses, List<ProfileWithCountFollowResponse> users,
-                           List<Object> playlists, List<AlbumResponse> albumResponses) {
-        this.trackResponseResults = trackResponses;
+    public void updateData(List<TrackResponse> tracks, List<ProfileWithCountFollowResponse> users,
+                           List<PlaylistResponse> playlists, List<AlbumResponse> albums) {
+        this.trackResponseResults = tracks;
         this.userResults = users;
         this.playlistResults = playlists;
-        this.albumResponseResults = albumResponses;
-        notifyDataSetChanged();
+        this.albumResponseResults = albums;
     }
 }

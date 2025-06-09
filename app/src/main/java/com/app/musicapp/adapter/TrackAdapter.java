@@ -90,8 +90,10 @@ public class TrackAdapter extends BaseAdapter {
 
         // Xử lý sự kiện click cho nút menu
         holder.ivMenu.setOnClickListener(v -> {
-            Toast.makeText(fragment.getContext(), "Menu clicked for: " + trackResponse.getTitle(), Toast.LENGTH_SHORT).show();
             SongOptionsBottomSheet bottomSheet = SongOptionsBottomSheet.newInstance(trackResponse);
+            if (fragment instanceof SongOptionsBottomSheet.TrackOptionsListener) {
+                bottomSheet.setTrackOptionsListener((SongOptionsBottomSheet.TrackOptionsListener) fragment);
+            }
             bottomSheet.show(fragment.getParentFragmentManager(), bottomSheet.getTag());
         });
 

@@ -16,8 +16,8 @@ public interface UserProfileApiService {
     Call<ApiResponse<ProfileWithCountFollowResponse>> getUserProfile(
             @Path("userId") String userId
     );
-
-    @GET("/api/profile/users")
+//search
+    @GET("/api/profile/users/bulk")
     Call<ApiResponse<List<ProfileWithCountFollowResponse>>> getUserProfilesByIds(
             @Query("ids") List<String> ids
     );

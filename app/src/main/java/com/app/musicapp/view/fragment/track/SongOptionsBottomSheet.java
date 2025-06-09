@@ -35,7 +35,10 @@ public class SongOptionsBottomSheet extends BottomSheetDialogFragment {
     private TextView tvLikeText;
     private ImageView ivLikeIcon;
     private boolean isLiked = false;
-
+    private TrackOptionsListener optionsListener;
+    public void setTrackOptionsListener(TrackOptionsListener listener) {
+        this.optionsListener = listener;
+    }
     public static SongOptionsBottomSheet newInstance(TrackResponse trackResponse) {
         SongOptionsBottomSheet fragment = new SongOptionsBottomSheet();
         Bundle args = new Bundle();
@@ -136,16 +139,24 @@ public class SongOptionsBottomSheet extends BottomSheetDialogFragment {
         
         String currentUserId = SharedPreferencesManager.getInstance(requireContext()).getUserId();
         View editOption = view.findViewById(R.id.option_edit_track);
+        View deleteOption = view.findViewById(R.id.option_delete_track);
         
-        // Chỉ hiển thị option edit nếu là track của user hiện tại
+        // Chỉ hiển thị option edit và delete nếu là track của user hiện tại
         if (trackResponse.getUserId().equals(currentUserId)) {
             editOption.setVisibility(View.VISIBLE);
+            deleteOption.setVisibility(View.VISIBLE);
+            
             editOption.setOnClickListener(v -> {
                 showEditTrackFragment();
                 dismiss();
             });
+
+            deleteOption.setOnClickListener(v -> {
+                showDeleteConfirmDialog();
+            });
         } else {
             editOption.setVisibility(View.GONE);
+            deleteOption.setVisibility(View.GONE);
         }
     }
 
@@ -227,5 +238,50 @@ public class SongOptionsBottomSheet extends BottomSheetDialogFragment {
                 .replace(R.id.fragment_container, editFragment)
                 .addToBackStack(null)
                 .commit();
+    }
+
+    private void showDeleteConfirmDialog() {
+        new androidx.appcompat.app.AlertDialog.Builder(requireContext())
+            .setTitle("Delete Track")
+            .setMessage("Are you sure you want to delete this track? This action cannot be undone.")
+            .setPositiveButton("Delete", (dialog, which) -> {
+                deleteTrack();
+            })
+            .setNegativeButton("Cancel", null)
+            .show();
+    }
+
+    private void deleteTrack() {
+        ApiClient.getTrackApiService().deleteTrack(trackResponse.getId())
+            .enqueue(new Callback<ApiResponse<String>>() {
+                @Override
+                public void onResponse(Call<ApiResponse<String>> call, Response<ApiResponse<String>> response) {
+                    if (response.isSuccessful() && response.body() != null) {
+                        Toast.makeText(getContext(), "Track deleted successfully", Toast.LENGTH_SHORT).show();
+                        // Refresh the track list
+                        if(optionsListener != null) {
+                            optionsListener.onTrackDeleted(trackResponse);
+                        }
+                        dismiss();
+                    } else {
+                        Toast.makeText(getContext(), "Failed to delete track", Toast.LENGTH_SHORT).show();
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<ApiResponse<String>> call, Throwable t) {
+                    Toast.makeText(getContext(), "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
+    }
+
+    public interface TrackOptionsListener {
+//        void onTrackEdited(TrackResponse track);
+        void onTrackDeleted(TrackResponse track);
+//        void onAddToPlaylist(TrackResponse track);
+//        void onGoToArtist(TrackResponse track);
+//        void onViewComments(TrackResponse track);
+//        void onViewBehindTrack(TrackResponse track);
+//        void onReportTrack(TrackResponse track);
     }
 }

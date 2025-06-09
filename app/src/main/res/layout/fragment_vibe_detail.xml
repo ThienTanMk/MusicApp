@@ -44,6 +44,7 @@
         app:tabIndicatorColor="#FF4081"
         app:tabMode="fixed"
         app:tabSelectedTextColor="#FFFFFF"
+        android:background="@color/background"
         app:tabTextColor="#B0B0B0" />
 
     <!-- ViewPager2 để hiển thị nội dung của từng tab -->
