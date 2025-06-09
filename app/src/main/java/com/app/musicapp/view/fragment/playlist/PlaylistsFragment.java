@@ -13,16 +13,13 @@ import android.view.*;
 import android.widget.*;
 
 import com.app.musicapp.R;
-import com.app.musicapp.adapter.PlaylistAdapter;
+import com.app.musicapp.adapter.playlist.PlaylistAdapter;
 import com.app.musicapp.api.ApiClient;
 import com.app.musicapp.helper.SharedPreferencesManager;
 import com.app.musicapp.interfaces.OnLikeChangeListener;
 import com.app.musicapp.model.response.ApiResponse;
 import com.app.musicapp.model.response.GenreResponse;
-import com.app.musicapp.model.response.LikedPlaylistResponse;
 import com.app.musicapp.model.response.PlaylistResponse;
-import com.app.musicapp.model.response.TagResponse;
-import com.app.musicapp.model.response.TrackResponse;
 import com.app.musicapp.view.activity.SignIn;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 

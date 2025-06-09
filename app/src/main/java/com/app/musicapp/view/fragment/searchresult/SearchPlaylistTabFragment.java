@@ -10,7 +10,7 @@ import android.view.ViewGroup;
 import android.widget.ListView;
 
 import com.app.musicapp.R;
-import com.app.musicapp.adapter.PlaylistAdapter;
+import com.app.musicapp.adapter.playlist.PlaylistAdapter;
 import com.app.musicapp.model.response.PlaylistResponse;
 import com.app.musicapp.view.fragment.playlist.PlaylistPageFragment;
 

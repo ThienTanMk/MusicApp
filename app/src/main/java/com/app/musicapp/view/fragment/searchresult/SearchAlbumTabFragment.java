@@ -10,8 +10,8 @@ import android.view.ViewGroup;
 import android.widget.ListView;
 
 import com.app.musicapp.R;
-import com.app.musicapp.adapter.AlbumAdapter;
-import com.app.musicapp.model.AlbumResponse;
+import com.app.musicapp.adapter.album.AlbumAdapter;
+import com.app.musicapp.model.response.AlbumResponse;
 import com.app.musicapp.view.fragment.album.AlbumPageFragment;
 
 import java.util.*;
@@ -33,7 +33,7 @@ public class SearchAlbumTabFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            albumResponseResults = (List<com.app.musicapp.model.response.AlbumResponse>) getArguments().getSerializable(ARG_ALBUMS);
+            albumResponseResults = (List<AlbumResponse>) getArguments().getSerializable(ARG_ALBUMS);
         }
     }
     @Override

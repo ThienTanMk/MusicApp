@@ -1,4 +1,4 @@
-package com.app.musicapp.adapter;
+package com.app.musicapp.adapter.playlist;
 
 import android.view.*;
 import android.view.ViewGroup;
@@ -8,10 +8,10 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.app.musicapp.R;
-import com.app.musicapp.model.response.LikedPlaylistResponse;
 import com.app.musicapp.model.response.PlaylistResponse;
 import com.bumptech.glide.Glide;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class PlayListRVAdapter extends RecyclerView.Adapter<PlayListRVAdapter.ViewHolder>{
@@ -22,7 +22,8 @@ public class PlayListRVAdapter extends RecyclerView.Adapter<PlayListRVAdapter.Vi
     }
 
     public PlayListRVAdapter(List<PlaylistResponse> playlist, OnItemClickListener listener) {
-        this.playlist = playlist;
+        this.playlist = playlist != null ? playlist : new ArrayList<>();;
+        //this.playlist = new ArrayList<>(playlist);
         this.listener = listener;
     }
 

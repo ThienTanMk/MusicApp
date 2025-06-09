@@ -1,10 +1,5 @@
-package com.app.musicapp.adapter;
+package com.app.musicapp.adapter.playlist;
 
-import static androidx.core.content.ContentProviderCompat.requireContext;
-import static androidx.core.content.ContextCompat.startActivity;
-
-import android.content.Context;
-import android.content.Intent;
 import android.content.res.Resources;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -14,20 +9,15 @@ import android.widget.ArrayAdapter;
 import android.widget.*;
 
 import androidx.annotation.*;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 
 import com.app.musicapp.R;
 import com.app.musicapp.api.ApiClient;
 import com.app.musicapp.model.response.ApiResponse;
-import com.app.musicapp.model.response.LikedPlaylistResponse;
 import com.app.musicapp.model.response.PlaylistResponse;
-import com.app.musicapp.view.activity.SignIn;
 import com.app.musicapp.view.fragment.playlist.PlaylistOptionsBottomSheet;
 import com.app.musicapp.view.fragment.playlist.PlaylistPageFragment;
-import com.app.musicapp.view.fragment.playlist.PlaylistsFragment;
-import com.google.android.material.bottomsheet.BottomSheetDialog;
 
 import java.util.ArrayList;
 import java.util.List;

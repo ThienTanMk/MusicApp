@@ -1,6 +1,6 @@
 package com.app.musicapp.api;
 
-import com.app.musicapp.model.AlbumResponse;
+import com.app.musicapp.model.response.AlbumResponse;
 import com.app.musicapp.model.response.ApiResponse;
 import com.app.musicapp.model.response.PlaylistResponse;
 import com.app.musicapp.model.response.ProfileWithCountFollowResponse;

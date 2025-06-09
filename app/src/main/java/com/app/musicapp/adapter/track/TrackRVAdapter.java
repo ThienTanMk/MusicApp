@@ -1,4 +1,4 @@
-package com.app.musicapp.adapter;
+package com.app.musicapp.adapter.track;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,6 +15,7 @@ import com.app.musicapp.model.response.TrackResponse;
 import com.app.musicapp.view.fragment.track.SongOptionsBottomSheet;
 import com.bumptech.glide.Glide;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class TrackRVAdapter extends RecyclerView.Adapter<TrackRVAdapter.ViewHolder> {
@@ -28,7 +29,7 @@ public class TrackRVAdapter extends RecyclerView.Adapter<TrackRVAdapter.ViewHold
 
     public TrackRVAdapter(Fragment fragment, List<TrackResponse> trackResponseList) {
         this.fragment = fragment;
-        this.trackResponseList = trackResponseList;
+        this.trackResponseList = new ArrayList<>(trackResponseList);
     }
 
     public void setOnTrackClickListener(OnTrackClickListener listener) {

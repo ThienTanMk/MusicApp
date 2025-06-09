@@ -1,10 +1,10 @@
-package com.app.musicapp.adapter;
+package com.app.musicapp.adapter.search;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
-import com.app.musicapp.model.AlbumResponse;
+import com.app.musicapp.model.response.AlbumResponse;
 import com.app.musicapp.model.response.PlaylistResponse;
 import com.app.musicapp.model.response.TrackResponse;
 import com.app.musicapp.model.response.ProfileWithCountFollowResponse;

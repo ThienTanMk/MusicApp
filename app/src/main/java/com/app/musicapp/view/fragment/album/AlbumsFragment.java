@@ -15,7 +15,7 @@ import android.widget.Toast;
 import androidx.fragment.app.Fragment;
 
 import com.app.musicapp.R;
-import com.app.musicapp.adapter.AlbumAdapter;
+import com.app.musicapp.adapter.album.AlbumAdapter;
 import com.app.musicapp.api.ApiClient;
 import com.app.musicapp.helper.SharedPreferencesManager;
 import com.app.musicapp.model.response.AlbumResponse;

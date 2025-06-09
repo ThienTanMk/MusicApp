@@ -22,24 +22,16 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.app.musicapp.R;
-import com.app.musicapp.adapter.SearchUserAdapter;
-import com.app.musicapp.adapter.VibesAdapter;
+import com.app.musicapp.adapter.search.SearchUserAdapter;
+import com.app.musicapp.adapter.search.VibesAdapter;
 import com.app.musicapp.api.ApiClient;
 import com.app.musicapp.api.SearchApiService;
-import com.app.musicapp.model.AlbumResponse;
 import com.app.musicapp.model.response.ApiResponse;
-import com.app.musicapp.model.response.GenreResponse;
 import com.app.musicapp.model.GridView.Vibes;
-import com.app.musicapp.model.response.LikedPlaylistResponse;
-import com.app.musicapp.model.response.PlaylistResponse;
-import com.app.musicapp.model.response.TrackResponse;
 import com.app.musicapp.model.response.ProfileWithCountFollowResponse;
-import com.app.musicapp.model.response.TagResponse;
 import com.app.musicapp.view.fragment.searchresult.SearchResultFragment;
 import com.app.musicapp.view.fragment.UserProfileFragment;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -63,7 +55,6 @@ public class SearchPageFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // Khởi tạo Retrofit service
         searchApiService = ApiClient.getClient().create(SearchApiService.class);
     }
     @Override
@@ -76,14 +67,14 @@ public class SearchPageFragment extends Fragment {
         gridViewVibes = view.findViewById(R.id.gridViewVibes);
         textViewVibes = view.findViewById(R.id.textViewVibes);
         vibeList = new ArrayList<>();
-        vibeList.add(new Vibes(R.drawable.searchbg_hiphop_rap, "Hip Hop & Rap"));
-        vibeList.add(new Vibes(R.drawable.searchbg_electronic, "Electronic"));
-        vibeList.add(new Vibes(R.drawable.searchbg_ballad, "Ballad"));
-        vibeList.add(new Vibes(R.drawable.searchbg_study, "Study"));
-        vibeList.add(new Vibes(R.drawable.searchbg_pop, "Pop"));
-        vibeList.add(new Vibes(R.drawable.searchbg_chill, "Chill"));
-        vibeList.add(new Vibes(R.drawable.searchbg_indie, "Indie"));
-        vibeList.add(new Vibes(R.drawable.searchbg_rock, "Rock"));
+        vibeList.add(new Vibes(R.drawable.searchbg_hiphop_rap, "Hip Hop & Rap")); //id 1
+        vibeList.add(new Vibes(R.drawable.searchbg_electronic, "Electronic")); // id 2
+        vibeList.add(new Vibes(R.drawable.searchbg_ballad, "Ballad")); //id 3
+        vibeList.add(new Vibes(R.drawable.searchbg_study, "Study")); //id 4
+        vibeList.add(new Vibes(R.drawable.searchbg_pop, "Pop")); //id 5
+        vibeList.add(new Vibes(R.drawable.searchbg_chill, "Chill")); //id 6
+        vibeList.add(new Vibes(R.drawable.searchbg_indie, "Indie")); //id 7
+        vibeList.add(new Vibes(R.drawable.searchbg_rock, "Rock")); //id 8
 
         vibesAdapter = new VibesAdapter(getContext(), vibeList);
         gridViewVibes.setAdapter(vibesAdapter);

@@ -20,7 +20,7 @@ import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.Fragment;
 
 import com.app.musicapp.R;
-import com.app.musicapp.adapter.TrackAdapter;
+import com.app.musicapp.adapter.track.TrackAdapter;
 import com.app.musicapp.api.ApiClient;
 import com.app.musicapp.model.response.TrackResponse;
 import com.app.musicapp.model.response.ApiResponse;

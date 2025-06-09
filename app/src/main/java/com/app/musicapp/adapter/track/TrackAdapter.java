@@ -1,4 +1,4 @@
-package com.app.musicapp.adapter;
+package com.app.musicapp.adapter.track;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -16,6 +16,7 @@ import com.app.musicapp.model.response.TrackResponse;
 import com.app.musicapp.view.fragment.track.SongOptionsBottomSheet;
 import com.bumptech.glide.Glide;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class TrackAdapter extends BaseAdapter {
@@ -26,7 +27,7 @@ public class TrackAdapter extends BaseAdapter {
     private int layoutType;
     public TrackAdapter(Fragment fragment, List<TrackResponse> trackResponseList) {
         this.fragment = fragment;
-        this.trackResponseList = trackResponseList;
+        this.trackResponseList = new ArrayList<>(trackResponseList);
         this.context = fragment.getContext();
         this.inflater = LayoutInflater.from(fragment.getContext());
     }

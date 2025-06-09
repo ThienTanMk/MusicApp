@@ -14,12 +14,11 @@ import android.view.ViewGroup;
 import android.widget.*;
 
 import com.app.musicapp.R;
-import com.app.musicapp.adapter.SearchResultPagerAdapter;
+import com.app.musicapp.adapter.search.SearchResultPagerAdapter;
 import com.app.musicapp.api.ApiClient;
 import com.app.musicapp.api.SearchApiService;
-import com.app.musicapp.model.AlbumResponse;
+import com.app.musicapp.model.response.AlbumResponse;
 import com.app.musicapp.model.response.ApiResponse;
-import com.app.musicapp.model.response.LikedPlaylistResponse;
 import com.app.musicapp.model.response.PlaylistResponse;
 import com.app.musicapp.model.response.TrackResponse;
 import com.app.musicapp.model.response.ProfileWithCountFollowResponse;
@@ -43,7 +42,7 @@ public class SearchResultFragment extends Fragment {
 
     private List<TrackResponse> trackResponseResults = new ArrayList<>();
     private List<ProfileWithCountFollowResponse> userResults = new ArrayList<>();
-    private List<PlaylistResponse> playlistResults = new ArrayList<>(); // Thay List<Object> bằng List<PlaylistResponse>
+    private List<PlaylistResponse> playlistResults = new ArrayList<>();
     private List<AlbumResponse> albumResponseResults = new ArrayList<>();
 
     public SearchResultFragment() {

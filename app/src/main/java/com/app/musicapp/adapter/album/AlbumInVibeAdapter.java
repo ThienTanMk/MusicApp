@@ -1,6 +1,7 @@
-package com.app.musicapp.adapter;
+package com.app.musicapp.adapter.album;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,8 +11,9 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.app.musicapp.R;
-import com.app.musicapp.model.AlbumResponse;
+import com.app.musicapp.model.response.AlbumResponse;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class AlbumInVibeAdapter extends RecyclerView.Adapter<AlbumInVibeAdapter.ViewHolder> {
@@ -20,9 +22,21 @@ public class AlbumInVibeAdapter extends RecyclerView.Adapter<AlbumInVibeAdapter.
 
     public AlbumInVibeAdapter(Context context, List<AlbumResponse> albumResponses) {
         this.context = context;
-        this.albumResponses = albumResponses;
+        this.albumResponses = new ArrayList<>(albumResponses) ;
     }
+    public interface OnAlbumClickListener {
+        void onAlbumClick(AlbumResponse album);
+    }
+    private OnAlbumClickListener listener;
 
+    public void setOnAlbumClickListener(OnAlbumClickListener listener) {
+        this.listener = listener;
+    }
+    public void updateData(List<AlbumResponse> newAlbums) {
+        this.albumResponses.clear();
+        this.albumResponses.addAll(newAlbums);
+        notifyDataSetChanged();
+    }
     @NonNull
     @Override
     public AlbumInVibeAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -58,7 +72,12 @@ public class AlbumInVibeAdapter extends RecyclerView.Adapter<AlbumInVibeAdapter.
             holder.ivAlbumImage.setImageResource(R.drawable.logo);
             e.printStackTrace();
         }
-
+        holder.itemView.setOnClickListener(v -> {
+            Log.d("AlbumInVibeAdapter", "Item clicked: " + albumResponse.getAlbumTitle());
+            if (listener != null) {
+                listener.onAlbumClick(albumResponse);
+            }
+        });
     }
 
     @Override

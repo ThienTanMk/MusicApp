@@ -16,21 +16,17 @@ import android.widget.Toast;
 
 import com.app.musicapp.R;
 import com.app.musicapp.adapter.LibraryListAdapter;
-import com.app.musicapp.adapter.TrackAdapter;
+import com.app.musicapp.adapter.track.TrackAdapter;
 import com.app.musicapp.api.ApiClient;
 import com.app.musicapp.model.response.ApiResponse;
-import com.app.musicapp.model.response.GenreResponse;
 import com.app.musicapp.model.ListView.LibraryList;
-import com.app.musicapp.model.response.TagResponse;
 import com.app.musicapp.model.response.TrackResponse;
 import com.app.musicapp.view.fragment.album.AlbumsFragment;
 import com.app.musicapp.view.fragment.follow.FollowingFragment;
 import com.app.musicapp.view.fragment.playlist.PlaylistsFragment;
 import com.app.musicapp.view.fragment.track.LikedTracksFragment;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import retrofit2.Call;

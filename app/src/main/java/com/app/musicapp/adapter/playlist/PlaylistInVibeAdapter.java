@@ -1,7 +1,8 @@
-package com.app.musicapp.adapter;
+package com.app.musicapp.adapter.playlist;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,18 +13,32 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.app.musicapp.R;
 import com.app.musicapp.model.response.PlaylistResponse;
+import com.app.musicapp.model.response.TagResponse;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class PlaylistInVibeAdapter extends RecyclerView.Adapter<PlaylistInVibeAdapter.ViewHolder>{
     private Context context;
     private List<PlaylistResponse> playlistResponses;
+    public interface OnPlaylistClickListener {
+        void onPlaylistClick(PlaylistResponse playlist);
+    }
+    private OnPlaylistClickListener listener;
 
+    public void setOnPlaylistClickListener(OnPlaylistClickListener listener) {
+        this.listener = listener;
+    }
     public PlaylistInVibeAdapter(Context context, List<PlaylistResponse> playlistResponses) {
         this.context = context;
-        this.playlistResponses = playlistResponses;
+       // this.playlistResponses = playlistResponses != null ? playlistResponses : new ArrayList<>();
+        this.playlistResponses = new ArrayList<>(playlistResponses);
     }
-
+    public void updateData(List<PlaylistResponse> newPlaylists) {
+        this.playlistResponses.clear();
+        this.playlistResponses.addAll(newPlaylists);
+        notifyDataSetChanged();
+    }
     @NonNull
     @Override
     public PlaylistInVibeAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -36,8 +51,9 @@ public class PlaylistInVibeAdapter extends RecyclerView.Adapter<PlaylistInVibeAd
         PlaylistResponse playlistResponse = playlistResponses.get(position);
         holder.tvPlaylistTitle.setText(playlistResponse.getTitle());
         // Lấy tag đầu tiên làm thông tin
-        if (!playlistResponse.getPlaylistTags().isEmpty()) {
-            holder.tvPlaylistArtist.setText(playlistResponse.getPlaylistTags().get(0).getName());
+        List<TagResponse> tags = playlistResponse.getPlaylistTags();
+        if (tags != null && !tags.isEmpty()) {
+            holder.tvPlaylistArtist.setText(tags.get(0).getName());
         } else {
             holder.tvPlaylistArtist.setText("No Category");
         }
@@ -59,6 +75,13 @@ public class PlaylistInVibeAdapter extends RecyclerView.Adapter<PlaylistInVibeAd
             holder.ivPlaylistImage.setImageResource(R.drawable.logo);
             e.printStackTrace();
         }
+        holder.itemView.setOnClickListener(v -> {
+            Log.d("PlaylistInVibeAdapter", "Item clicked: " + playlistResponse.getTitle());
+            if (listener != null) {
+                listener.onPlaylistClick(playlistResponse);
+            }
+        });
+
     }
 
     @Override

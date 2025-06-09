@@ -1,4 +1,4 @@
-package com.app.musicapp.adapter;
+package com.app.musicapp.adapter.track;
 
 import android.view.*;
 import android.view.ViewGroup;
@@ -12,6 +12,7 @@ import com.app.musicapp.R;
 import com.app.musicapp.model.response.TrackResponse;
 import com.app.musicapp.view.fragment.track.SongOptionsBottomSheet;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class TrackInVibeAdapter extends RecyclerView.Adapter<TrackInVibeAdapter.ViewHolder>{
@@ -20,9 +21,13 @@ public class TrackInVibeAdapter extends RecyclerView.Adapter<TrackInVibeAdapter.
 
     public TrackInVibeAdapter(Fragment fragment, List<TrackResponse> trackResponseList) {
         this.fragment = fragment;
-        this.trackResponseList = trackResponseList;
+        this.trackResponseList = new ArrayList<>(trackResponseList);
     }
-
+    public void updateData(List<TrackResponse> newTracks) {
+        this.trackResponseList.clear();
+        this.trackResponseList.addAll(newTracks);
+        notifyDataSetChanged();
+    }
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -65,5 +70,6 @@ public class TrackInVibeAdapter extends RecyclerView.Adapter<TrackInVibeAdapter.
             tvTrackArtist = itemView.findViewById(R.id.tv_track_artist);
             ivMenu = itemView.findViewById(R.id.iv_menu);
         }
+
     }
 }

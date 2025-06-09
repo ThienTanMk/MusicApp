@@ -15,16 +15,12 @@ import android.view.ViewGroup;
 import android.widget.*;
 
 import com.app.musicapp.R;
-import com.app.musicapp.adapter.AlbumRVAdapter;
-import com.app.musicapp.adapter.PlayListRVAdapter;
-import com.app.musicapp.api.AlbumApiService;
+import com.app.musicapp.adapter.album.AlbumRVAdapter;
+import com.app.musicapp.adapter.playlist.PlayListRVAdapter;
 import com.app.musicapp.api.ApiClient;
-import com.app.musicapp.api.ApiService;
-import com.app.musicapp.api.PlaylistApiService;
 import com.app.musicapp.helper.SharedPreferencesManager;
 import com.app.musicapp.model.response.AlbumResponse;
 import com.app.musicapp.model.response.ApiResponse;
-import com.app.musicapp.model.response.LikedPlaylistResponse;
 import com.app.musicapp.model.response.PlaylistResponse;
 import com.app.musicapp.view.activity.SignIn;
 import com.app.musicapp.view.fragment.album.AlbumPageFragment;
@@ -128,7 +124,7 @@ public class HomePageFragment extends Fragment {
                         List<PlaylistResponse> playlists = apiResponse.getData();
                         userPlaylists.clear();
                         if (playlists != null) {
-                            userPlaylists.addAll(playlists);
+                            userPlaylists.addAll(playlists.subList(0, Math.min(8, playlists.size())));
                         } else {
                             Log.d("HomePageFragment", "No created playlists returned");
                         }
@@ -176,8 +172,7 @@ public class HomePageFragment extends Fragment {
                         List<PlaylistResponse> playlists = apiResponse.getData();
                         likedPlaylists.clear();
                         if (playlists != null) {
-                            likedPlaylists.addAll(playlists);
-                            Log.d("HomePageFragment", "Fetched " + likedPlaylists.size() + " liked playlists");
+                            likedPlaylists.addAll(playlists.subList(0, Math.min(8, playlists.size())));
                         } else {
                             Log.d("HomePageFragment", "No liked playlists returned");
                         }
@@ -228,7 +223,7 @@ public class HomePageFragment extends Fragment {
                     likedAlbumResponses.clear();
                     List<AlbumResponse> albums = response.body().getData();
                     if (albums != null) {
-                        likedAlbumResponses.addAll(albums);
+                        likedAlbumResponses.addAll(albums.subList(0, Math.min(8, albums.size())));
                     }
                     albumRVAdapter.notifyDataSetChanged();
                 } else if (response.body() != null && response.body().getCode() == 1401) {

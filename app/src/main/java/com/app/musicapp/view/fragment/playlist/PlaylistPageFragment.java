@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -17,16 +16,14 @@ import android.view.ViewGroup;
 import android.widget.*;
 
 import com.app.musicapp.R;
-import com.app.musicapp.adapter.TrackRVAdapter;
+import com.app.musicapp.adapter.track.TrackRVAdapter;
 import com.app.musicapp.api.ApiClient;
 import com.app.musicapp.interfaces.OnLikeChangeListener;
 import com.app.musicapp.model.response.ApiResponse;
-import com.app.musicapp.model.response.LikedPlaylistResponse;
 import com.app.musicapp.model.response.PlaylistResponse;
 import com.app.musicapp.model.response.TrackResponse;
 import com.app.musicapp.view.activity.SignIn;
 import com.bumptech.glide.Glide;
-import com.google.android.material.bottomsheet.BottomSheetDialog;
 
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -47,6 +44,16 @@ public class PlaylistPageFragment extends Fragment implements OnLikeChangeListen
         fragment.setArguments(args);
         return fragment;
     }
+    public static PlaylistPageFragment newInstance(PlaylistResponse playlist) {
+        PlaylistPageFragment fragment = new PlaylistPageFragment();
+        Bundle args = new Bundle();
+        ArrayList<PlaylistResponse> playlistList = new ArrayList<>();
+        playlistList.add(playlist);
+        args.putSerializable("playlist", playlistList);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

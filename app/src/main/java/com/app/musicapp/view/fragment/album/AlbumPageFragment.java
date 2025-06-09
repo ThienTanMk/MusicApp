@@ -18,7 +18,7 @@ import android.view.ViewGroup;
 import android.widget.*;
 
 import com.app.musicapp.R;
-import com.app.musicapp.adapter.TrackRVAdapter;
+import com.app.musicapp.adapter.track.TrackRVAdapter;
 import com.app.musicapp.api.ApiClient;
 import com.app.musicapp.helper.UrlHelper;
 import com.app.musicapp.model.response.AlbumResponse;
@@ -34,7 +34,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import retrofit2.Call;
 import retrofit2.Callback;

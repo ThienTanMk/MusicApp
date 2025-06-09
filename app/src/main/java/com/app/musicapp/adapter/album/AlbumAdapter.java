@@ -1,4 +1,4 @@
-package com.app.musicapp.adapter;
+package com.app.musicapp.adapter.album;
 
 import android.content.Context;
 import android.view.LayoutInflater;

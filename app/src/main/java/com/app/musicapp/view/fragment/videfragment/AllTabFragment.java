@@ -1,6 +1,5 @@
 package com.app.musicapp.view.fragment.videfragment;
 
-import android.annotation.SuppressLint;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -15,91 +14,120 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.app.musicapp.R;
-import com.app.musicapp.adapter.AlbumInVibeAdapter;
-import com.app.musicapp.adapter.PlaylistInVibeAdapter;
-import com.app.musicapp.adapter.TrackInVibeAdapter;
-import com.app.musicapp.model.AlbumResponse;
-import com.app.musicapp.model.response.GenreResponse;
+import com.app.musicapp.adapter.album.AlbumInVibeAdapter;
+import com.app.musicapp.adapter.playlist.PlaylistInVibeAdapter;
+import com.app.musicapp.adapter.track.TrackInVibeAdapter;
+import com.app.musicapp.model.response.AlbumResponse;
 import com.app.musicapp.model.response.PlaylistResponse;
-import com.app.musicapp.model.response.TagResponse;
 import com.app.musicapp.model.response.TrackResponse;
+import com.app.musicapp.view.fragment.album.AlbumPageFragment;
+import com.app.musicapp.view.fragment.playlist.PlaylistPageFragment;
 import com.app.musicapp.view.fragment.searchpage.VibeDetailFragment;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class AllTabFragment extends Fragment {
     private static final String TAG = "AllTabFragment";
-    private List<TrackResponse> trackResponseList = new ArrayList<>();
-    private List<PlaylistResponse> playlistsList = new ArrayList<>();
-    private List<AlbumResponse> albumsList = new ArrayList<>();
+    private RecyclerView recyclerViewTrending;
+    private RecyclerView recyclerViewPlaylists;
+    private RecyclerView recyclerViewAlbums;
+    private AlbumInVibeAdapter albumInVibeAdapter;
+    private PlaylistInVibeAdapter playlistInVibeAdapter;
+    private TrackInVibeAdapter trackInVibeAdapter;
     private VibeDetailFragment.VibeTabNavigator tabNavigator;
 
     public AllTabFragment() {
         // Required empty public constructor
     }
 
-    @SuppressLint("ClickableViewAccessibility")
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_all_tab, container, false);
 
-        // Khởi tạo RecyclerView
-        RecyclerView recyclerViewTrending = view.findViewById(R.id.recyclerViewTrending);
+        // Initialize RecyclerViews
+        recyclerViewTrending = view.findViewById(R.id.recyclerViewTrending);
         recyclerViewTrending.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
-        recyclerViewTrending.setOnTouchListener((v, event) -> {
-            v.getParent().requestDisallowInterceptTouchEvent(true);
-            return false;
-        });
-        RecyclerView recyclerViewPlaylists = view.findViewById(R.id.recyclerViewPlaylists);
+
+        recyclerViewPlaylists = view.findViewById(R.id.recyclerViewPlaylists);
         recyclerViewPlaylists.setLayoutManager(new GridLayoutManager(getContext(), 2));
-        recyclerViewPlaylists.setOnTouchListener((v, event) -> {
-            v.getParent().requestDisallowInterceptTouchEvent(true);
-            return false;
-        });
         recyclerViewPlaylists.setHasFixedSize(true);
         recyclerViewPlaylists.setNestedScrollingEnabled(false);
-        RecyclerView recyclerViewAlbums = view.findViewById(R.id.recyclerViewAlbums);
+
+        recyclerViewAlbums = view.findViewById(R.id.recyclerViewAlbums);
         recyclerViewAlbums.setLayoutManager(new GridLayoutManager(getContext(), 2));
-        recyclerViewAlbums.setOnTouchListener((v, event) -> {
-            v.getParent().requestDisallowInterceptTouchEvent(true);
-            return false;
-        });
         recyclerViewAlbums.setHasFixedSize(true);
         recyclerViewAlbums.setNestedScrollingEnabled(false);
-        mockDataTrack();
-        mockDataPlaylists();
-        mockDataAlbums();
-        // Gán adapter
-        recyclerViewTrending.setAdapter(new TrackInVibeAdapter(this, trackResponseList.subList(0, Math.min(4, trackResponseList.size()))));
-        recyclerViewPlaylists.setAdapter(new PlaylistInVibeAdapter(getContext(),playlistsList.subList(0, Math.min(4, playlistsList.size()))));
-        recyclerViewAlbums.setAdapter(new AlbumInVibeAdapter(getContext(), albumsList.subList(0, Math.min(4, albumsList.size()))));
 
+        // lay data tu VibeDetailFragment
+        VibeDetailFragment parent = (VibeDetailFragment) getParentFragment();
+        Log.d(TAG, "Parent fragment: " + (parent != null ? "Found" : "Null"));
+        List<TrackResponse> tracks = parent != null ? parent.getTracks() : new ArrayList<>();
+        List<PlaylistResponse> playlists = parent != null ? parent.getPlaylists() : new ArrayList<>();
+        List<AlbumResponse> albums = parent != null ? parent.getAlbums() : new ArrayList<>();
+        Log.d(TAG, "Data sizes: tracks=" + tracks.size() + ", playlists=" + playlists.size() + ", albums=" + albums.size());
+
+        trackInVibeAdapter = new TrackInVibeAdapter(this, tracks.subList(0, Math.min(4, tracks.size())));
+        albumInVibeAdapter = new AlbumInVibeAdapter(getContext(), albums.subList(0, Math.min(4, albums.size())));
+        playlistInVibeAdapter = new PlaylistInVibeAdapter(getContext(), playlists.subList(0, Math.min(4, playlists.size())));
+
+        albumInVibeAdapter.setOnAlbumClickListener(album -> {
+            Log.d(TAG, "Album clicked: " + album.getAlbumTitle());
+            AlbumPageFragment fragment = AlbumPageFragment.newInstance(album);
+            if (getActivity() != null) {
+                View fragmentContainer = getActivity().findViewById(R.id.fragment_container);
+                if (fragmentContainer != null) {
+                    Log.d(TAG, "Navigating to fragment: " + fragment.getClass().getSimpleName());
+                    fragmentContainer.setVisibility(View.VISIBLE);
+                    getActivity().getSupportFragmentManager()
+                            .beginTransaction()
+                            .replace(R.id.fragment_container, fragment)
+                            .addToBackStack(null)
+                            .commit();
+                } else {
+                    Log.e(TAG, "FragmentContainer not found in main layout");
+                }
+            } else {
+                Log.e(TAG, "Activity is null, cannot navigate to fragment");
+            }
+        });
+
+        playlistInVibeAdapter.setOnPlaylistClickListener(playlist -> {
+            Log.d(TAG, "Playlist clicked: " + playlist.getTitle());
+            PlaylistPageFragment fragment = PlaylistPageFragment.newInstance(playlist);
+            if (getActivity() != null) {
+                View fragmentContainer = getActivity().findViewById(R.id.fragment_container);
+                if (fragmentContainer != null) {
+                    Log.d(TAG, "Navigating to fragment: " + fragment.getClass().getSimpleName());
+                    fragmentContainer.setVisibility(View.VISIBLE);
+                    getActivity().getSupportFragmentManager()
+                            .beginTransaction()
+                            .replace(R.id.fragment_container, fragment)
+                            .addToBackStack(null)
+                            .commit();
+                } else {
+                    Log.e(TAG, "FragmentContainer not found in main layout");
+                }
+            } else {
+                Log.e(TAG, "Activity is null, cannot navigate to fragment");
+            }
+        });
+
+        recyclerViewTrending.setAdapter(trackInVibeAdapter);
+        recyclerViewPlaylists.setAdapter(playlistInVibeAdapter);
+        recyclerViewAlbums.setAdapter(albumInVibeAdapter);
 
         TextView seeAllTrending = view.findViewById(R.id.seeAllTrending);
-        seeAllTrending.setOnClickListener(v -> {
-            Log.d(TAG, "See all Trending clicked");
-            navigateToTab(1); // Tab Trending
-        });
+        seeAllTrending.setOnClickListener(v -> navigateToTab(1)); // Tab Trending
 
         TextView seeAllPlaylists = view.findViewById(R.id.seeAllPlaylists);
-        seeAllPlaylists.setOnClickListener(v -> {
-            Log.d(TAG, "See all Playlists clicked");
-            navigateToTab(2); // Tab Playlists
-        });
+        seeAllPlaylists.setOnClickListener(v -> navigateToTab(2)); // Tab Playlists
 
         TextView seeAllAlbums = view.findViewById(R.id.seeAllAlbums);
-        seeAllAlbums.setOnClickListener(v -> {
-            Log.d(TAG, "See all Albums clicked");
-            navigateToTab(3); // Tab Albums
-        });
+        seeAllAlbums.setOnClickListener(v -> navigateToTab(3)); // Tab Albums
 
-        // Thiết lập tabNavigator từ parent fragment
-        if (getParentFragment() instanceof VibeDetailFragment) {
-            VibeDetailFragment parent = (VibeDetailFragment) getParentFragment();
+        // Set up tabNavigator
+        if (parent != null) {
             parent.setTabNavigator(position -> {
                 Log.d(TAG, "Navigating to tab position: " + position);
                 parent.navigateToTab(position);
@@ -111,6 +139,23 @@ public class AllTabFragment extends Fragment {
 
         return view;
     }
+    public void updateData(List<TrackResponse> newTracks,
+                           List<PlaylistResponse> newPlaylists,
+                           List<AlbumResponse> newAlbums) {
+        Log.d(TAG, "Updating data: tracks=" + newTracks.size() + ", playlists=" + newPlaylists.size() + ", albums=" + newAlbums.size());
+        if (recyclerViewTrending != null && trackInVibeAdapter != null) {
+            List<TrackResponse> limitedTracks = newTracks.subList(0, Math.min(4, newTracks.size()));
+            trackInVibeAdapter.updateData(limitedTracks);
+        }
+        if (recyclerViewPlaylists != null && playlistInVibeAdapter != null) {
+            List<PlaylistResponse> limitedPlaylists = newPlaylists.subList(0, Math.min(4, newPlaylists.size()));
+            playlistInVibeAdapter.updateData(limitedPlaylists);
+        }
+        if (recyclerViewAlbums != null && albumInVibeAdapter != null) {
+            List<AlbumResponse> limitedAlbums = newAlbums.subList(0, Math.min(4, newAlbums.size()));
+            albumInVibeAdapter.updateData(limitedAlbums);
+        }
+    }
     private void navigateToTab(int position) {
         if (tabNavigator != null) {
             Log.d(TAG, "Navigating to tab position: " + position);
@@ -119,130 +164,4 @@ public class AllTabFragment extends Fragment {
             Log.e(TAG, "tabNavigator is null, cannot navigate to tab");
         }
     }
-    private void mockDataTrack() {
-        trackResponseList.add(new TrackResponse(
-                "1", "This Weight Burdens Me", "Freddy River", "Description 1", "cover1.jpg",
-                LocalDateTime.now(), "Freddy River", "3:04", "public", 1200,
-                new GenreResponse("1", "Rock", LocalDateTime.now()),
-                Arrays.asList(new TagResponse("tag67", "gentlebad", LocalDateTime.now(), "user3"))
-        ));
-        trackResponseList.add(new TrackResponse(
-                "2", "Lùa Chọn Của Em", "Nguyễn Minh Hiền (inZow)", "Description 2", "cover2.jpg",
-                LocalDateTime.now(), "Nguyễn Minh Hiền (inZow)", "3:27", "public", 138000,
-                new GenreResponse("2", "Pop", LocalDateTime.now()),
-                Arrays.asList(new TagResponse("tag9", "gentlebad", LocalDateTime.now(), "user3"))
-        ));
-        trackResponseList.add(new TrackResponse(
-                "3", "Dựt Còn Mưa (Remake) - Tobiee", "youngtobieeasick", "Description 3", "cover3.jpg",
-                LocalDateTime.now(), "youngtobieeasick", "3:14", "public", 681000,
-                new GenreResponse("3", "C", LocalDateTime.now()),
-                Arrays.asList(new TagResponse("tag8", "gentlebad", LocalDateTime.now(), "user3"))
-        ));
-        trackResponseList.add(new TrackResponse(
-                "4", "dưới cơn mưa - obito lena", "NhânGreen", "Description 4", "cover4.jpg",
-                LocalDateTime.now(), "NhânGreen", "3:15", "public", 110000,
-                new GenreResponse("4", "D", LocalDateTime.now()),
-                Arrays.asList(new TagResponse("tag1233", "gentlebad", LocalDateTime.now(), "user3"))
-        ));
-        trackResponseList.add(new TrackResponse(
-                "5", "dưới cơn mưa - obito lena", "NhânGreen", "Description 4", "cover4.jpg",
-                LocalDateTime.now(), "NhânGreen", "3:15", "public", 110000,
-                new GenreResponse("4", "D", LocalDateTime.now()),
-                Arrays.asList(new TagResponse("tag1233", "gentlebad", LocalDateTime.now(), "user3"))
-        ));
-        trackResponseList.add(new TrackResponse(
-                "6", "dưới cơn mưa - obito lena", "NhânGreen", "Description 4", "cover4.jpg",
-                LocalDateTime.now(), "NhânGreen", "3:15", "public", 110000,
-                new GenreResponse("4", "D", LocalDateTime.now()),
-                Arrays.asList(new TagResponse("tag1233", "gentlebad", LocalDateTime.now(), "user3"))
-        ));
-
-    }
-    private void mockDataPlaylists() {
-        List<TrackResponse> playlistTracks1 = new ArrayList<>();
-        playlistTracks1.add(trackResponseList.get(0));
-        playlistTracks1.add(trackResponseList.get(1));
-
-        playlistsList.add(new PlaylistResponse(
-                "p1", "Chill Vibes", LocalDateTime.now(), "Chill playlist", "public",
-                "user4", new GenreResponse("5", "Chill", LocalDateTime.now()), "cover5.jpg",
-                LocalDateTime.now(), playlistTracks1,
-                Arrays.asList(new TagResponse("tag10", "chillzone", LocalDateTime.now(), "user4")),false,null
-        ));
-
-        List<TrackResponse> playlistTracks2 = new ArrayList<>();
-        playlistTracks2.add(trackResponseList.get(2));
-        playlistTracks2.add(trackResponseList.get(3));
-
-        playlistsList.add(new PlaylistResponse(
-                "p2", "Party Mix", LocalDateTime.now(), "Party playlist", "public",
-                "user4", new GenreResponse("6", "Party", LocalDateTime.now()), "cover6.jpg",
-                LocalDateTime.now(), playlistTracks2,
-                Arrays.asList(new TagResponse("tag11", "partyzone", LocalDateTime.now(), "user4")),false,null
-        ));
-        List<TrackResponse> playlistTracks3 = new ArrayList<>();
-        playlistTracks3.add(trackResponseList.get(2));
-        playlistTracks3.add(trackResponseList.get(3));
-
-        playlistsList.add(new PlaylistResponse(
-                "p2", "Party Mix", LocalDateTime.now(), "Party playlist", "public",
-                "user4", new GenreResponse("6", "Party", LocalDateTime.now()), "cover6.jpg",
-                LocalDateTime.now(), playlistTracks2,
-                Arrays.asList(new TagResponse("tag11", "partyzone", LocalDateTime.now(), "user4")),false,null
-        ));
-        List<TrackResponse> playlistTracks4 = new ArrayList<>();
-        playlistTracks4.add(trackResponseList.get(0));
-        playlistTracks4.add(trackResponseList.get(1));
-
-        playlistsList.add(new PlaylistResponse(
-                "p2", "Party Mix", LocalDateTime.now(), "Party playlist", "public",
-                "user4", new GenreResponse("6", "Party", LocalDateTime.now()), "cover6.jpg",
-                LocalDateTime.now(), playlistTracks2,
-                Arrays.asList(new TagResponse("tag11", "partyzone", LocalDateTime.now(), "user4")),false,null
-        ));
-        List<TrackResponse> playlistTracks5 = new ArrayList<>();
-        playlistTracks5.add(trackResponseList.get(0));
-        playlistTracks5.add(trackResponseList.get(1));
-
-        playlistsList.add(new PlaylistResponse(
-                "p2", "Party Mix", LocalDateTime.now(), "Party playlist", "public",
-                "user4", new GenreResponse("6", "Party", LocalDateTime.now()), "cover6.jpg",
-                LocalDateTime.now(), playlistTracks2,
-                Arrays.asList(new TagResponse("tag11", "partyzone", LocalDateTime.now(), "user4")),false,null
-        ));
-        List<TrackResponse> playlistTracks6 = new ArrayList<>();
-        playlistTracks6.add(trackResponseList.get(0));
-        playlistTracks6.add(trackResponseList.get(1));
-
-        playlistsList.add(new PlaylistResponse(
-                "p1", "Chill Vibes", LocalDateTime.now(), "Chill playlist", "public",
-                "user4", new GenreResponse("5", "Chill", LocalDateTime.now()), "cover5.jpg",
-                LocalDateTime.now(), playlistTracks1,
-                Arrays.asList(new TagResponse("tag10", "chillzone", LocalDateTime.now(), "user4")),false,null
-        ));
-    }
-    private void mockDataAlbums() {
-        List<TrackResponse> albumTracks1 = new ArrayList<>();
-        albumTracks1.add(trackResponseList.get(0));
-        albumTracks1.add(trackResponseList.get(1));
-
-        albumsList.add(new AlbumResponse(
-                "Rock Legends", "Rock Band", "7", "album",
-                Arrays.asList(new TagResponse("tag12", "rockzone", LocalDateTime.now(), "user5")),
-                "Rock album", "public", "link1", "cover7.jpg", "user5", "a1",
-                LocalDateTime.now(), albumTracks1, new GenreResponse("7", "Rock", LocalDateTime.now())
-        ));
-
-        List<TrackResponse> albumTracks2 = new ArrayList<>();
-        albumTracks2.add(trackResponseList.get(2));
-        albumTracks2.add(trackResponseList.get(3));
-
-        albumsList.add(new AlbumResponse(
-                "Pop Hits", "Pop Star", "8", "album",
-                Arrays.asList(new TagResponse("tag13", "popzone", LocalDateTime.now(), "user5")),
-                "Pop album", "public", "link2", "cover8.jpg", "user5", "a2",
-                LocalDateTime.now(), albumTracks2, new GenreResponse("8", "Pop", LocalDateTime.now())
-        ));
-    }
-
 }

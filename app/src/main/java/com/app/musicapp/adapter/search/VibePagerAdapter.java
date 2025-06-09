@@ -1,17 +1,23 @@
-package com.app.musicapp.adapter;
+package com.app.musicapp.adapter.search;
+
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
-import com.app.musicapp.R;
+import com.app.musicapp.model.response.AlbumResponse;
+import com.app.musicapp.model.response.PlaylistResponse;
+import com.app.musicapp.model.response.TrackResponse;
 import com.app.musicapp.view.fragment.videfragment.AlbumsTabFragment;
 import com.app.musicapp.view.fragment.videfragment.AllTabFragment;
 import com.app.musicapp.view.fragment.videfragment.PlaylistsTabFragment;
 import com.app.musicapp.view.fragment.videfragment.TrendingTabFragment;
 
+import java.util.List;
+
 public class VibePagerAdapter extends FragmentStateAdapter {
+    private static final String TAG = "VibePagerAdapter";
     private final Fragment parentFragment;
     public VibePagerAdapter(Fragment parentFragment) {
         super(parentFragment);

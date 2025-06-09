@@ -10,7 +10,7 @@ import android.view.ViewGroup;
 import android.widget.ListView;
 
 import com.app.musicapp.R;
-import com.app.musicapp.adapter.SearchUserListAdapter;
+import com.app.musicapp.adapter.search.SearchUserListAdapter;
 import com.app.musicapp.model.response.ProfileWithCountFollowResponse;
 import com.app.musicapp.view.fragment.UserProfileFragment;
 

@@ -11,7 +11,7 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.app.musicapp.R;
-import com.app.musicapp.adapter.TrackAdapter;
+import com.app.musicapp.adapter.track.TrackAdapter;
 import com.app.musicapp.model.response.TrackResponse;
 
 import java.util.*;
