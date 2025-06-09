@@ -96,7 +96,12 @@ public class ApiClient {
         }
         return getClient().create(TrackApiService.class);
     }
-
+   public static HistoryApiService getHistoryApiService() {
+        if (context == null) {
+            throw new IllegalStateException("ApiClient must be initialized with context first");
+        }
+        return getClient().create(HistoryApiService.class);
+    }
     public static GenreService getGenreService() {
         return getClient().create(GenreService.class);
     }
