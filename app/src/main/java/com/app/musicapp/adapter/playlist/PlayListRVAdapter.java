@@ -45,7 +45,7 @@ public class PlayListRVAdapter extends RecyclerView.Adapter<PlayListRVAdapter.Vi
     public void onBindViewHolder(@NonNull PlayListRVAdapter.ViewHolder holder, int position) {
         PlaylistResponse playlistResponse = playlist.get(position);
         holder.tvPlaylistTitle.setText(playlistResponse.getTitle() != null ? playlistResponse.getTitle() : "Untitled");
-        holder.tvPlaylistArtist.setText(playlistResponse.getUserId() != null ? playlistResponse.getUserId() : "Unknown User");
+        holder.tvPlaylistArtist.setText(playlistResponse.getUser().getDisplayName() != null ? playlistResponse.getUser().getDisplayName() : "Unknown User");
         Glide.with(holder.itemView.getContext())
                 .load(playlistResponse.getImagePath() != null ? playlistResponse.getImagePath() : R.drawable.logo)
                 .placeholder(R.drawable.logo)

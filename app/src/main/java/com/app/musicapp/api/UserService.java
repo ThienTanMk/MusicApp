@@ -17,6 +17,7 @@ public interface UserService {
     Call<ApiResponse<PageFollowResponse>> getFollowers(@Path("userId") String userId, @Query("page") int page, @Query("size") int size );
     @GET("/api/profile/follows/get-followings/{userId}")
     Call<ApiResponse<PageFollowResponse>> getFollowings(@Path("userId") String userId, @Query("page") int page, @Query("size") int size );
+
     @POST("/api/profile/auth/follows")
     Call<ApiResponse<Object>> follow(@Body AddFollowRequest request);
 

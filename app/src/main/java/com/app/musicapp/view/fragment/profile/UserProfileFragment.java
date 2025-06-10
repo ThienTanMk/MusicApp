@@ -51,7 +51,7 @@ public class UserProfileFragment extends Fragment {
     private String userId, source;
     private ProfileWithCountFollowResponse currentProfile;
     private ImageView ivAvatar, ivCover, ivBack, ivEdit;
-    private TextView tvDisplayName, tvFollowerCount, tvFollowingCount, tvSeeAll;
+    private TextView tvDisplayName, tvFollowerCount, tvFollowingCount, tvSeeAll, tvNoTracks ,tvNoPlaylists, tvNoAlbums;
     private Button btnFollow;
     private ListView lvTracks;
     private RecyclerView rvPlaylists, rvAlbums;
@@ -102,6 +102,9 @@ public class UserProfileFragment extends Fragment {
         tvFollowerCount = view.findViewById(R.id.tv_follower_info);
         tvFollowingCount = view.findViewById(R.id.tv_following_info);
         tvSeeAll = view.findViewById(R.id.tv_SeeAll);
+        tvNoTracks = view.findViewById(R.id.tv_no_tracks);
+        tvNoPlaylists = view.findViewById(R.id.tv_no_playlists);
+        tvNoAlbums = view.findViewById(R.id.tv_no_albums);
         btnFollow = view.findViewById(R.id.btn_following);
         lvTracks = view.findViewById(R.id.lv_Track);
         rvPlaylists = view.findViewById(R.id.recyclerViewPlaylists);
@@ -384,38 +387,63 @@ public class UserProfileFragment extends Fragment {
     }
 
     private void loadUserProfileData() {
+        Log.e("UserProfileFragment", "userId: "+ userId );
         // Tải danh sách bài hát
         ApiClient.getTrackApiService().getTracksByUserId(userId).enqueue(new Callback<ApiResponse<List<TrackResponse>>>() {
             @Override
             public void onResponse(@NonNull Call<ApiResponse<List<TrackResponse>>> call, @NonNull Response<ApiResponse<List<TrackResponse>>> response) {
                 if (response.isSuccessful() && response.body() != null && response.body().getData() != null) {
-                    trackAdapter = new TrackAdapter(UserProfileFragment.this, response.body().getData());
+                    List<TrackResponse> tracks = response.body().getData();
+                    trackAdapter = new TrackAdapter(UserProfileFragment.this, tracks);
                     lvTracks.setAdapter(trackAdapter);
+                    if (tracks.isEmpty()){
+                        lvTracks.setVisibility(View.GONE);
+                        tvNoTracks.setVisibility(View.VISIBLE);
+                    }else {
+                        lvTracks.setVisibility(View.VISIBLE);
+                        tvNoTracks.setVisibility(View.GONE);
+                    }
+                } else {
+                    lvTracks.setVisibility(View.GONE);
+                    tvNoTracks.setVisibility(View.VISIBLE);
                 }
             }
 
             @Override
             public void onFailure(@NonNull Call<ApiResponse<List<TrackResponse>>> call, @NonNull Throwable t) {
                 Toast.makeText(requireContext(), "Lỗi khi tải danh sách bài hát: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                lvTracks.setVisibility(View.GONE);
+                tvNoTracks.setVisibility(View.VISIBLE);
             }
         });
 
-        // Tải danh sách playlist
         // Tải danh sách playlist
         ApiClient.getPlaylistService().getPlaylistsByUserId(userId).enqueue(new Callback<ApiResponse<List<PlaylistResponse>>>() {
             @Override
             public void onResponse(@NonNull Call<ApiResponse<List<PlaylistResponse>>> call, @NonNull Response<ApiResponse<List<PlaylistResponse>>> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     if (response.body().getCode() == 1000 && response.body().getData() != null) {
-                        playlistAdapter.updatePlaylists(response.body().getData());
-                        Log.d("UserProfileFragment", "Playlists loaded: " + response.body().getData().size());
+                        List<PlaylistResponse> playlists = response.body().getData();
+                        playlistAdapter.updatePlaylists(playlists);
+                        Log.d("UserProfileFragment", "Playlists loaded: " + playlists.size());
+                        if (playlists.isEmpty()) {
+                            rvPlaylists.setVisibility(View.GONE);
+                            tvNoPlaylists.setVisibility(View.VISIBLE);
+                        } else {
+                            rvPlaylists.setVisibility(View.VISIBLE);
+                            tvNoPlaylists.setVisibility(View.GONE);
+                        }
                     } else {
                         Log.e("UserProfileFragment", "Playlist API error: " + response.body().getMessage() + ", code: " + response.body().getCode());
                         Toast.makeText(requireContext(), "Lỗi tải playlist: " + response.body().getMessage(), Toast.LENGTH_SHORT).show();
+                        rvPlaylists.setVisibility(View.GONE);
+                        tvNoPlaylists.setVisibility(View.VISIBLE);
                     }
                 } else {
                     Log.e("UserProfileFragment", "Failed to load playlists: " + response.message() + ", HTTP code: " + response.code());
                     Toast.makeText(requireContext(), "Lỗi tải playlist: " + response.message(), Toast.LENGTH_SHORT).show();
+                    rvPlaylists.setVisibility(View.GONE);
+                    tvNoPlaylists.setVisibility(View.VISIBLE);
                 }
             }
 
@@ -423,6 +451,8 @@ public class UserProfileFragment extends Fragment {
             public void onFailure(@NonNull Call<ApiResponse<List<PlaylistResponse>>> call, @NonNull Throwable t) {
                 Log.e("UserProfileFragment", "Network error loading playlists: " + t.getMessage());
                 Toast.makeText(requireContext(), "Lỗi mạng: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                rvPlaylists.setVisibility(View.GONE);
+                tvNoPlaylists.setVisibility(View.VISIBLE);
             }
         });
 
@@ -432,18 +462,27 @@ public class UserProfileFragment extends Fragment {
             public void onResponse(@NonNull Call<ApiResponse<List<AlbumResponse>>> call, @NonNull Response<ApiResponse<List<AlbumResponse>>> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     if (response.body().getCode() == 1000 && response.body().getData() != null) {
-                        albumAdapter.updateAlbums(response.body().getData());
-                        Log.d("UserProfileFragment", "Albums loaded: " + response.body().getData().size());
-                        for (AlbumResponse album : response.body().getData()) {
-                            Log.d("UserProfileFragment", "Album: " + album.getAlbumTitle() + ", Artist: " + album.getMainArtists());
+                        List<AlbumResponse> albums = response.body().getData();
+                        albumAdapter.updateAlbums(albums);
+                        Log.d("UserProfileFragment", "Albums loaded: " + albums.size());
+                        if (albums.isEmpty()) {
+                            rvAlbums.setVisibility(View.GONE);
+                            tvNoAlbums.setVisibility(View.VISIBLE);
+                        } else {
+                            rvAlbums.setVisibility(View.VISIBLE);
+                            tvNoAlbums.setVisibility(View.GONE);
                         }
                     } else {
                         Log.e("UserProfileFragment", "Album API error: " + response.body().getMessage() + ", code: " + response.body().getCode());
                         Toast.makeText(requireContext(), "Lỗi tải album: " + response.body().getMessage(), Toast.LENGTH_SHORT).show();
+                        rvAlbums.setVisibility(View.GONE);
+                        tvNoAlbums.setVisibility(View.VISIBLE);
                     }
                 } else {
                     Log.e("UserProfileFragment", "Failed to load albums: " + response.message() + ", HTTP code: " + response.code());
                     Toast.makeText(requireContext(), "Lỗi tải album: " + response.message(), Toast.LENGTH_SHORT).show();
+                    rvAlbums.setVisibility(View.GONE);
+                    tvNoAlbums.setVisibility(View.VISIBLE);
                 }
             }
 
@@ -451,6 +490,8 @@ public class UserProfileFragment extends Fragment {
             public void onFailure(@NonNull Call<ApiResponse<List<AlbumResponse>>> call, @NonNull Throwable t) {
                 Log.e("UserProfileFragment", "Network error loading albums: " + t.getMessage());
                 Toast.makeText(requireContext(), "Lỗi mạng: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                rvAlbums.setVisibility(View.GONE);
+                tvNoAlbums.setVisibility(View.VISIBLE);
             }
         });
     }
@@ -458,5 +499,6 @@ public class UserProfileFragment extends Fragment {
     public void onResume() {
         super.onResume();
         loadUserProfile(); // Tải lại hồ sơ
+        loadUserProfileData();
     }
 }
