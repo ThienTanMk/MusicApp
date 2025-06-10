@@ -23,6 +23,7 @@ import com.app.musicapp.model.response.ApiResponse;
 import com.app.musicapp.model.response.PlaylistResponse;
 import com.app.musicapp.model.response.TrackResponse;
 import com.app.musicapp.view.activity.SignIn;
+import com.app.musicapp.view.fragment.track.SongOptionsBottomSheet;
 import com.bumptech.glide.Glide;
 
 import java.time.format.DateTimeFormatter;
@@ -31,11 +32,16 @@ import java.util.List;
 
 import retrofit2.*;
 
-public class PlaylistPageFragment extends Fragment implements OnLikeChangeListener {
+public class PlaylistPageFragment extends Fragment implements OnLikeChangeListener, SongOptionsBottomSheet.TrackOptionsListener {
     private List<PlaylistResponse> playlist;
     private PlaylistResponse playlistResponseData;
     private ImageView ivLike;
     private TextView tvLikeCount;
+    private TrackRVAdapter trackAdapter;
+    private List<TrackResponse> tracks;
+    private RecyclerView rvTracks;
+    private TextView tvNumOfTracks;
+    private TextView tvTotalDuration;
 
     public static PlaylistPageFragment newInstance(List<PlaylistResponse> playlist) {
         PlaylistPageFragment fragment = new PlaylistPageFragment();
@@ -78,15 +84,15 @@ public class PlaylistPageFragment extends Fragment implements OnLikeChangeListen
         TextView tvPlaylistArtists = view.findViewById(R.id.tv_playlist_artist);
         TextView tvPlaylistType = view.findViewById(R.id.tv_playlist_type);
         TextView tvCreatedAt = view.findViewById(R.id.tv_created_at);
-        TextView tvNumOfTracks = view.findViewById(R.id.tv_num_of_tracks);
-        TextView tvTotalDuration = view.findViewById(R.id.tv_total_duration);
+        tvNumOfTracks = view.findViewById(R.id.tv_num_of_tracks);
+        tvTotalDuration = view.findViewById(R.id.tv_total_duration);
         ivLike = view.findViewById(R.id.iv_like);
         tvLikeCount = view.findViewById(R.id.tv_like_count);
         ImageView ivMenu = view.findViewById(R.id.iv_menu);
         ImageView ivPlay = view.findViewById(R.id.iv_play);
         TextView tvDescription = view.findViewById(R.id.tv_description);
         TextView tvShowMore = view.findViewById(R.id.tv_show_more);
-        RecyclerView rvTracks = view.findViewById(R.id.rv_tracks);
+        rvTracks = view.findViewById(R.id.rv_tracks);
 
 
         playlistResponseData = (playlist != null && !playlist.isEmpty()) ? playlist.get(0) : null;
@@ -112,9 +118,7 @@ public class PlaylistPageFragment extends Fragment implements OnLikeChangeListen
             tvDescription.setText(playlistResponseData.getDescription() != null ? playlistResponseData.getDescription() : "No description");
 
             rvTracks.setLayoutManager(new LinearLayoutManager(getContext()));
-            TrackRVAdapter trackAdapter = new TrackRVAdapter(this, playlistResponseData.getPlaylistTracks() != null ?
-                    playlistResponseData.getPlaylistTracks() : new ArrayList<>());
-            rvTracks.setAdapter(trackAdapter);
+            setupRecyclerView();
 
             if (playlistResponseData.getIsLiked() != null && playlistResponseData.getIsLiked()) {
                 ivLike.setVisibility(View.VISIBLE);
@@ -151,6 +155,19 @@ public class PlaylistPageFragment extends Fragment implements OnLikeChangeListen
         });
 
         return view;
+    }
+    private void setupRecyclerView() {
+        tracks = playlistResponseData.getPlaylistTracks() != null ? 
+            new ArrayList<>(playlistResponseData.getPlaylistTracks()) : 
+            new ArrayList<>();
+            
+        trackAdapter = new TrackRVAdapter(this, tracks);
+        trackAdapter.setOnTrackOptionsClickListener(track -> {
+            SongOptionsBottomSheet bottomSheet = SongOptionsBottomSheet.newInstance(track, playlistResponseData);
+            bottomSheet.setTrackOptionsListener(this);
+            bottomSheet.show(getParentFragmentManager(), bottomSheet.getTag());
+        });
+        rvTracks.setAdapter(trackAdapter);
     }
     private void updateLikeUI() {
         if (playlistResponseData != null && ivLike != null ) {
@@ -262,5 +279,65 @@ public class PlaylistPageFragment extends Fragment implements OnLikeChangeListen
             intent.putExtra("isLiked", isLiked);
             LocalBroadcastManager.getInstance(requireContext()).sendBroadcast(intent);
         }
+    }
+
+    @Override
+    public void onTrackRemovedFromPlaylist(TrackResponse track) {
+        // Remove track from adapter with animation
+        trackAdapter.removeTrack(track);
+        
+        // Update local data
+        tracks.remove(track);
+        playlistResponseData.setPlaylistTracks(tracks);
+        
+        // Update playlist info UI
+        updatePlaylistInfo();
+    }
+
+    private void updatePlaylistInfo() {
+        if (tvNumOfTracks == null || tvTotalDuration == null) return;
+
+        // Update track count
+        int trackCount = tracks.size();
+        tvNumOfTracks.setText(String.format("%d tracks", trackCount));
+        
+        // Recalculate total duration
+        int totalDurationSeconds = 0;
+        for (TrackResponse track : tracks) {
+            String duration = track.getDuration();
+            if (duration != null) {
+                String[] parts = duration.split(":");
+                if (parts.length == 2) {
+                    try {
+                        totalDurationSeconds += Integer.parseInt(parts[0]) * 60 + Integer.parseInt(parts[1]);
+                    } catch (NumberFormatException e) {
+                        Log.e("PlaylistPageFragment", "Error parsing duration: " + duration, e);
+                    }
+                }
+            }
+        }
+        
+        // Format duration
+        int hours = totalDurationSeconds / 3600;
+        int minutes = (totalDurationSeconds % 3600) / 60;
+        
+        String durationText;
+        if (hours > 0) {
+            durationText = String.format("%dh %dm", hours, minutes);
+        } else {
+            durationText = String.format("%dm", minutes);
+        }
+            
+        tvTotalDuration.setText(" · " + durationText);
+        
+        // If no tracks left, show empty state
+        if (trackCount == 0) {
+            Toast.makeText(requireContext(), "Playlist is empty", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    public void onTrackDeleted(TrackResponse track) {
+        // This won't be called in playlist context
     }
 }

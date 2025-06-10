@@ -28,7 +28,7 @@ public class TrackAdapter extends BaseAdapter {
     private int layoutType;
     public TrackAdapter(Fragment fragment, List<TrackResponse> trackResponseList) {
         this.fragment = fragment;
-        this.trackResponseList = new ArrayList<>(trackResponseList);
+        this.trackResponseList = trackResponseList;
         this.context = fragment.getContext();
         this.inflater = LayoutInflater.from(fragment.getContext());
     }

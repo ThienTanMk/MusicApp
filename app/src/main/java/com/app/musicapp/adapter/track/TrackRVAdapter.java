@@ -22,9 +22,14 @@ public class TrackRVAdapter extends RecyclerView.Adapter<TrackRVAdapter.ViewHold
     private Fragment fragment;
     private List<TrackResponse> trackResponseList;
     private OnTrackClickListener onTrackClickListener;
+    private OnTrackOptionsClickListener onTrackOptionsClickListener;
 
     public interface OnTrackClickListener {
         void onTrackClick(TrackResponse track);
+    }
+
+    public interface OnTrackOptionsClickListener {
+        void onTrackOptionsClick(TrackResponse track);
     }
 
     public TrackRVAdapter(Fragment fragment, List<TrackResponse> trackResponseList) {
@@ -34,6 +39,27 @@ public class TrackRVAdapter extends RecyclerView.Adapter<TrackRVAdapter.ViewHold
 
     public void setOnTrackClickListener(OnTrackClickListener listener) {
         this.onTrackClickListener = listener;
+    }
+
+    public void setOnTrackOptionsClickListener(OnTrackOptionsClickListener listener) {
+        this.onTrackOptionsClickListener = listener;
+    }
+
+    public void updateData(List<TrackResponse> newTracks) {
+        this.trackResponseList.clear();
+        if (newTracks != null) {
+            this.trackResponseList.addAll(newTracks);
+        }
+        notifyDataSetChanged();
+    }
+
+    public void removeTrack(TrackResponse track) {
+        int position = trackResponseList.indexOf(track);
+        if (position != -1) {
+            trackResponseList.remove(position);
+            notifyItemRemoved(position);
+            notifyItemRangeChanged(position, getItemCount());
+        }
     }
 
     @NonNull
@@ -69,11 +95,11 @@ public class TrackRVAdapter extends RecyclerView.Adapter<TrackRVAdapter.ViewHold
             }
         });
 
-        // Xử lý sự kiện click cho nút menu (ba chấm)
+        // Handle menu click
         holder.ivMenu.setOnClickListener(v -> {
-            Toast.makeText(fragment.getContext(), "Menu clicked for: " + trackResponse.getTitle(), Toast.LENGTH_SHORT).show();
-            SongOptionsBottomSheet bottomSheet = SongOptionsBottomSheet.newInstance(trackResponse);
-            bottomSheet.show(fragment.getParentFragmentManager(), bottomSheet.getTag());
+            if (onTrackOptionsClickListener != null) {
+                onTrackOptionsClickListener.onTrackOptionsClick(trackResponse);
+            }
         });
     }
 

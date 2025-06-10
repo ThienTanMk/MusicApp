@@ -68,8 +68,18 @@ public class LikedTracksFragment extends Fragment implements SongOptionsBottomSh
         listViewLikedTracks = view.findViewById(R.id.listViewLikedTracks);
         searchView = view.findViewById(R.id.search_view);
         ImageView ivBack = view.findViewById(R.id.iv_back);
+        
+        // Initialize lists
         likedTrackResponses = new ArrayList<>();
         filteredTrackResponses = new ArrayList<>();
+        
+        // Initialize adapter first
+        trackAdapter = new TrackAdapter(this, filteredTrackResponses);
+        listViewLikedTracks.setAdapter(trackAdapter);
+        System.out.println("TrackAdapter initialized with empty list");
+
+        // Then load data
+        loadLikedTracks();
         
         // Setup back button
         ivBack.setOnClickListener(v -> {
@@ -121,9 +131,6 @@ public class LikedTracksFragment extends Fragment implements SongOptionsBottomSh
             }
         });
 
-        trackAdapter = new TrackAdapter(this, filteredTrackResponses);
-        listViewLikedTracks.setAdapter(trackAdapter);
-        
         Intent intent = new Intent(getContext(), MusicService.class);
         getContext().bindService(intent, connection, Context.BIND_AUTO_CREATE);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -154,21 +161,44 @@ public class LikedTracksFragment extends Fragment implements SongOptionsBottomSh
     }
 
     private void loadLikedTracks() {
+        System.out.println("LikedTracksFragment: Loading liked tracks...");
+        if (trackAdapter == null) {
+            System.out.println("ERROR: trackAdapter is null when trying to load tracks!");
+            return;
+        }
+        
         ApiClient.getApiService().getLikedTrack().enqueue(new Callback<ApiResponse<List<TrackResponse>>>() {
             @Override
             public void onResponse(Call<ApiResponse<List<TrackResponse>>> call, Response<ApiResponse<List<TrackResponse>>> response) {
-                likedTrackResponses.clear();
-                likedTrackResponses.addAll(response.body().getData());
-                filteredTrackResponses.clear();
-                filteredTrackResponses.addAll(likedTrackResponses);
-                trackAdapter.notifyDataSetChanged();
+                if (!isAdded()) {
+                    System.out.println("LikedTracksFragment: Fragment not added to activity");
+                    return;
+                }
+
+                if (response.isSuccessful() && response.body() != null && response.body().getData() != null) {
+                    List<TrackResponse> tracks = response.body().getData();
+                    System.out.println("LikedTracksFragment: API returned " + tracks.size() + " tracks");
+                    likedTrackResponses.clear();
+                    likedTrackResponses.addAll(tracks);
+                    filteredTrackResponses.clear();
+                    filteredTrackResponses.addAll(tracks);
+                    trackAdapter.notifyDataSetChanged();
+                } else {
+                    System.out.println("LikedTracksFragment: API call failed. Response code: " + response.code());
+                    if (response.body() == null) {
+                        System.out.println("LikedTracksFragment: Response body is null");
+                    }
+                    if (getContext() != null) {
+                        Toast.makeText(getContext(), "Không thể tải danh sách bài hát", Toast.LENGTH_SHORT).show();
+                    }
+                }
             }
 
             @Override
             public void onFailure(Call<ApiResponse<List<TrackResponse>>> call, Throwable t) {
-                System.out.println(t.getMessage());
+                System.out.println("LikedTracksFragment: API call failed with error: " + t.getMessage());
                 if (getContext() != null) {
-                    Toast.makeText(getContext(), "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_LONG).show();
+                    Toast.makeText(getContext(), "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -199,5 +229,10 @@ public class LikedTracksFragment extends Fragment implements SongOptionsBottomSh
     @Override
     public void onTrackDeleted(TrackResponse track) {
         loadLikedTracks();
+    }
+
+    @Override
+    public void onTrackRemovedFromPlaylist(TrackResponse track) {
+
     }
 }
