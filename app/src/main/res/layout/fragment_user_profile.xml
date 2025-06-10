@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:background="@color/background"
     android:fillViewport="true"
-    tools:context=".view.fragment.UserProfileFragment">
+    tools:context=".view.fragment.profile.UserProfileFragment">
 
     <LinearLayout
         android:id="@+id/container"
@@ -31,12 +31,35 @@
             <!-- Nút Back -->
             <ImageView
                 android:id="@+id/iv_back"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
                 android:src="@drawable/ic_arrow_back"
                 android:background="@drawable/custom_button_gray"
                 android:contentDescription="Back"
-                app:tint="#FFFFFF" />
+                android:padding="12dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:clickable="true"
+                android:focusable="true"
+                app:tint="#FFFFFF"
+                android:backgroundTintMode="multiply"
+                android:elevation="4dp"/>
+            <!-- Nút Edit -->
+            <ImageView
+                android:id="@+id/iv_edit"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:src="@drawable/ic_edit"
+                android:background="@drawable/custom_button_gray"
+                android:layout_alignParentRight="true"
+                android:contentDescription="Edit"
+                android:padding="12dp"
+                android:layout_margin="8dp"
+                android:clickable="true"
+                android:focusable="true"
+                app:tint="#FFFFFF"
+                android:backgroundTintMode="multiply"
+                android:elevation="4dp"/>
             <!-- Avatar -->
             <ImageView
                 android:id="@+id/img_avatar"
@@ -52,33 +75,50 @@
                 android:src="@drawable/logo" />
         </RelativeLayout>
 
-        <!-- Username & Follow Info -->
+        <!-- Username  -->
         <TextView
             android:id="@+id/tv_username"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Tranvietquang3110"
+            android:text="Username"
             android:textColor="@android:color/white"
             android:textStyle="bold"
             android:textSize="20sp"
             android:gravity="left"
             android:layout_marginTop="8dp" />
 
-        <TextView
-            android:id="@+id/tv_follow_info"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="1 Followers • 3 Following"
-            android:textColor="@android:color/darker_gray"
-            android:gravity="left"
-            android:layout_marginBottom="12dp" />
-
-        <!-- Action Buttons -->
+        <!--  Follow Info -->
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginBottom="16dp">
+            android:layout_gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/tv_follower_info"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text=" Followers"
+                android:textColor="@android:color/darker_gray"
+                android:gravity="left"
+                android:layout_marginBottom="8dp" />
+
+            <TextView
+                android:id="@+id/tv_following_info"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text=" Following"
+                android:textColor="@android:color/darker_gray"
+                android:gravity="left"
+                android:layout_marginBottom="8dp" />
+        </LinearLayout>
+
+
+        <!-- Action Buttons -->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
             <Button
                 android:id="@+id/btn_following"
@@ -91,24 +131,103 @@
                 app:backgroundTint="@null"
                 android:textSize="11sp"
                 android:textStyle="bold"
-                android:padding="6dp" />
-
-            <!-- Email, Share, Play buttons -->
+                android:padding="6dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"/>
 
             <ImageButton
                 android:id="@+id/btn_play"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
-                android:gravity="right"
-                android:src="@drawable/ic_play"
-                android:contentDescription="Play"
-                app:tint="#3F3A3A" />
-        </LinearLayout>
+                android:src="@drawable/pause_icon"
+                android:contentDescription="play"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"/>
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rv_profile_content"
+            <ImageButton
+                android:id="@+id/btn_shuffle"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:src="@drawable/shuffle_icon"
+                android:contentDescription="shuffle"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/btn_play"/>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+<!--        Tiêu đề Track, nút see all-->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="8dp" />
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Tracks"
+                android:textSize="18dp"
+                android:textColor="#FFFFFF"
+                android:textStyle="bold"/>
+            <TextView
+                android:id="@+id/tv_SeeAll"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minWidth="48dp"
+                android:minHeight="48dp"
+                android:layout_gravity="end|right"
+                android:background="@drawable/custom_btn_seeall_library"
+                android:layout_marginBottom="8dp"
+                android:text="See all"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp"
+                android:gravity="center"
+                android:clickable="true"
+                android:focusable="true"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp" />
+        </LinearLayout>
+        <ListView
+            android:id="@+id/lv_Track"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:scrollbars="none"/>
+
+<!--        Tiêu đề playlist-->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Playlists"
+            android:textSize="18dp"
+            android:textColor="#FFFFFF"
+            android:textStyle="bold"
+            android:layout_marginTop="5dp"/>
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerViewPlaylists"
+            android:layout_width="match_parent"
+            android:layout_height="420dp"
+            android:clipToPadding="false"
+            android:padding="4dp"/>
+<!--        tiêu đề album-->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Liked Albums"
+            android:textSize="18dp"
+            android:textColor="#FFFFFF"
+            android:textStyle="bold"
+            android:layout_marginTop="5dp"/>
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerViewAlbums"
+            android:layout_width="match_parent"
+            android:layout_height="420dp"
+            android:clipToPadding="false"
+            android:padding="4dp"/>
     </LinearLayout>
+
 </androidx.core.widget.NestedScrollView>

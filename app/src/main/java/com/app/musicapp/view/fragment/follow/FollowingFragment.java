@@ -14,14 +14,12 @@ import com.app.musicapp.R;
 import com.app.musicapp.adapter.FollowingAdapter;
 import com.app.musicapp.api.ApiClient;
 import com.app.musicapp.helper.SharedPreferencesManager;
-import com.app.musicapp.model.FollowingUser;
 import com.app.musicapp.model.response.ApiResponse;
 import com.app.musicapp.model.response.PageFollowResponse;
 import com.app.musicapp.model.response.ProfileWithCountFollowResponse;
-import com.app.musicapp.view.fragment.UserProfileFragment;
+import com.app.musicapp.view.fragment.profile.UserProfileFragment;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -98,8 +96,9 @@ public class FollowingFragment extends Fragment {
 
         return view;
     }
+
     private void navigateToUserProfile(ProfileWithCountFollowResponse user) {
-        UserProfileFragment fragment = UserProfileFragment.newInstance(user, "following");
+        UserProfileFragment fragment = UserProfileFragment.newInstance(user.getUserId(), "following");
         if (getActivity() != null) {
             getActivity().getSupportFragmentManager()
                     .beginTransaction()

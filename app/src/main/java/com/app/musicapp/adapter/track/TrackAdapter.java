@@ -1,6 +1,7 @@
 package com.app.musicapp.adapter.track;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,7 +32,13 @@ public class TrackAdapter extends BaseAdapter {
         this.context = fragment.getContext();
         this.inflater = LayoutInflater.from(fragment.getContext());
     }
-
+    // Phương thức mới để cập nhật danh sách
+    public void updateTracks(List<TrackResponse> newTracks) {
+        this.trackResponseList.clear();
+        this.trackResponseList.addAll(newTracks);
+        Log.d("TrackAdapter", "Updated tracks: " + trackResponseList.size());
+        notifyDataSetChanged();
+    }
     @Override
     public int getCount() {
         return trackResponseList.size();

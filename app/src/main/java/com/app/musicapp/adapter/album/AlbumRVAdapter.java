@@ -1,5 +1,6 @@
 package com.app.musicapp.adapter.album;
 
+import android.util.Log;
 import android.view.*;
 import android.widget.*;
 
@@ -10,6 +11,7 @@ import com.app.musicapp.R;
 import com.app.musicapp.model.response.AlbumResponse;
 import com.bumptech.glide.Glide;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class AlbumRVAdapter extends RecyclerView.Adapter<AlbumRVAdapter.ViewHolder>{
@@ -21,8 +23,15 @@ public class AlbumRVAdapter extends RecyclerView.Adapter<AlbumRVAdapter.ViewHold
     }
 
     public AlbumRVAdapter(List<AlbumResponse> albumList, OnItemClickListener listener) {
-        this.albumList = albumList;
+        this.albumList = albumList != null ? albumList : new ArrayList<>();
         this.listener = listener;
+    }
+
+    public void updateAlbums(List<AlbumResponse> newAlbums) {
+        this.albumList.clear();
+        this.albumList.addAll(newAlbums);
+        notifyDataSetChanged();
+        Log.d("AlbumRVAdapter", "Updated albums: " + albumList.size());
     }
     @NonNull
     @Override

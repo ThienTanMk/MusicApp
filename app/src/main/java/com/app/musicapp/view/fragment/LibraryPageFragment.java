@@ -7,9 +7,11 @@ import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -18,13 +20,17 @@ import com.app.musicapp.R;
 import com.app.musicapp.adapter.LibraryListAdapter;
 import com.app.musicapp.adapter.track.TrackAdapter;
 import com.app.musicapp.api.ApiClient;
+import com.app.musicapp.helper.SharedPreferencesManager;
 import com.app.musicapp.model.response.ApiResponse;
 import com.app.musicapp.model.ListView.LibraryList;
+import com.app.musicapp.model.response.ProfileWithCountFollowResponse;
 import com.app.musicapp.model.response.TrackResponse;
 import com.app.musicapp.view.fragment.album.AlbumsFragment;
 import com.app.musicapp.view.fragment.follow.FollowingFragment;
 import com.app.musicapp.view.fragment.playlist.PlaylistsFragment;
 import com.app.musicapp.view.fragment.track.LikedTracksFragment;
+import com.app.musicapp.view.fragment.profile.UserProfileFragment;
+import com.bumptech.glide.Glide;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,6 +46,7 @@ public class LibraryPageFragment extends Fragment {
     private LibraryListAdapter menuAdapter;
     private TrackAdapter historyAdapter;
     private TextView seeAllTextView;
+    private ImageView ivAvatar;
     private List<LibraryList> libraryLists;
     private List<TrackResponse> trackResponseList;
     public LibraryPageFragment() {
@@ -54,6 +61,7 @@ public class LibraryPageFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_library_page, container, false);
 
         seeAllTextView = view.findViewById(R.id.tv_see_all);
+
         // Khởi tạo ListView
         listViewMenu = view.findViewById(R.id.listViewMenu);
 
@@ -132,7 +140,20 @@ public class LibraryPageFragment extends Fragment {
             fragmentTransaction.addToBackStack(null);
             fragmentTransaction.commit();
         });
+        ivAvatar = view.findViewById(R.id.iv_avatar);
+        getAvatar();
 
+        String userId = SharedPreferencesManager.getInstance(getContext()).getUserId();
+        ivAvatar.setOnClickListener(v -> {
+            UserProfileFragment user = new UserProfileFragment().newInstance(userId, "library");
+            if (getActivity() != null) {
+                getActivity().getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.fragment_container, user)
+                        .addToBackStack(null)
+                        .commit();
+            }
+        });
         return view;
     }
 
@@ -154,7 +175,28 @@ public class LibraryPageFragment extends Fragment {
             }
         });
     }
-
+    private void getAvatar(){
+        String userId = SharedPreferencesManager.getInstance(getContext()).getUserId();
+        ApiClient.getUserProfileApiService().getUserProfile(userId).enqueue(new Callback<ApiResponse<ProfileWithCountFollowResponse>>() {
+            @Override
+            public void onResponse(Call<ApiResponse<ProfileWithCountFollowResponse>> call, Response<ApiResponse<ProfileWithCountFollowResponse>> response) {
+                if(response.isSuccessful() && response.body() != null){
+                    String avatarUrl = response.body().getData().getAvatar();
+                    if (avatarUrl != null && !avatarUrl.isEmpty()) {
+                        Glide.with(requireContext())
+                                .load(avatarUrl)
+                                .placeholder(R.drawable.logo)
+                                .error(R.drawable.logo)
+                                .into(ivAvatar);
+                    }
+                }
+            }
+            @Override
+            public void onFailure(Call<ApiResponse<ProfileWithCountFollowResponse>> call, Throwable t) {
+                Log.e("getAvatar", "Failed to load avatar", t);
+            }
+        });
+    }
     @Override
     public void onResume() {
         super.onResume();

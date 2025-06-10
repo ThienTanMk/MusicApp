@@ -41,6 +41,12 @@ public class PlaylistAdapter extends ArrayAdapter<PlaylistResponse> {
         this.fragment = fragment;
         this.playlists = playlists != null ? playlists : new ArrayList<>();
     }
+    public void updatePlaylists(List<PlaylistResponse> newPlaylists) {
+        this.playlists.clear();
+        this.playlists.addAll(newPlaylists);
+        Log.d("PlaylistAdapter", "Updated playlists: " + playlists.size());
+        notifyDataSetChanged();
+    }
 
     @NonNull
     @Override

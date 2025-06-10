@@ -12,7 +12,7 @@ import android.widget.ListView;
 import com.app.musicapp.R;
 import com.app.musicapp.adapter.search.SearchUserListAdapter;
 import com.app.musicapp.model.response.ProfileWithCountFollowResponse;
-import com.app.musicapp.view.fragment.UserProfileFragment;
+import com.app.musicapp.view.fragment.profile.UserProfileFragment;
 
 import java.util.*;
 
@@ -43,7 +43,7 @@ public class SearchUserTabFragment extends Fragment {
 
         ListView listView = view.findViewById(R.id.list_view_user_results);
         SearchUserListAdapter userAdapter = new SearchUserListAdapter(getContext(), userResults, profile -> {
-            UserProfileFragment fragment = UserProfileFragment.newInstance(profile, "search");
+            UserProfileFragment fragment = UserProfileFragment.newInstance(profile.getUserId(), "search");
             requireActivity().getSupportFragmentManager()
                     .beginTransaction()
                     .replace(R.id.fragment_container, fragment)

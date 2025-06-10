@@ -30,7 +30,7 @@ import com.app.musicapp.model.response.ApiResponse;
 import com.app.musicapp.model.GridView.Vibes;
 import com.app.musicapp.model.response.ProfileWithCountFollowResponse;
 import com.app.musicapp.view.fragment.searchresult.SearchResultFragment;
-import com.app.musicapp.view.fragment.UserProfileFragment;
+import com.app.musicapp.view.fragment.profile.UserProfileFragment;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -250,7 +250,7 @@ public class SearchPageFragment extends Fragment {
     private void navigateToUserProfile(ProfileWithCountFollowResponse profile) {
         Log.d("SearchPageFragment", "Navigating to UserProfile for: " + profile.getDisplayName());
         hideKeyboard();
-        UserProfileFragment fragment = UserProfileFragment.newInstance(profile, "search");
+        UserProfileFragment fragment = UserProfileFragment.newInstance(profile.getUserId(), "search");
         requireActivity().getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.fragment_container, fragment)

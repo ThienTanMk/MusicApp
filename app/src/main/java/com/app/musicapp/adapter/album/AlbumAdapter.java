@@ -1,6 +1,7 @@
 package com.app.musicapp.adapter.album;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,9 +36,15 @@ public class AlbumAdapter extends BaseAdapter {
 
     public AlbumAdapter(Context context, List<AlbumResponse> albums) {
         this.context = context;
-        this.albums = albums != null ? albums : new ArrayList<>();
+        //this.albums = albums != null ? albums : new ArrayList<>();
+        this.albums = albums != null ? new ArrayList<>(albums) : new ArrayList<>();
     }
-
+    public void updateAlbums(List<AlbumResponse> newAlbums) {
+        this.albums.clear();
+        this.albums.addAll(newAlbums);
+        Log.d("AlbumAdapter", "Updated albums: " + albums.size());
+        notifyDataSetChanged();
+    }
     public void setOnLikeChangeListener(OnLikeChangeListener listener) {
         this.likeChangeListener = listener;
     }

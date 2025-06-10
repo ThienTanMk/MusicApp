@@ -1,5 +1,6 @@
 package com.app.musicapp.adapter.playlist;
 
+import android.util.Log;
 import android.view.*;
 import android.view.ViewGroup;
 import android.widget.*;
@@ -22,9 +23,15 @@ public class PlayListRVAdapter extends RecyclerView.Adapter<PlayListRVAdapter.Vi
     }
 
     public PlayListRVAdapter(List<PlaylistResponse> playlist, OnItemClickListener listener) {
-        this.playlist = playlist != null ? playlist : new ArrayList<>();;
-        //this.playlist = new ArrayList<>(playlist);
+        this.playlist = playlist != null ? playlist : new ArrayList<>();
         this.listener = listener;
+        //this.playlist = new ArrayList<>(playlist);
+    }
+    public void updatePlaylists(List<PlaylistResponse> newPlaylists) {
+        this.playlist.clear();
+        this.playlist.addAll(newPlaylists);
+        notifyDataSetChanged();
+        Log.d("PlayListRVAdapter", "Updated playlists: " + playlist.size());
     }
 
     @NonNull

@@ -16,7 +16,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class ApiClient {
     // Replace 192.168.1.x with your computer's actual IP address
-    private static final String BASE_URL = "http://192.168.1.167:8888/";
+    private static final String BASE_URL = "http://192.168.1.107:8888/";
     private static Retrofit retrofit = null;
     private static Context context;
 
