@@ -203,4 +203,9 @@ public class UploadsFragment extends Fragment implements SongOptionsBottomSheet.
     public void onTrackDeleted(TrackResponse track) {
         loadUserTracks();
     }
+
+    @Override
+    public void onTrackRemovedFromPlaylist(TrackResponse track) {
+
+    }
 }

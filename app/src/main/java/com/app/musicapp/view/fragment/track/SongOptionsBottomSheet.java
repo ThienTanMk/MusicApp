@@ -17,9 +17,14 @@ import com.app.musicapp.R;
 import com.app.musicapp.api.ApiClient;
 import com.app.musicapp.helper.SharedPreferencesManager;
 import com.app.musicapp.helper.UrlHelper;
+import com.app.musicapp.model.request.UpdatePlaylistInfoRequest;
+import com.app.musicapp.model.response.TagResponse;
 import com.app.musicapp.model.response.TrackResponse;
 import com.app.musicapp.model.response.ApiResponse;
+import com.app.musicapp.model.response.PlaylistResponse;
+import com.app.musicapp.util.LocalDateTimeAdapter;
 import com.app.musicapp.view.fragment.UploadTrackFragment;
+import com.app.musicapp.view.fragment.playlist.AddTrackToPlaylistFragment;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.bumptech.glide.request.RequestOptions;
@@ -29,20 +34,41 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import okhttp3.MediaType;
+import okhttp3.RequestBody;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import java.time.LocalDateTime;
+
 public class SongOptionsBottomSheet extends BottomSheetDialogFragment {
     private static final String ARG_TRACK = "track";
+    private static final String ARG_PLAYLIST = "playlist";
     private TrackResponse trackResponse;
+    private PlaylistResponse playlist;
     private TextView tvLikeText;
     private ImageView ivLikeIcon;
     private boolean isLiked = false;
     private TrackOptionsListener optionsListener;
+
     public void setTrackOptionsListener(TrackOptionsListener listener) {
         this.optionsListener = listener;
     }
+
     public static SongOptionsBottomSheet newInstance(TrackResponse trackResponse) {
+        return newInstance(trackResponse, null);
+    }
+
+    public static SongOptionsBottomSheet newInstance(TrackResponse trackResponse, PlaylistResponse playlist) {
         SongOptionsBottomSheet fragment = new SongOptionsBottomSheet();
         Bundle args = new Bundle();
         args.putSerializable(ARG_TRACK, trackResponse);
+        if (playlist != null) {
+            args.putSerializable(ARG_PLAYLIST, playlist);
+        }
         fragment.setArguments(args);
         return fragment;
     }
@@ -52,6 +78,7 @@ public class SongOptionsBottomSheet extends BottomSheetDialogFragment {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             trackResponse = (TrackResponse) getArguments().getSerializable(ARG_TRACK);
+            playlist = (PlaylistResponse) getArguments().getSerializable(ARG_PLAYLIST);
         }
     }
 
@@ -106,8 +133,15 @@ public class SongOptionsBottomSheet extends BottomSheetDialogFragment {
         });
 
         addToPlaylistOption.setOnClickListener(v -> {
-            Toast.makeText(getContext(), "Added to playlist: " + trackResponse.getTitle(), Toast.LENGTH_SHORT).show();
-            dismiss();
+            AddTrackToPlaylistFragment fragment = AddTrackToPlaylistFragment.newInstance(trackResponse);
+            if (getActivity() != null) {
+                getActivity().getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.fragment_container, fragment)
+                    .addToBackStack(null)
+                    .commit();
+                dismiss();
+            }
         });
 
         goToArtistOption.setOnClickListener(v -> {
@@ -129,6 +163,19 @@ public class SongOptionsBottomSheet extends BottomSheetDialogFragment {
             Toast.makeText(getContext(), "Reported: " + trackResponse.getTitle(), Toast.LENGTH_SHORT).show();
             dismiss();
         });
+
+        // Add remove from playlist option
+        LinearLayout removeFromPlaylistOption = view.findViewById(R.id.option_remove_from_playlist);
+        if (removeFromPlaylistOption != null) {
+            if (playlist != null) {
+                removeFromPlaylistOption.setVisibility(View.VISIBLE);
+                removeFromPlaylistOption.setOnClickListener(v -> {
+                    showRemoveFromPlaylistConfirmDialog();
+                });
+            } else {
+                removeFromPlaylistOption.setVisibility(View.GONE);
+            }
+        }
 
         return view;
     }
@@ -275,13 +322,74 @@ public class SongOptionsBottomSheet extends BottomSheetDialogFragment {
             });
     }
 
+    private void showRemoveFromPlaylistConfirmDialog() {
+        new androidx.appcompat.app.AlertDialog.Builder(requireContext())
+            .setTitle("Remove from Playlist")
+            .setMessage("Are you sure you want to remove this track from the playlist?")
+            .setPositiveButton("Remove", (dialog, which) -> {
+                removeTrackFromPlaylist();
+            })
+            .setNegativeButton("Cancel", null)
+            .show();
+    }
+
+    private void removeTrackFromPlaylist() {
+        if (playlist == null || trackResponse == null) return;
+
+        // Create updated track list without the track to be removed
+        List<TrackResponse> updatedTracks = new ArrayList<>(playlist.getPlaylistTracks());
+        updatedTracks.remove(trackResponse);
+
+        // Create update request
+        UpdatePlaylistInfoRequest request = new UpdatePlaylistInfoRequest(
+            playlist.getTitle(),
+            playlist.getPrivacy(),
+            updatedTracks.stream().map(TrackResponse::getId).collect(Collectors.toList()),
+            playlist.getId(),
+            playlist.getReleaseDate(),
+            playlist.getDescription(),
+            playlist.getGenre() != null ? playlist.getGenre().getId() : null,
+            playlist.getPlaylistTags() != null ? playlist.getPlaylistTags().stream().map(TagResponse::getId).collect(Collectors.toList()) : new ArrayList<>()
+        );
+
+        // Convert request to JSON using GsonBuilder with LocalDateTimeAdapter
+        Gson gson = new GsonBuilder()
+            .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
+            .create();
+        String jsonRequest = gson.toJson(request);
+        RequestBody playlistBody = RequestBody.create(MediaType.parse("application/json"), jsonRequest);
+
+        // Call API
+        ApiClient.getPlaylistService().updatePlaylistInfoV1(null, playlistBody)
+            .enqueue(new Callback<ApiResponse<PlaylistResponse>>() {
+                @Override
+                public void onResponse(@NonNull Call<ApiResponse<PlaylistResponse>> call,
+                                    @NonNull Response<ApiResponse<PlaylistResponse>> response) {
+                    if (response.isSuccessful() && response.body() != null) {
+                        Toast.makeText(getContext(), "Track removed from playlist", Toast.LENGTH_SHORT).show();
+                        if (optionsListener != null) {
+                            optionsListener.onTrackRemovedFromPlaylist(trackResponse);
+                        }
+                        dismiss();
+                    } else {
+                        try {
+                            String errorBody = response.errorBody() != null ? response.errorBody().string() : "Unknown error";
+                            Toast.makeText(getContext(), "Failed to remove track: " + errorBody, Toast.LENGTH_SHORT).show();
+                        } catch (Exception e) {
+                            Toast.makeText(getContext(), "Failed to remove track", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                }
+
+                @Override
+                public void onFailure(@NonNull Call<ApiResponse<PlaylistResponse>> call, @NonNull Throwable t) {
+                    Toast.makeText(getContext(), "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
+    }
+
     public interface TrackOptionsListener {
-//        void onTrackEdited(TrackResponse track);
         void onTrackDeleted(TrackResponse track);
-//        void onAddToPlaylist(TrackResponse track);
-//        void onGoToArtist(TrackResponse track);
-//        void onViewComments(TrackResponse track);
-//        void onViewBehindTrack(TrackResponse track);
-//        void onReportTrack(TrackResponse track);
+        void onTrackRemovedFromPlaylist(TrackResponse track);
     }
 }
