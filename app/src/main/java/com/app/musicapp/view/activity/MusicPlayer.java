@@ -41,30 +41,30 @@ public class MusicPlayer extends AppCompatActivity {
     ImageView nextUp;
     MusicService  musicService;
 
+    private boolean isLiked = false;
+
     private final BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
             if(MusicService.ACTION_UPDATE_SEEKBAR_PROGRESS.equals(action)){
-                int currentPosition = intent.getIntExtra("current_position",0)/1000;
-                int duration = intent.getIntExtra("duration",0)/1000;
+                int currentPosition = intent.getIntExtra("current_position",0);
+                int duration = intent.getIntExtra("duration",0);
                 seekBar.setProgress(currentPosition);
-                durationPlayed.setText(formattedTime(currentPosition));
+                durationPlayed.setText(formattedTime(currentPosition/1000));
                 if(seekBar.getMax()!=duration){
                     seekBar.setMax(duration);
-                    durationTotal.setText(formattedTime(duration));
+                    durationTotal.setText(formattedTime(duration/1000));
                 }
 
             }else if(MusicService.ACTION_CHANGED_CURRENT_TRACK.equals(action)){
                 updateTrackInfo();
-
             }
             else if(MusicService.ACTION_PLAY.equals(action)){
                 playPauseBtn.setImageResource(R.drawable.play_icon);
             }
             else if(MusicService.ACTION_PAUSE.equals(action)){
                 playPauseBtn.setImageResource(R.drawable.pause_icon);
-
             }
             else if(MusicService.PLAY_ONCE.equals(action)||MusicService.REPEAT_ALL.equals(action)||MusicService.REPEAT_ONE.equals(action)||MusicService.SHUFFLE.equals(action)){
                 updatePlayBackModeBtn();
@@ -112,6 +112,19 @@ public class MusicPlayer extends AppCompatActivity {
                 likeCount.setText(convertIntToString(0));
             }
         });
+        ApiClient.getLikedTrackService().isLiked(trackId).enqueue(new Callback<ApiResponse<Boolean>>() {
+            @Override
+            public void onResponse(Call<ApiResponse<Boolean>> call, Response<ApiResponse<Boolean>> response) {
+                if(response.isSuccessful()&&response.body()!=null&&response.body().getData()!=null){
+                    isLiked = response.body().getData();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponse<Boolean>> call, Throwable t) {
+
+            }
+        });
     }
     private void updatePlayBackModeBtn(){
         String action = musicService.getPlayBackMode();
@@ -130,13 +143,19 @@ public class MusicPlayer extends AppCompatActivity {
             shuffleBtn.setColorFilter(this.getResources().getColor(R.color.soundcloud));
         }
     }
+
     private void updateTrackInfo(){
         var currentTrackResponse = musicService.getCurrentTrack();
         if(currentTrackResponse==null) return;
         trackTitle.setText(currentTrackResponse.getTitle());
         headerTrackTitle.setText(currentTrackResponse.getTitle());
         artistName.setText(currentTrackResponse.getArtist());
-        if(currentTrackResponse.getLiked()!=null&&currentTrackResponse.getLiked()) likeBtn.setImageResource(R.drawable.red_heart_icon);
+        if(currentTrackResponse.getLiked()!=null&&currentTrackResponse.getLiked()){
+            likeBtn.setImageResource(R.drawable.red_heart_icon);
+        }
+        else{
+            likeBtn.setImageResource(R.drawable.heart_icon);
+        }
         Glide.with(MusicPlayer.this)
                 .load(UrlHelper.getCoverImageUrl(currentTrackResponse.getCoverImageName()))
                 .placeholder(R.drawable.logo)
@@ -230,6 +249,37 @@ public class MusicPlayer extends AppCompatActivity {
         likeCount = findViewById(R.id.text_like_count);
         likeBtn = findViewById(R.id.image_like_btn);
         headerTrackTitle = findViewById(R.id.text_track_title_header);
+
+        likeBtn.setOnClickListener(v->{
+            var track = musicService.getCurrentTrack();
+            if(isLiked){
+                ApiClient.getLikedTrackService().unlikeTrack(track.getId()).enqueue(new Callback<ApiResponse<Boolean>>() {
+                    @Override
+                    public void onResponse(Call<ApiResponse<Boolean>> call, Response<ApiResponse<Boolean>> response) {
+                        likeBtn.setImageResource(R.drawable.heart_icon);
+                        track.setLiked(false);
+                        updateLikeCount(track.getId());
+                    }
+
+                    @Override
+                    public void onFailure(Call<ApiResponse<Boolean>> call, Throwable t) {}
+                });
+            }
+            else{
+                ApiClient.getLikedTrackService().likeTrack(track.getId()).enqueue(new Callback<ApiResponse<Boolean>>() {
+                    @Override
+                    public void onResponse(Call<ApiResponse<Boolean>> call, Response<ApiResponse<Boolean>> response) {
+                        likeBtn.setImageResource(R.drawable.red_heart_icon);
+                        track.setLiked(true);
+                        updateLikeCount(track.getId());
+                    }
+
+                    @Override
+                    public void onFailure(Call<ApiResponse<Boolean>> call, Throwable t) {}
+                });
+            }
+
+        });
 
         playPauseBtn.setOnClickListener(new View.OnClickListener() {
             @Override

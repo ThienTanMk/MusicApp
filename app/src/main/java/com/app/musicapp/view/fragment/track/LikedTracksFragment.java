@@ -1,8 +1,10 @@
 package com.app.musicapp.view.fragment.track;
 
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.graphics.Color;
 import android.os.Build;
@@ -18,6 +20,7 @@ import android.widget.ListView;
 import android.widget.Toast;
 import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.Fragment;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.app.musicapp.R;
 import com.app.musicapp.adapter.track.TrackAdapter;
@@ -42,23 +45,8 @@ public class LikedTracksFragment extends Fragment implements SongOptionsBottomSh
     private List<TrackResponse> likedTrackResponses;
     private List<TrackResponse> filteredTrackResponses;
     private SearchView searchView;
-    private MusicService musicService;
+
     public LikedTracksFragment() {}
-    private ServiceConnection connection = new ServiceConnection() {
-
-        @Override
-        public void onServiceConnected(ComponentName className,
-                                       IBinder service) {
-            // We've bound to LocalService, cast the IBinder and get LocalService instance.
-            MusicService.LocalBinder binder = (MusicService.LocalBinder) service;
-            musicService = binder.getService();
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName arg0) {
-
-        }
-    };
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -123,28 +111,10 @@ public class LikedTracksFragment extends Fragment implements SongOptionsBottomSh
 
         trackAdapter = new TrackAdapter(this, filteredTrackResponses);
         listViewLikedTracks.setAdapter(trackAdapter);
-        
-        Intent intent = new Intent(getContext(), MusicService.class);
-        getContext().bindService(intent, connection, Context.BIND_AUTO_CREATE);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            getContext().startForegroundService(intent);
-        }
-        
-        listViewLikedTracks.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                musicService.setNextUpItems(filteredTrackResponses);
-                if (Objects.equals(musicService.getCurrentTrack().getId(), filteredTrackResponses.get(i).getId())) {
-                    musicService.playCurrentMusic();
-                } else {
-                    musicService.playMusicAtIndex(i);
-                }
-                Intent intent = new Intent(getContext(), MusicPlayer.class);
-                startActivity(intent);
-            }
-        });
 
-        return view;
+        loadLikedTracks();
+
+       return view;
     }
 
     @Override
@@ -157,11 +127,12 @@ public class LikedTracksFragment extends Fragment implements SongOptionsBottomSh
         ApiClient.getApiService().getLikedTrack().enqueue(new Callback<ApiResponse<List<TrackResponse>>>() {
             @Override
             public void onResponse(Call<ApiResponse<List<TrackResponse>>> call, Response<ApiResponse<List<TrackResponse>>> response) {
+                if(response.body() == null||response.body().getData()==null) return;
                 likedTrackResponses.clear();
                 likedTrackResponses.addAll(response.body().getData());
                 filteredTrackResponses.clear();
                 filteredTrackResponses.addAll(likedTrackResponses);
-                trackAdapter.notifyDataSetChanged();
+                trackAdapter.updateTracks(filteredTrackResponses);
             }
 
             @Override
@@ -192,12 +163,20 @@ public class LikedTracksFragment extends Fragment implements SongOptionsBottomSh
         }
         
         if (trackAdapter != null) {
-            trackAdapter.notifyDataSetChanged();
+//          trackAdapter.notifyDataSetChanged();
+            trackAdapter.updateTracks(filteredTrackResponses);
         }
+
     }
 
     @Override
     public void onTrackDeleted(TrackResponse track) {
         loadLikedTracks();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
     }
 }

@@ -1,7 +1,9 @@
 package com.app.musicapp.api;
 
 import android.content.Context;
+import android.nfc.Tag;
 
+import com.app.musicapp.api.TagApiService;
 import com.app.musicapp.util.LocalDateAdapter;
 import com.app.musicapp.util.LocalDateTimeAdapter;
 import com.google.gson.Gson;
@@ -16,7 +18,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class ApiClient {
     // Replace 192.168.1.x with your computer's actual IP address
-    private static final String BASE_URL = "http://192.168.1.107:8888/";
+    private static final String BASE_URL = "http://192.168.1.4:8888/";
     private static Retrofit retrofit = null;
     private static Context context;
 
@@ -113,6 +115,14 @@ public class ApiClient {
             throw new IllegalStateException("ApiClient must be initialized with context first");
         }
         return getClient().create(TagApiService.class);
+    }
+
+    public static IdentityApiService getIdentityService() {
+        if (context == null) {
+            throw new IllegalStateException("ApiClient must be initialized with context first");
+        }
+        return getClient().create(IdentityApiService.class);
+
     }
 
     public static SearchApiService getSearchApiService() {

@@ -14,6 +14,7 @@ import android.widget.*;
 import androidx.appcompat.widget.SearchView;
 import com.app.musicapp.R;
 import com.app.musicapp.adapter.UploadsAdapter;
+import com.app.musicapp.adapter.track.TrackAdapter;
 import com.app.musicapp.helper.SharedPreferencesManager;
 import com.app.musicapp.model.response.ApiResponse;
 import com.app.musicapp.model.response.TrackResponse;
@@ -36,7 +37,7 @@ public class UploadsFragment extends Fragment implements SongOptionsBottomSheet.
     private ListView listViewUploads;
     private ImageView ivBack;
     private SearchView searchView;
-    private UploadsAdapter uploadsAdapter;
+    private TrackAdapter uploadsAdapter;
     private List<TrackResponse> trackResponseList;
     private List<TrackResponse> filteredTrackResponseList;
 
@@ -91,7 +92,7 @@ public class UploadsFragment extends Fragment implements SongOptionsBottomSheet.
         FloatingActionButton fabUpload = view.findViewById(R.id.fab_upload);
         fabUpload.setOnClickListener(v -> showUploadFragment());
         
-        uploadsAdapter = new UploadsAdapter(this, filteredTrackResponseList);
+        uploadsAdapter = new TrackAdapter(this, filteredTrackResponseList);
         listViewUploads.setAdapter(uploadsAdapter);
 
         setupBackButton();
@@ -153,7 +154,7 @@ public class UploadsFragment extends Fragment implements SongOptionsBottomSheet.
                             trackResponseList.addAll(response.body().getData());
                             filteredTrackResponseList.clear();
                             filteredTrackResponseList.addAll(trackResponseList);
-                            uploadsAdapter.notifyDataSetChanged();
+                            uploadsAdapter.updateTracks(filteredTrackResponseList);
                         } else {
                             Toast.makeText(getContext(), "Failed to load tracks", Toast.LENGTH_SHORT).show();
                         }
@@ -184,7 +185,8 @@ public class UploadsFragment extends Fragment implements SongOptionsBottomSheet.
         }
         
         if (uploadsAdapter != null) {
-            uploadsAdapter.notifyDataSetChanged();
+//            uploadsAdapter.notifyDataSetChanged();
+            uploadsAdapter.updateTracks(filteredTrackResponseList);
         }
     }
 

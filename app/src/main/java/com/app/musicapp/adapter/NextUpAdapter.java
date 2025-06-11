@@ -11,8 +11,10 @@ import android.widget.TextView;
 import androidx.core.content.ContextCompat;
 
 import com.app.musicapp.R;
+import com.app.musicapp.helper.UrlHelper;
 import com.app.musicapp.model.response.TrackResponse;
 import com.app.musicapp.service.MusicService;
+import com.bumptech.glide.Glide;
 
 import java.util.List;
 
@@ -55,7 +57,7 @@ public class NextUpAdapter extends BaseAdapter {
         cover.setImageResource(R.drawable.img);
         title.setText(item.getTitle());
         username.setText(item.getArtist());
-
+        Glide.with(context).load(UrlHelper.getCoverImageUrl(item.getCoverImageName())).placeholder(R.drawable.img).into(cover);
         if(musicService.getCurrentIndex()==position){
 //            username.setText(item.getArtist());
             this.username = item.getArtist();

@@ -1,29 +1,47 @@
     package com.app.musicapp.service;
 
+    import android.Manifest;
     import android.app.Notification;
     import android.app.NotificationChannel;
     import android.app.NotificationManager;
+    import android.app.PendingIntent;
     import android.app.Service;
     import android.content.Intent;
+    import android.content.pm.PackageManager;
+    import android.graphics.Bitmap;
+    import android.graphics.BitmapFactory;
+    import android.graphics.drawable.Drawable;
     import android.media.AudioManager;
+    import android.media.MediaMetadataRetriever;
     import android.media.MediaPlayer;
     import android.os.Binder;
     import android.os.Build;
     import android.os.Handler;
     import android.os.IBinder;
+    import android.support.v4.media.MediaMetadataCompat;
+    import android.support.v4.media.session.MediaSessionCompat;
+    import android.support.v4.media.session.PlaybackStateCompat;
     import android.util.Log;
     import android.widget.Toast;
 
+    import androidx.annotation.NonNull;
     import androidx.annotation.Nullable;
+    import androidx.core.app.ActivityCompat;
     import androidx.core.app.NotificationCompat;
     import androidx.core.app.NotificationManagerCompat;
 
+    import com.app.musicapp.R;
     import com.app.musicapp.api.ApiClient;
     import com.app.musicapp.helper.UrlHelper;
+    import com.app.musicapp.model.MusicViewModel;
     import com.app.musicapp.model.response.ApiResponse;
     import com.app.musicapp.model.response.TrackResponse;
+    import com.bumptech.glide.Glide;
+    import com.bumptech.glide.request.target.CustomTarget;
+    import com.bumptech.glide.request.transition.Transition;
 
     import java.io.IOException;
+    import java.net.URL;
     import java.util.ArrayList;
     import java.util.List;
     import java.util.Random;
@@ -31,6 +49,8 @@
     import retrofit2.Call;
     import retrofit2.Callback;
     import retrofit2.Response;
+
+
 
     public class MusicService extends Service {
         private List<TrackResponse> nextUpItems;
@@ -40,10 +60,17 @@
         private String playBackMode;
         private int currentIndex;
 
+        private MediaSessionCompat mediaSession;
+        private MusicViewModel musicViewModel;
+
+
         // nhận yêu cầu tiếp tục bài nhạc
         public static final String ACTION_PLAY = "ACTION_PLAY";
         // nhận yêu cầu ngừng phát
         public static final String ACTION_PAUSE = "ACTION_PAUSE";
+
+        public static final String ACTION_PLAY_BACK = "ACTION_PLAY_BACK";
+        public static final String ACTION_PLAY_NEXT = "ACTION_PLAY_NEXT";
         // phát update seek bar từ bên ngoài
         public static final String ACTION_UPDATE_SEEKBAR_PROGRESS = "ACTION_UPDATE_SEEKBAR_PROGRESS";
 
@@ -58,10 +85,12 @@
         public static final String PLAY_ONCE = "PLAY_ONCE";
 
 
+
         // bind serivce ko dung
         @Override
         public int onStartCommand(Intent intent, int flags, int startId) {
             Log.i("start command","start command on music service");
+
             return super.onStartCommand(intent, flags, startId);
         }
 
@@ -90,7 +119,7 @@
         @Override
         public void onCreate() {
             super.onCreate();
-
+            mediaSession = new MediaSessionCompat(this, "music_session");
             this.currentIndex = -1;
             this.playBackMode = PLAY_ONCE;
 
@@ -98,6 +127,13 @@
             createNotificationChannel();
 
             getLikedTrack();
+        }
+
+        public void setMusicViewModel(MusicViewModel musicViewModel){
+            this.musicViewModel = musicViewModel;
+        }
+        public MusicViewModel getMusicViewModel(){
+            return musicViewModel;
         }
         public TrackResponse getCurrentTrack(){
             if(this.nextUpItems==null||this.nextUpItems.isEmpty()) {
@@ -111,6 +147,17 @@
         }
 
         public void setNextUpItems(List<TrackResponse> trackResponses) {
+            boolean isChanged = false;
+            if(trackResponses.size()==nextUpItems.size()){
+                for(int i=0;i<trackResponses.size();i++){
+                    if(!trackResponses.get(i).equals(nextUpItems.get(i))){
+                        isChanged = true;
+                        break;
+                    }
+                }
+            }
+            else isChanged = true;
+            if(!isChanged) return;
             this.nextUpItems = trackResponses;
         }
         public int getCurrentIndex(){
@@ -119,12 +166,15 @@
 
         public void updateProgressTime(int progress){
             if(mediaPlayer==null) return;
-            mediaPlayer.seekTo(progress*1000);
+            mediaPlayer.seekTo(progress);
             startSeekbarUpdate();
         }
         private void sendTrackInfo(){
             Intent intent = new Intent(ACTION_CHANGED_CURRENT_TRACK);
             sendBroadcast(intent);
+            if(musicViewModel!=null){
+                musicViewModel.setCurrentTrack(getCurrentTrack());
+            }
         }
         public String getPlayBackMode(){
             return playBackMode;
@@ -162,25 +212,34 @@
         public void playNext(){
             if(this.currentIndex==nextUpItems.size()-1){
                 if(this.playBackMode.equals(REPEAT_ALL))
-                    currentIndex = -1;
-                else return;
+                    currentIndex = 0;
             }
-            currentIndex++;
+            else currentIndex++;
+            if(musicViewModel!=null){
+                musicViewModel.setCurrentTrack(getCurrentTrack());
+            }
             if(!isPlaying()){
                 changeMediaPlayerResource(UrlHelper.getAudioUrl(getCurrentTrack().getFileName()));
             }
-            else
+            else{
                 playMusicAtIndex(currentIndex);
+            }
+
         }
         public void playBack(){
-            if(this.currentIndex==0) return;
-            currentIndex --;
+            if(this.currentIndex> 0) currentIndex --;
+            if(musicViewModel!=null){
+                musicViewModel.setCurrentTrack(getCurrentTrack());
+            }
             if(!isPlaying()){
                 changeMediaPlayerResource(UrlHelper.getAudioUrl(getCurrentTrack().getFileName()));
             }
-            else
+            else{
                 playMusicAtIndex(currentIndex);
+            }
         }
+
+
 
         private void changeMediaPlayerResource(String url){
             try{
@@ -195,8 +254,22 @@
                     Intent intent = new Intent(ACTION_UPDATE_SEEKBAR_PROGRESS);
                     intent.putExtra("current_position", mediaPlayer.getCurrentPosition());
                     intent.putExtra("duration", 0);
+
+                    if(musicViewModel!=null){
+                        musicViewModel.setProgress(mediaPlayer.getCurrentPosition());
+                    }
+
                     sendBroadcast(intent);
                     sendTrackInfo();
+                    updateNotification(getCurrentTrack(),false);
+                });
+                mediaPlayer.setOnCompletionListener(mp -> {
+                    determineNextSong();
+                });
+
+                mediaPlayer.setOnErrorListener((mp, what, extra) -> {
+                    sendPauseAction();
+                    return true;
                 });
             }
             catch (Exception ex){
@@ -222,7 +295,8 @@
                     mp.start();
                     sendPlayAction();
                     sendTrackInfo();
-                    updateNotification("Playing music");
+                    updateNotification(getCurrentTrack(),true);
+
                     startSeekbarUpdate();
                 });
                 mediaPlayer.setOnCompletionListener(mp -> {
@@ -242,10 +316,18 @@
         private void sendPauseAction(){
             Intent intent = new Intent(ACTION_PAUSE);
             sendBroadcast(intent);
+            mediaSession.setPlaybackState(getPlayBackState());
+            if(musicViewModel!=null){
+                musicViewModel.setPlaying(true);
+            }
         }
         private void sendPlayAction(){
+            mediaSession.setPlaybackState(getPlayBackState());
             Intent intent = new Intent(ACTION_PLAY);
             sendBroadcast(intent);
+            if(musicViewModel!=null){
+                musicViewModel.setPlaying(true);
+            }
         }
         public boolean isPlaying(){
             if(this.mediaPlayer==null) return false;
@@ -264,8 +346,9 @@
         public void pauseCurrentMusic() {
             if (mediaPlayer == null || !mediaPlayer.isPlaying()) return;
             mediaPlayer.pause();
-            updateNotification("Paused");
+            updateNotification(getCurrentTrack(),false);
             sendPauseAction();
+            stopSeekbarUpdate();
         }
 
         // check next up tracks and send play + track 
@@ -283,7 +366,7 @@
             sendPlayAction();
             sendTrackInfo();
             startSeekbarUpdate();
-            updateNotification("Play");
+            updateNotification(track,true);
         }
 
         private void startSeekbarUpdate() {
@@ -305,6 +388,9 @@
                     intent.putExtra("current_position", mediaPlayer.getCurrentPosition());
                     intent.putExtra("duration", mediaPlayer.getDuration());
                     sendBroadcast(intent);
+                    if(musicViewModel!=null){
+                        musicViewModel.setProgress(mediaPlayer.getCurrentPosition());
+                    }
                     handler.postDelayed(this, 1000);
                 }
                 else if(!isStop){
@@ -313,24 +399,113 @@
                     intent.putExtra("current_position", mediaPlayer.getCurrentPosition());
                     intent.putExtra("duration", mediaPlayer.getDuration());
                     sendBroadcast(intent);
+                    if(musicViewModel!=null){
+                        musicViewModel.setProgress(mediaPlayer.getCurrentPosition());
+                    }
                 }
+                mediaSession.setPlaybackState(getPlayBackState());
             }
         };
+        private PlaybackStateCompat getPlayBackState() {
+            int state = mediaPlayer.isPlaying() ? PlaybackStateCompat.STATE_PLAYING : PlaybackStateCompat.STATE_PAUSED;
+            long position = mediaPlayer.getCurrentPosition();
+            float speed = mediaPlayer.isPlaying() ? 1.0f : 0f;
 
-        private Notification buildNotification(String contentText) {
+            PlaybackStateCompat.Builder stateBuilder = new PlaybackStateCompat.Builder()
+                    .setActions(
+                            PlaybackStateCompat.ACTION_PLAY |
+                                    PlaybackStateCompat.ACTION_PAUSE |
+                                    PlaybackStateCompat.ACTION_SEEK_TO |
+                                    PlaybackStateCompat.ACTION_SKIP_TO_NEXT |
+                                    PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS |
+                                    PlaybackStateCompat.ACTION_PLAY_PAUSE
+                    )
+                    .setState(state, position, speed);
+
+            return stateBuilder.build();
+        }
+
+
+        private Notification buildNotificationWithBitMap(TrackResponse track, boolean isPlaying,Bitmap trackCover) {
+            String title = track.getTitle();
+            String artist = track.getUser().getDisplayName();
             NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "music_channel")
-                    .setContentTitle("Music Player")
-                    .setContentText(contentText)
+                    .setContentTitle(title)                      // Tên bài hát
+                    .setContentText(artist)                       // Tên nghệ sĩ
                     .setSmallIcon(android.R.drawable.ic_media_play)
-                    .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+                    .setLargeIcon(trackCover)                       // Ảnh bìa
+                    .addAction(R.drawable.previous_icon, "Previous", null)
+                    .addAction(isPlaying ? R.drawable.play_icon:R.drawable.pause_icon ,
+                            isPlaying ?  "Play":"Pause", null)
+                    .addAction(R.drawable.next_icon, "Next", null)
+                    .setStyle(new androidx.media.app.NotificationCompat.MediaStyle()
+                            .setMediaSession(mediaSession.getSessionToken()))
+                    .setPriority(NotificationCompat.PRIORITY_HIGH)
+                    .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                    .setAutoCancel(false)
+                    .setOnlyAlertOnce(true)
+                    .setOngoing(true);
+
+                if(mediaPlayer!=null){
+                    MediaMetadataCompat metadata = new MediaMetadataCompat.Builder()
+                            .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, mediaPlayer.getDuration())
+                            .build();
+                    mediaSession.setMetadata(metadata);
+                }
+
+                mediaSession.setPlaybackState(getPlayBackState());
+                mediaSession.setCallback(new MediaSessionCompat.Callback(){
+                    @Override
+                    public void onPlay() {
+                        super.onPlay();
+                        playCurrentMusic();
+                    }
+                    @Override
+                    public void onPause() {
+                        super.onPause();
+                        pauseCurrentMusic();
+                    }
+                    @Override
+                    public void onSkipToNext() {
+                        super.onSkipToNext();
+                        playNext();
+                    }
+                    @Override
+                    public void onSkipToPrevious() {
+                        super.onSkipToPrevious();
+                        playBack();
+                    }
+
+                    @Override
+                    public void onSeekTo(long pos) {
+                        super.onSeekTo(pos);
+                        updateProgressTime((int)pos);
+                        mediaSession.setPlaybackState(getPlayBackState());
+                    }
+                });
 
             return builder.build();
         }
 
-        private void updateNotification(String contentText) {
-            Notification notification = buildNotification(contentText);
-            NotificationManagerCompat.from(this).notify(1, notification);
+        private void updateNotification(TrackResponse track, boolean isPlaying) {
+            Bitmap bitmap = null;
+            try {
+                bitmap = Glide
+                        .with(getBaseContext())
+                        .asBitmap()
+                        .load(UrlHelper.getCoverImageUrl(track.getCoverImageName()))
+                        .submit()
+                        .get();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            Notification notification = buildNotificationWithBitMap(track, isPlaying, bitmap);
+            if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                return;
+            }
+            NotificationManagerCompat.from(MusicService.this).notify(1, notification);
         }
+
 
         private void createNotificationChannel() {
             // Create the NotificationChannel, but only on API 26+ because

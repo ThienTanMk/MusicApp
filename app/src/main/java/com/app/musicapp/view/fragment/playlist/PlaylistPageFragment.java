@@ -238,13 +238,19 @@ public class PlaylistPageFragment extends Fragment implements OnLikeChangeListen
     }
     private long calculateTotalDuration(List<TrackResponse> trackResponses) {
         long totalSeconds = 0;
-        if (trackResponses != null) {
-            for (TrackResponse trackResponse : trackResponses) {
-                String[] timeParts = trackResponse.getDuration().split(":");
-                if (timeParts.length == 2) {
-                    totalSeconds += Integer.parseInt(timeParts[0]) * 60 + Integer.parseInt(timeParts[1]);
+        try {
+            if (trackResponses != null) {
+                for (TrackResponse trackResponse : trackResponses) {
+                    if(trackResponse.getDuration()==null)continue;;
+                    String[] timeParts = trackResponse.getDuration().split(":");
+                    if (timeParts.length == 2) {
+                        totalSeconds += Integer.parseInt(timeParts[0]) * 60 + Integer.parseInt(timeParts[1]);
+                    }
                 }
             }
+        }
+        catch (Exception ex){
+
         }
         return totalSeconds;
     }

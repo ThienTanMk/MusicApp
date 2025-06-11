@@ -24,11 +24,13 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentStatePagerAdapter;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager.widget.ViewPager;
 
 import com.app.musicapp.R;
 import com.app.musicapp.adapter.HomePageAdapter;
 import com.app.musicapp.helper.UrlHelper;
+import com.app.musicapp.model.MusicViewModel;
 import com.app.musicapp.model.response.TrackResponse;
 import com.app.musicapp.service.MusicService;
 import com.bumptech.glide.Glide;
@@ -40,13 +42,14 @@ public class MainActivity extends AppCompatActivity {
     ViewPager mViewpager;
     BottomNavigationView mBottomNavigationView;
 
-    ImageView likeBtn, playBtn, nextBtn, preBtn;
+    ImageView likeBtn, playBtn, nextBtn, preBtn, trackCover;
 
     LinearLayout miniPlayer;
     TextView artistName, trackTitle;
     private List<Fragment> fragments;
 
     MusicService  musicService;
+    private Boolean isBound = false;
 
     private final BroadcastReceiver receiver = new BroadcastReceiver() {
 
@@ -69,6 +72,10 @@ public class MainActivity extends AppCompatActivity {
         if(track==null) return;
         artistName.setText(track.getUser().getDisplayName());
         trackTitle.setText(track.getTitle());
+        Glide.with(this)
+                .load(UrlHelper.getCoverImageUrl(track.getCoverImageName()))
+                .placeholder(R.drawable.logo)
+                .into(trackCover);
         if(musicService.isPlaying())
             playBtn.setImageResource(R.drawable.play_icon);
         else
@@ -80,15 +87,22 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onServiceConnected(ComponentName className, IBinder service) {
+            isBound = true;
             MusicService.LocalBinder binder = (MusicService.LocalBinder) service;
             musicService = binder.getService();
+
+            MusicViewModel musicViewModel =  new ViewModelProvider(MainActivity.this).get(MusicViewModel.class);
+            musicService.setMusicViewModel(musicViewModel);
+
             if(musicService.getNextUpItems()==null||musicService.getNextUpItems().isEmpty())
                 return;
             miniPlayer.setVisibility(View.VISIBLE);
             updateTrackInfo();
         }
         @Override
-        public void onServiceDisconnected(ComponentName arg0) {}
+        public void onServiceDisconnected(ComponentName arg0) {
+            isBound = false;
+        }
     };
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -100,6 +114,7 @@ public class MainActivity extends AppCompatActivity {
         playBtn = findViewById(R.id.image_play_btn);
         nextBtn = findViewById(R.id.image_next_btn);
         preBtn = findViewById(R.id.image_pre_btn);
+        trackCover = findViewById(R.id.image_track_cover);
         miniPlayer = findViewById(R.id.mini_player);
         miniPlayer.setVisibility(View.GONE);
 
@@ -221,5 +236,20 @@ public class MainActivity extends AppCompatActivity {
         super.onStart();
         Intent intent = new Intent(this, MusicService.class);
         bindService(intent, connection, Context.BIND_AUTO_CREATE);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        try {
+            unbindService(connection);
+        }
+        catch (Exception ex){
+
+        }
+    }
+
+    public MusicService getMusicService(){
+        return musicService;
     }
 }
