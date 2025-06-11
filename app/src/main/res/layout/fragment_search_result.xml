@@ -35,8 +35,16 @@
             android:padding="12dp"
             android:textColor="#FFFFFF"
             android:textColorHint="#B0B0B0"
-            android:drawableStart="@android:drawable/ic_menu_search"
             android:drawablePadding="8dp" />
+        <ImageButton
+            android:id="@+id/searchButton"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_weight="0"
+            android:background="@drawable/custom_button_gray"
+            android:contentDescription="Search"
+            android:src="@drawable/ic_search"
+            android:scaleType="centerInside" />
     </LinearLayout>
 
     <!-- TabLayout -->
@@ -56,5 +64,13 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1" />
-
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" />
 </LinearLayout>

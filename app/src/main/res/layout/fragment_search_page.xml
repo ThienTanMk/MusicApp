@@ -40,14 +40,6 @@
             android:scaleType="centerInside" />
     </LinearLayout>
 
-    <!-- RecyclerView hiển thị kết quả người dùng tìm thấy -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerViewSearchUser"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:visibility="gone" /> <!-- Mặc định ẩn, chỉ hiện khi có kết quả -->
-
     <TextView
         android:id="@+id/textViewVibes"
         android:layout_width="wrap_content"

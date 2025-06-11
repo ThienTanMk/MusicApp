@@ -41,10 +41,6 @@ public class SearchPageFragment extends Fragment {
     private GridView gridViewVibes;
     private List<Vibes> vibeList;
     private VibesAdapter vibesAdapter;
-    private RecyclerView recyclerViewSearchUser;
-    private SearchUserAdapter searchUserAdapter;
-    private List<ProfileWithCountFollowResponse> searchResults = new ArrayList<>();
-    private SearchApiService searchApiService;
     private EditText searchEditText;
     private ImageButton searchButton;
     private TextView textViewVibes;
@@ -52,11 +48,12 @@ public class SearchPageFragment extends Fragment {
     public SearchPageFragment() {
         // Required empty public constructor
     }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        searchApiService = ApiClient.getClient().create(SearchApiService.class);
     }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -79,43 +76,9 @@ public class SearchPageFragment extends Fragment {
         vibesAdapter = new VibesAdapter(getContext(), vibeList);
         gridViewVibes.setAdapter(vibesAdapter);
 
-        // Khởi tạo RecyclerView
-        recyclerViewSearchUser = view.findViewById(R.id.recyclerViewSearchUser);
-        recyclerViewSearchUser.setLayoutManager(new LinearLayoutManager(getContext()));
-        searchUserAdapter = new SearchUserAdapter(searchResults, this::navigateToUserProfile);
-        recyclerViewSearchUser.setAdapter(searchUserAdapter);
-
         // Ánh xạ EditText và ImageButton
         searchEditText = view.findViewById(R.id.searchEditText);
         searchButton = view.findViewById(R.id.searchButton);
-
-        // Logic tự động tìm kiếm khi gõ
-        searchEditText.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                String query = s.toString().trim();
-                if (query.isEmpty()) {
-                    searchResults.clear();
-                    searchUserAdapter.notifyDataSetChanged();
-                    recyclerViewSearchUser.setVisibility(View.GONE);
-                    gridViewVibes.setVisibility(View.VISIBLE);
-                    textViewVibes.setVisibility(View.VISIBLE);
-                    requireActivity().getSupportFragmentManager().popBackStack();
-                    View viewPager = requireActivity().findViewById(R.id.view_pager);
-                    if (viewPager != null) viewPager.setVisibility(View.VISIBLE);
-                    View fragmentContainer = requireActivity().findViewById(R.id.fragment_container);
-                    if (fragmentContainer != null) fragmentContainer.setVisibility(View.GONE);
-                } else {
-                    searchUsers(query);
-                }
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {}
-        });
 
         // Logic tìm kiếm khi nhấn nút
         searchButton.setOnClickListener(v -> {
@@ -123,9 +86,9 @@ public class SearchPageFragment extends Fragment {
             if (!query.isEmpty()) {
                 hideKeyboard();
                 performSearch(query);
-                recyclerViewSearchUser.setVisibility(View.GONE);
-                gridViewVibes.setVisibility(View.GONE);
-                textViewVibes.setVisibility(View.GONE);
+                searchEditText.setText("");
+            } else {
+                Toast.makeText(getContext(), "Vui lòng nhập từ khóa tìm kiếm", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -146,82 +109,7 @@ public class SearchPageFragment extends Fragment {
 
         return view;
     }
-    private void searchUsers(String query) {
-        searchApiService.searchUser(query).enqueue(new Callback<ApiResponse<List<String>>>() {
-            @Override
-            public void onResponse(Call<ApiResponse<List<String>>> call, Response<ApiResponse<List<String>>> response) {
-                if (response.isSuccessful() && response.body() != null && response.body().getCode() == 200) {
-                    List<String> userIds = response.body().getData();
-                    if (!userIds.isEmpty()) {
-                        fetchUserDetails(userIds);
-                    } else {
-                        searchResults.clear();
-                        searchUserAdapter.notifyDataSetChanged();
-                        recyclerViewSearchUser.setVisibility(View.VISIBLE);
-                        gridViewVibes.setVisibility(View.GONE);
-                        textViewVibes.setVisibility(View.GONE);
-                    }
-                } else {
-                    searchResults.clear();
-                    searchUserAdapter.notifyDataSetChanged();
-                    recyclerViewSearchUser.setVisibility(View.VISIBLE);
-                    gridViewVibes.setVisibility(View.GONE);
-                    textViewVibes.setVisibility(View.GONE);
-                    String errorMsg = response.body() != null ? response.body().getMessage() : "Không tìm thấy người dùng";
-                    Toast.makeText(getContext(), errorMsg, Toast.LENGTH_SHORT).show();
-                }
-            }
 
-            @Override
-            public void onFailure(Call<ApiResponse<List<String>>> call, Throwable t) {
-                searchResults.clear();
-                searchUserAdapter.notifyDataSetChanged();
-                recyclerViewSearchUser.setVisibility(View.VISIBLE);
-                gridViewVibes.setVisibility(View.GONE);
-                textViewVibes.setVisibility(View.GONE);
-                Toast.makeText(getContext(), "Lỗi khi tìm kiếm người dùng: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
-    private void fetchUserDetails(List<String> userIds) {
-        if (searchApiService == null) {
-            Log.e("SearchPageFragment", "searchApiService is null in fetchUserDetails");
-            Toast.makeText(getContext(), "Lỗi kết nối API", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        searchApiService.getUserProfilesByIds(userIds).enqueue(new Callback<ApiResponse<List<ProfileWithCountFollowResponse>>>() {
-            @Override
-            public void onResponse(Call<ApiResponse<List<ProfileWithCountFollowResponse>>> call, Response<ApiResponse<List<ProfileWithCountFollowResponse>>> response) {
-                if (response.isSuccessful() && response.body() != null && response.body().getCode() == 200) {
-                    searchResults.clear();
-                    searchResults.addAll(response.body().getData());
-                    searchUserAdapter.notifyDataSetChanged();
-                    recyclerViewSearchUser.setVisibility(View.VISIBLE);
-                    gridViewVibes.setVisibility(View.GONE);
-                    textViewVibes.setVisibility(View.GONE);
-                } else {
-                    searchResults.clear();
-                    searchUserAdapter.notifyDataSetChanged();
-                    recyclerViewSearchUser.setVisibility(View.VISIBLE);
-                    gridViewVibes.setVisibility(View.GONE);
-                    textViewVibes.setVisibility(View.GONE);
-                    String errorMsg = response.body() != null ? response.body().getMessage() : "Không lấy được chi tiết người dùng";
-                    Toast.makeText(getContext(), errorMsg, Toast.LENGTH_SHORT).show();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<ApiResponse<List<ProfileWithCountFollowResponse>>> call, Throwable t) {
-                searchResults.clear();
-                searchUserAdapter.notifyDataSetChanged();
-                recyclerViewSearchUser.setVisibility(View.VISIBLE);
-                gridViewVibes.setVisibility(View.GONE);
-                textViewVibes.setVisibility(View.GONE);
-                Toast.makeText(getContext(), "Lỗi khi lấy chi tiết người dùng: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
     private void hideKeyboard() {
         View currentFocus = requireActivity().getCurrentFocus();
         if (currentFocus != null) {
@@ -232,6 +120,7 @@ public class SearchPageFragment extends Fragment {
             }
         }
     }
+
     private void performSearch(String query) {
         // Chuyển sang SearchResultFragment với từ khóa tìm kiếm
         SearchResultFragment fragment = SearchResultFragment.newInstance(query);
@@ -245,26 +134,6 @@ public class SearchPageFragment extends Fragment {
         if (viewPager != null) viewPager.setVisibility(View.GONE);
         View fragmentContainer = requireActivity().findViewById(R.id.fragment_container);
         if (fragmentContainer != null) fragmentContainer.setVisibility(View.VISIBLE);
-    }
-
-    private void navigateToUserProfile(ProfileWithCountFollowResponse profile) {
-        Log.d("SearchPageFragment", "Navigating to UserProfile for: " + profile.getDisplayName());
-        hideKeyboard();
-        UserProfileFragment fragment = UserProfileFragment.newInstance(profile.getUserId(), "search");
-        requireActivity().getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.fragment_container, fragment)
-                .addToBackStack(null)
-                .commit();
-
-        View container = requireActivity().findViewById(R.id.fragment_container);
-        View viewPager = requireActivity().findViewById(R.id.view_pager);
-        if (container != null) {
-            container.setVisibility(View.VISIBLE);
-            if (viewPager != null) {
-                viewPager.setVisibility(View.GONE);
-            }
-        }
     }
 
     @Override

@@ -9,13 +9,24 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.app.musicapp.R;
+import com.app.musicapp.api.ApiClient;
+import com.app.musicapp.helper.UrlHelper;
+import com.app.musicapp.model.request.AddFollowRequest;
+import com.app.musicapp.model.response.ApiResponse;
 import com.app.musicapp.model.response.ProfileWithCountFollowResponse;
 import com.bumptech.glide.Glide;
 
+import java.text.NumberFormat;
 import java.util.*;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class SearchUserListAdapter extends ArrayAdapter<ProfileWithCountFollowResponse> {
     private final List<ProfileWithCountFollowResponse> users;
+    private Button btnFollowing;
+    private TextView tvUserDetails;
     private final OnUserClickListener listener;
     private final HashMap<String, Boolean> followStates; // Quản lý trạng thái follow
     public interface OnUserClickListener {
@@ -43,18 +54,16 @@ public class SearchUserListAdapter extends ArrayAdapter<ProfileWithCountFollowRe
         }
         ProfileWithCountFollowResponse user = users.get(position);
         TextView tvUserName = convertView.findViewById(R.id.tv_user_name);
-        TextView tvUserFrom = convertView.findViewById(R.id.tv_user_from);
-        TextView tvUserDetails = convertView.findViewById(R.id.tv_user_details);
+        tvUserDetails = convertView.findViewById(R.id.tv_user_details);
         ImageView ivUserImage = convertView.findViewById(R.id.iv_user_image);
-        Button btnFollowing = convertView.findViewById(R.id.btn_following);
+        btnFollowing = convertView.findViewById(R.id.btn_following);
 
         // Đặt dữ liệu
         tvUserName.setText(user.getDisplayName() != null ? user.getDisplayName() : "Unknown");
-        tvUserFrom.setText("VietNam");
         tvUserDetails.setText(user.getFollowerCount() + " Followers");
 
         Glide.with(getContext())
-                .load(user.getAvatar() != null && !user.getAvatar().isEmpty() ? user.getAvatar() : R.drawable.logo)
+                .load(user.getAvatar() != null && !user.getAvatar().isEmpty() ? UrlHelper.getCoverImageUrl(user.getAvatar()) : R.drawable.logo)
                 .placeholder(R.drawable.logo)
                 .error(R.drawable.logo)
                 .into(ivUserImage);
@@ -66,13 +75,10 @@ public class SearchUserListAdapter extends ArrayAdapter<ProfileWithCountFollowRe
         btnFollowing.setOnClickListener(v -> {
             boolean newFollowState = !isFollowing;
             followStates.put(userId, newFollowState);
-            btnFollowing.setText(newFollowState ? "Following" : "Follow");
 
             if (newFollowState) {
-                // Gọi API để follow user
                 followUser(userId);
             } else {
-                // Gọi API để unfollow user
                 unfollowUser(userId);
             }
         });
@@ -86,10 +92,67 @@ public class SearchUserListAdapter extends ArrayAdapter<ProfileWithCountFollowRe
     }
 
     private void followUser(String userId) {
-        // Gọi API hoặc xử lý logic follow
+        AddFollowRequest request = new AddFollowRequest(userId);
+        ApiClient.getUserService().follow(request).enqueue(new Callback<ApiResponse<Object>>() {
+            @Override
+            public void onResponse(Call<ApiResponse<Object>> call, Response<ApiResponse<Object>> response) {
+                if (response.isSuccessful()) {
+                    followStates.put(userId, true);
+                    btnFollowing.setText("Following");
+
+                    for (ProfileWithCountFollowResponse user : users) {
+                        if (user.getUserId().equals(userId)) {
+                            user.setFollowerCount(user.getFollowerCount() + 1);
+                            tvUserDetails.setText(formatFollowersCount(user.getFollowerCount()) + " Followers");
+                            break;
+                        }
+                    }
+                } else {
+                    Toast.makeText(getContext(), "Không thể follow người dùng", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponse<Object>> call, Throwable t) {
+                Toast.makeText(getContext(), "Lỗi khi follow: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void unfollowUser(String userId) {
-        // Gọi API hoặc xử lý logic unfollow
+        ApiClient.getUserService().unfollow(userId).enqueue(new Callback<ApiResponse<Object>>() {
+            @Override
+            public void onResponse(Call<ApiResponse<Object>> call, Response<ApiResponse<Object>> response) {
+                if (response.isSuccessful()) {
+                    followStates.put(userId, false);
+                    btnFollowing.setText("Follow");
+
+                    for (ProfileWithCountFollowResponse user : users) {
+                        if (user.getUserId().equals(userId)) {
+                            user.setFollowerCount(Math.max(0, user.getFollowerCount() - 1));
+                            tvUserDetails.setText(formatFollowersCount(user.getFollowerCount()) + " Followers");
+                            break;
+                        }
+                    }
+                } else {
+                    Toast.makeText(getContext(), "Không thể bỏ theo dõi", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponse<Object>> call, Throwable t) {
+                Toast.makeText(getContext(), "Lỗi khi bỏ theo dõi: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private String formatFollowersCount(int count) {
+        NumberFormat numberFormat = NumberFormat.getNumberInstance();
+        if (count >= 1000000) {
+            return numberFormat.format(count / 1000000) + "M";
+        } else if (count >= 1000) {
+            return numberFormat.format(count / 1000) + "K";
+        }
+        return String.valueOf(count);
     }
 }

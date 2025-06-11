@@ -1,5 +1,6 @@
 package com.app.musicapp.view.fragment.searchresult;
 
+import android.content.Context;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -8,9 +9,11 @@ import androidx.viewpager2.widget.ViewPager2;
 
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
 
 import com.app.musicapp.R;
@@ -33,13 +36,13 @@ import retrofit2.Response;
 
 public class SearchResultFragment extends Fragment {
     private static final String ARG_QUERY = "query";
-
     private EditText searchEditText;
     private ViewPager2 viewPager;
     private TabLayout tabLayout;
     private ImageView ivBack;
-    private SearchApiService searchApiService;
-
+//    private SearchApiService searchApiService;
+    private ImageButton searchButton;
+    private ProgressBar progressBar;
     private List<TrackResponse> trackResponseResults = new ArrayList<>();
     private List<ProfileWithCountFollowResponse> userResults = new ArrayList<>();
     private List<PlaylistResponse> playlistResults = new ArrayList<>();
@@ -48,18 +51,6 @@ public class SearchResultFragment extends Fragment {
     public SearchResultFragment() {
         // Required empty public constructor
     }
-//    public static SearchResultFragment newInstance(List<TrackResponse> trackResponses, List<ProfileWithCountFollowResponse> users,
-//                                                   List<Object> playlists, List<AlbumResponse> albumResponses, String query) {
-//        SearchResultFragment fragment = new SearchResultFragment();
-//        Bundle args = new Bundle();
-//        args.putSerializable(ARG_TRACKS, new ArrayList<>(trackResponses));
-//        args.putSerializable(ARG_USERS, new ArrayList<>(users));
-//        args.putSerializable(ARG_PLAYLISTS, new ArrayList<>(playlists));
-//        args.putSerializable(ARG_ALBUMS, new ArrayList<>(albumResponses));
-//        args.putString(ARG_QUERY, query);
-//        fragment.setArguments(args);
-//        return fragment;
-//    }
     public static SearchResultFragment newInstance(String query) {
         SearchResultFragment fragment = new SearchResultFragment();
         Bundle args = new Bundle();
@@ -71,13 +62,11 @@ public class SearchResultFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//        if (getArguments() != null) {
-//            trackResponseResults = (List<TrackResponse>) getArguments().getSerializable(ARG_TRACKS);
-//            userResults = (List<ProfileWithCountFollowResponse>) getArguments().getSerializable(ARG_USERS);
-//            playlistResults = (List<Object>) getArguments().getSerializable(ARG_PLAYLISTS);
-//            albumResponseResults = (List<AlbumResponse>) getArguments().getSerializable(ARG_ALBUMS);
+//        try {
+//            searchApiService = ApiClient.getClient().create(SearchApiService.class);
+//        } catch (Exception e) {
+//            Log.e("SearchResultFragment", "Failed to initialize searchApiService: " + e.getMessage());
 //        }
-        searchApiService = ApiClient.getClient().create(SearchApiService.class);
     }
 
     @Override
@@ -91,7 +80,8 @@ public class SearchResultFragment extends Fragment {
         ivBack = view.findViewById(R.id.iv_back);
         tabLayout = view.findViewById(R.id.tab_layout);
         viewPager = view.findViewById(R.id.view_pager_results);
-
+        searchButton = view.findViewById(R.id.searchButton);
+        progressBar = view.findViewById(R.id.progressBar);
         // Lấy query từ Bundle và đặt vào searchEditText
         String query = getArguments() != null ? getArguments().getString(ARG_QUERY, "") : "";
         searchEditText.setText(query);
@@ -118,11 +108,7 @@ public class SearchResultFragment extends Fragment {
                 mainViewPager.setVisibility(View.VISIBLE);
                 fragmentContainer.setVisibility(View.GONE);
             }
-            // Ẩn RecyclerView khi quay lại SearchPageFragment
-            RecyclerView recyclerView = requireActivity().findViewById(R.id.recyclerViewSearchUser);
-            if (recyclerView != null) {
-                recyclerView.setVisibility(View.GONE);
-            }
+
             GridView gridView = requireActivity().findViewById(R.id.gridViewVibes);
             TextView textView = requireActivity().findViewById(R.id.textViewVibes);
             if (gridView != null && textView != null) {
@@ -130,26 +116,16 @@ public class SearchResultFragment extends Fragment {
                 textView.setVisibility(View.VISIBLE);
             }
         });
-       // ivBack.setOnClickListener(v -> getParentFragmentManager().popBackStack());
+        searchButton.setOnClickListener(v -> {
+            String text = searchEditText.getText().toString().trim();
+            if (!text.isEmpty()) {
+                hideKeyboard();
+                performSearch(text);
+            } else {
+                Toast.makeText(getContext(), "Vui lòng nhập từ khóa tìm kiếm", Toast.LENGTH_SHORT).show();
+            }
+        });
 
-        // Sự kiện thay đổi từ khóa tìm kiếm
-//        searchEditText.addTextChangedListener(new TextWatcher() {
-//            @Override
-//            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-//
-//            @Override
-//            public void onTextChanged(CharSequence s, int start, int before, int count) {
-//                String newQuery = s.toString();
-//                performSearch(newQuery);
-//                SearchResultPagerAdapter pagerAdapter = (SearchResultPagerAdapter) viewPager.getAdapter();
-//                if (pagerAdapter != null) {
-//                    pagerAdapter.updateData(trackResponseResults, userResults, playlistResults, albumResponseResults);
-//                }
-//            }
-//
-//            @Override
-//            public void afterTextChanged(Editable s) {}
-//        });
         searchEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
@@ -179,16 +155,25 @@ public class SearchResultFragment extends Fragment {
         return view;
     }
     private void performSearch(String query) {
+        progressBar.setVisibility(View.VISIBLE);
+        GridView gridView = requireActivity().findViewById(R.id.gridViewVibes);
+        TextView textView = requireActivity().findViewById(R.id.textViewVibes);
+        if (gridView != null && textView != null) {
+            gridView.setVisibility(View.GONE);
+            textView.setVisibility(View.GONE);
+        }
         searchTracks(query);
         searchUsers(query);
         searchPlaylists(query);
         searchAlbums(query);
     }
+
     private void searchTracks(String query) {
-        searchApiService.searchTrack(query).enqueue(new Callback<ApiResponse<List<String>>>() {
+       // searchApiService.searchTrack(query).enqueue(new Callback<ApiResponse<List<String>>>() {
+        ApiClient.getSearchApiService().searchTrack(query).enqueue(new Callback<ApiResponse<List<String>>>() {
             @Override
             public void onResponse(Call<ApiResponse<List<String>>> call, Response<ApiResponse<List<String>>> response) {
-                if (response.isSuccessful() && response.body() != null && response.body().getCode() == 200) {
+                if (response.isSuccessful() && response.body() != null) {
                     List<String> trackIds = response.body().getData();
                     if (!trackIds.isEmpty()) {
                         fetchTrackDetails(trackIds);
@@ -199,8 +184,6 @@ public class SearchResultFragment extends Fragment {
                 } else {
                     trackResponseResults.clear();
                     updatePagerAdapter();
-                    String errorMsg = response.body() != null ? response.body().getMessage() : "Không tìm thấy bài hát";
-                    Toast.makeText(getContext(), errorMsg, Toast.LENGTH_SHORT).show();
                 }
             }
 
@@ -213,18 +196,17 @@ public class SearchResultFragment extends Fragment {
         });
     }
     private void fetchTrackDetails(List<String> trackIds) {
-        searchApiService.getTracksByIds(trackIds).enqueue(new Callback<ApiResponse<List<TrackResponse>>>() {
+       // searchApiService.getTracksByIds(trackIds).enqueue(new Callback<ApiResponse<List<TrackResponse>>>() {
+        ApiClient.getSearchApiService().getTracksByIds(trackIds).enqueue(new Callback<ApiResponse<List<TrackResponse>>>() {
             @Override
             public void onResponse(Call<ApiResponse<List<TrackResponse>>> call, Response<ApiResponse<List<TrackResponse>>> response) {
-                if (response.isSuccessful() && response.body() != null && response.body().getCode() == 200) {
+                if (response.isSuccessful() && response.body() != null) {
                     trackResponseResults.clear();
                     trackResponseResults.addAll(response.body().getData());
                     updatePagerAdapter();
                 } else {
                     trackResponseResults.clear();
                     updatePagerAdapter();
-                    String errorMsg = response.body() != null ? response.body().getMessage() : "Không lấy được chi tiết bài hát";
-                    Toast.makeText(getContext(), errorMsg, Toast.LENGTH_SHORT).show();
                 }
             }
 
@@ -238,10 +220,11 @@ public class SearchResultFragment extends Fragment {
     }
 
     private void searchUsers(String query) {
-        searchApiService.searchUser(query).enqueue(new Callback<ApiResponse<List<String>>>() {
+        //searchApiService.searchUser(query).enqueue(new Callback<ApiResponse<List<String>>>() {
+        ApiClient.getSearchApiService().searchUser(query).enqueue(new Callback<ApiResponse<List<String>>>() {
             @Override
             public void onResponse(Call<ApiResponse<List<String>>> call, Response<ApiResponse<List<String>>> response) {
-                if (response.isSuccessful() && response.body() != null && response.body().getCode() == 200) {
+                if (response.isSuccessful() && response.body() != null) {
                     List<String> userIds = response.body().getData();
                     if (!userIds.isEmpty()) {
                         fetchUserDetails(userIds);
@@ -252,8 +235,6 @@ public class SearchResultFragment extends Fragment {
                 } else {
                     userResults.clear();
                     updatePagerAdapter();
-                    String errorMsg = response.body() != null ? response.body().getMessage() : "Không tìm thấy người dùng";
-                    Toast.makeText(getContext(), errorMsg, Toast.LENGTH_SHORT).show();
                 }
             }
 
@@ -267,18 +248,17 @@ public class SearchResultFragment extends Fragment {
     }
 
     private void fetchUserDetails(List<String> userIds) {
-        searchApiService.getUserProfilesByIds(userIds).enqueue(new Callback<ApiResponse<List<ProfileWithCountFollowResponse>>>() {
+        //searchApiService.getUserProfilesByIds(userIds).enqueue(new Callback<ApiResponse<List<ProfileWithCountFollowResponse>>>() {
+        ApiClient.getSearchApiService().getUserProfilesByIds(userIds).enqueue(new Callback<ApiResponse<List<ProfileWithCountFollowResponse>>>() {
             @Override
             public void onResponse(Call<ApiResponse<List<ProfileWithCountFollowResponse>>> call, Response<ApiResponse<List<ProfileWithCountFollowResponse>>> response) {
-                if (response.isSuccessful() && response.body() != null && response.body().getCode() == 200) {
+                if (response.isSuccessful() && response.body() != null) {
                     userResults.clear();
                     userResults.addAll(response.body().getData());
                     updatePagerAdapter();
                 } else {
                     userResults.clear();
                     updatePagerAdapter();
-                    String errorMsg = response.body() != null ? response.body().getMessage() : "Không lấy được chi tiết người dùng";
-                    Toast.makeText(getContext(), errorMsg, Toast.LENGTH_SHORT).show();
                 }
             }
 
@@ -292,10 +272,11 @@ public class SearchResultFragment extends Fragment {
     }
 
     private void searchPlaylists(String query) {
-        searchApiService.searchPlaylist(query).enqueue(new Callback<ApiResponse<List<String>>>() {
+        //searchApiService.searchPlaylist(query).enqueue(new Callback<ApiResponse<List<String>>>() {
+        ApiClient.getSearchApiService().searchPlaylist(query).enqueue(new Callback<ApiResponse<List<String>>>() {
             @Override
             public void onResponse(Call<ApiResponse<List<String>>> call, Response<ApiResponse<List<String>>> response) {
-                if (response.isSuccessful() && response.body() != null && response.body().getCode() == 200) {
+                if (response.isSuccessful() && response.body() != null) {
                     List<String> playlistIds = response.body().getData();
                     if (!playlistIds.isEmpty()) {
                         fetchPlaylistDetails(playlistIds);
@@ -306,8 +287,6 @@ public class SearchResultFragment extends Fragment {
                 } else {
                     playlistResults.clear();
                     updatePagerAdapter();
-                    String errorMsg = response.body() != null ? response.body().getMessage() : "Không tìm thấy playlist";
-                    Toast.makeText(getContext(), errorMsg, Toast.LENGTH_SHORT).show();
                 }
             }
 
@@ -321,18 +300,17 @@ public class SearchResultFragment extends Fragment {
     }
 
     private void fetchPlaylistDetails(List<String> playlistIds) {
-        searchApiService.getPlaylistsByIds(playlistIds).enqueue(new Callback<ApiResponse<List<PlaylistResponse>>>() {
+        //searchApiService.getPlaylistsByIds(playlistIds).enqueue(new Callback<ApiResponse<List<PlaylistResponse>>>() {
+        ApiClient.getSearchApiService().getPlaylistsByIds(playlistIds).enqueue(new Callback<ApiResponse<List<PlaylistResponse>>>() {
             @Override
             public void onResponse(Call<ApiResponse<List<PlaylistResponse>>> call, Response<ApiResponse<List<PlaylistResponse>>> response) {
-                if (response.isSuccessful() && response.body() != null && response.body().getCode() == 200) {
+                if (response.isSuccessful() && response.body() != null) {
                     playlistResults.clear();
                     playlistResults.addAll(response.body().getData());
                     updatePagerAdapter();
                 } else {
                     playlistResults.clear();
                     updatePagerAdapter();
-                    String errorMsg = response.body() != null ? response.body().getMessage() : "Không lấy được chi tiết playlist";
-                    Toast.makeText(getContext(), errorMsg, Toast.LENGTH_SHORT).show();
                 }
             }
 
@@ -346,10 +324,11 @@ public class SearchResultFragment extends Fragment {
     }
 
     private void searchAlbums(String query) {
-        searchApiService.searchAlbum(query).enqueue(new Callback<ApiResponse<List<String>>>() {
+        //searchApiService.searchAlbum(query).enqueue(new Callback<ApiResponse<List<String>>>() {
+        ApiClient.getSearchApiService().searchAlbum(query).enqueue(new Callback<ApiResponse<List<String>>>() {
             @Override
             public void onResponse(Call<ApiResponse<List<String>>> call, Response<ApiResponse<List<String>>> response) {
-                if (response.isSuccessful() && response.body() != null && response.body().getCode() == 200) {
+                if (response.isSuccessful() && response.body() != null) {
                     List<String> albumIds = response.body().getData();
                     if (!albumIds.isEmpty()) {
                         fetchAlbumDetails(albumIds);
@@ -360,8 +339,6 @@ public class SearchResultFragment extends Fragment {
                 } else {
                     albumResponseResults.clear();
                     updatePagerAdapter();
-                    String errorMsg = response.body() != null ? response.body().getMessage() : "Không tìm thấy album";
-                    Toast.makeText(getContext(), errorMsg, Toast.LENGTH_SHORT).show();
                 }
             }
 
@@ -375,18 +352,17 @@ public class SearchResultFragment extends Fragment {
     }
 
     private void fetchAlbumDetails(List<String> albumIds) {
-        searchApiService.getAlbumsByIds(albumIds).enqueue(new Callback<ApiResponse<List<AlbumResponse>>>() {
+//        searchApiService.getAlbumsByIds(albumIds).enqueue(new Callback<ApiResponse<List<AlbumResponse>>>() {
+        ApiClient.getSearchApiService().getAlbumsByIds(albumIds).enqueue(new Callback<ApiResponse<List<AlbumResponse>>>() {
             @Override
             public void onResponse(Call<ApiResponse<List<AlbumResponse>>> call, Response<ApiResponse<List<AlbumResponse>>> response) {
-                if (response.isSuccessful() && response.body() != null && response.body().getCode() == 200) {
+                if (response.isSuccessful() && response.body() != null) {
                     albumResponseResults.clear();
                     albumResponseResults.addAll(response.body().getData());
                     updatePagerAdapter();
                 } else {
                     albumResponseResults.clear();
                     updatePagerAdapter();
-                    String errorMsg = response.body() != null ? response.body().getMessage() : "Không lấy được chi tiết album";
-                    Toast.makeText(getContext(), errorMsg, Toast.LENGTH_SHORT).show();
                 }
             }
 
@@ -398,7 +374,16 @@ public class SearchResultFragment extends Fragment {
             }
         });
     }
-
+    private void hideKeyboard() {
+        View currentFocus = requireActivity().getCurrentFocus();
+        if (currentFocus != null) {
+            InputMethodManager imm = (InputMethodManager) requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+            if (imm != null) {
+                imm.hideSoftInputFromWindow(currentFocus.getWindowToken(), 0);
+                currentFocus.clearFocus();
+            }
+        }
+    }
     private void updatePagerAdapter() {
         SearchResultPagerAdapter pagerAdapter = (SearchResultPagerAdapter) viewPager.getAdapter();
         if (pagerAdapter != null) {

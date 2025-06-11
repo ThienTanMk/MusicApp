@@ -10,6 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.app.musicapp.R;
+import com.app.musicapp.helper.UrlHelper;
 import com.app.musicapp.model.response.ProfileWithCountFollowResponse;
 import com.bumptech.glide.Glide;
 
@@ -72,7 +73,7 @@ public class SearchUserAdapter extends RecyclerView.Adapter<SearchUserAdapter.Us
             if (user != null) {
                 tvUsername.setText(user.getDisplayName() != null ? user.getDisplayName() : "Unknown");
                 Glide.with(itemView.getContext())
-                        .load(user.getAvatar() != null && !user.getAvatar().isEmpty() ? user.getAvatar() : R.drawable.logo)
+                        .load(user.getAvatar() != null && !user.getAvatar().isEmpty() ? UrlHelper.getCoverImageUrl(user.getAvatar()) : R.drawable.logo)
                         .placeholder(R.drawable.logo)
                         .error(R.drawable.logo)
                         .into(ivUserAvatar);
