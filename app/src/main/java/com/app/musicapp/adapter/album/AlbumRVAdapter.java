@@ -8,6 +8,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.app.musicapp.R;
+import com.app.musicapp.helper.UrlHelper;
 import com.app.musicapp.model.response.AlbumResponse;
 import com.bumptech.glide.Glide;
 
@@ -45,7 +46,10 @@ public class AlbumRVAdapter extends RecyclerView.Adapter<AlbumRVAdapter.ViewHold
         AlbumResponse album = albumList.get(position);
         holder.tvAlbumTitle.setText(album.getAlbumTitle());
         holder.tvAlbumArtist.setText(album.getMainArtists());
-        Glide.with(holder.itemView.getContext()).load(album.getImagePath()).placeholder(R.drawable.logo).into(holder.ivAlbumImage);
+        Glide.with(holder.itemView.getContext())
+                .load(album.getImagePath() != null ? UrlHelper.getCoverImageUrl(album.getImagePath()) : R.drawable.logo)
+                .placeholder(R.drawable.logo)
+                .into(holder.ivAlbumImage);
         holder.itemView.setOnClickListener(v -> listener.onItemClick(album));
     }
 

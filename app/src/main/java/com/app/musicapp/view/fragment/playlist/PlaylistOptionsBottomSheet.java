@@ -17,12 +17,14 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.app.musicapp.R;
 import com.app.musicapp.api.ApiClient;
+import com.app.musicapp.helper.SharedPreferencesManager;
 import com.app.musicapp.helper.UrlHelper;
 import com.app.musicapp.interfaces.OnLikeChangeListener;
 import com.app.musicapp.model.response.ApiResponse;
 import com.app.musicapp.model.response.LikedPlaylistResponse;
 import com.app.musicapp.model.response.PlaylistResponse;
 import com.app.musicapp.view.activity.SignIn;
+import com.app.musicapp.view.fragment.profile.UserProfileFragment;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.bumptech.glide.request.RequestOptions;
@@ -223,8 +225,13 @@ public class PlaylistOptionsBottomSheet extends BottomSheetDialogFragment {
                 optionLiked.setOnClickListener(v -> toggleLikeStatus());
 
                 optionArtistProfile.setOnClickListener(v -> {
-                    showToast("Chuyển đến hồ sơ người dùng: " + playlistResponse.getUserId());
-                    dismiss();
+                    UserProfileFragment userProfileFragment = UserProfileFragment.newInstance(playlistResponse.getUserId(), "playlist");
+                        requireActivity().getSupportFragmentManager()
+                                .beginTransaction()
+                                .replace(R.id.fragment_container, userProfileFragment)
+                                .addToBackStack(null)
+                                .commit();
+                        dismiss();
                 });
 
                 optionPlayNext.setOnClickListener(v -> {
@@ -235,7 +242,6 @@ public class PlaylistOptionsBottomSheet extends BottomSheetDialogFragment {
                 // user playlist
                 LinearLayout layoutEdit = view.findViewById(R.id.layout_edit);
                 LinearLayout layoutMakePublic = view.findViewById(R.id.layout_make_public);
-                LinearLayout layoutAddMusic = view.findViewById(R.id.layout_add_music);
                 LinearLayout layoutDelete = view.findViewById(R.id.layout_delete);
                 LinearLayout optionPlayNext = view.findViewById(R.id.option_play_next);
 
@@ -251,11 +257,6 @@ public class PlaylistOptionsBottomSheet extends BottomSheetDialogFragment {
 
                 layoutMakePublic.setOnClickListener(v -> {
                     showToast("Đặt chế độ công khai: " + playlistResponse.getTitle());
-                    dismiss();
-                });
-
-                layoutAddMusic.setOnClickListener(v -> {
-                    showToast("Thêm nhạc vào playlist: " + playlistResponse.getTitle());
                     dismiss();
                 });
 

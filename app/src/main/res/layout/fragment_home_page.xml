@@ -31,22 +31,22 @@
                 android:textSize="20sp"
                 android:textStyle="bold" />
 
-            <ImageView
-                android:id="@+id/iv_upload"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:background="@color/background"
-                android:padding="5dp"
-                android:src="@drawable/ic_upload"
-                app:tint="@null" />
+<!--            <ImageView-->
+<!--                android:id="@+id/iv_upload"-->
+<!--                android:layout_width="32dp"-->
+<!--                android:layout_height="32dp"-->
+<!--                android:background="@color/background"-->
+<!--                android:padding="5dp"-->
+<!--                android:src="@drawable/ic_upload"-->
+<!--                app:tint="@null" />-->
 
-            <ImageView
-                android:id="@+id/iv_noti"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:background="@color/background"
-                android:src="@drawable/ic_noti"
-                app:tint="@null" />
+<!--            <ImageView-->
+<!--                android:id="@+id/iv_noti"-->
+<!--                android:layout_width="32dp"-->
+<!--                android:layout_height="32dp"-->
+<!--                android:background="@color/background"-->
+<!--                android:src="@drawable/ic_noti"-->
+<!--                app:tint="@null" />-->
         </LinearLayout>
 
         <!-- Mục Your Likes, nút ngẫu nhiên -->
@@ -72,13 +72,13 @@
                 android:textStyle="bold"
                 android:layout_gravity="center_vertical"/>
 
-            <ImageView
-                android:id="@+id/iv_random"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:layout_gravity="center_vertical"
-                android:layout_marginStart="8dp"
-                android:src="@drawable/ic_random" />
+<!--            <ImageView-->
+<!--                android:id="@+id/iv_random"-->
+<!--                android:layout_width="30dp"-->
+<!--                android:layout_height="30dp"-->
+<!--                android:layout_gravity="center_vertical"-->
+<!--                android:layout_marginStart="8dp"-->
+<!--                android:src="@drawable/ic_random" />-->
         </LinearLayout>
 
         <!-- Hiện thị playlistResponse tự tạo -->

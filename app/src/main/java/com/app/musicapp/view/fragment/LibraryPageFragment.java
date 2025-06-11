@@ -21,6 +21,7 @@ import com.app.musicapp.adapter.LibraryListAdapter;
 import com.app.musicapp.adapter.track.TrackAdapter;
 import com.app.musicapp.api.ApiClient;
 import com.app.musicapp.helper.SharedPreferencesManager;
+import com.app.musicapp.helper.UrlHelper;
 import com.app.musicapp.model.response.ApiResponse;
 import com.app.musicapp.model.ListView.LibraryList;
 import com.app.musicapp.model.response.ProfileWithCountFollowResponse;
@@ -184,7 +185,7 @@ public class LibraryPageFragment extends Fragment {
                     String avatarUrl = response.body().getData().getAvatar();
                     if (avatarUrl != null && !avatarUrl.isEmpty()) {
                         Glide.with(requireContext())
-                                .load(avatarUrl)
+                                .load(UrlHelper.getCoverImageUrl(avatarUrl))
                                 .placeholder(R.drawable.logo)
                                 .error(R.drawable.logo)
                                 .into(ivAvatar);

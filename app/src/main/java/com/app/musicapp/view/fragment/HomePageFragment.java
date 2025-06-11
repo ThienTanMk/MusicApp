@@ -34,7 +34,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class HomePageFragment extends Fragment {
-    private ImageView ivUpload, ivNoti, ivRandom;
+//    private ImageView ivUpload, ivNoti, ivRandom;
     private LinearLayout llYourLikes;
     private View progressBar;
     private RecyclerView rvPlaylist, rvPlaylistLike, rvAlbum;
@@ -53,9 +53,9 @@ public class HomePageFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_home_page, container, false);
 
         // Ánh xạ view
-        ivUpload = view.findViewById(R.id.iv_upload);
-        ivNoti = view.findViewById(R.id.iv_noti);
-        ivRandom = view.findViewById(R.id.iv_random);
+//        ivUpload = view.findViewById(R.id.iv_upload);
+//        ivNoti = view.findViewById(R.id.iv_noti);
+//        ivRandom = view.findViewById(R.id.iv_random);
         llYourLikes = view.findViewById(R.id.ll_your_likes);
         rvPlaylist = view.findViewById(R.id.rv_playlist);
         rvPlaylistLike = view.findViewById(R.id.rv_playlist_like);
@@ -93,14 +93,7 @@ public class HomePageFragment extends Fragment {
         fetchCreatedPlaylists();
         fetchLikedPlaylists();
         fetchLikedAlbums();
-        // Xử lý sự kiện
-        ivUpload.setOnClickListener(v -> {
-            Toast.makeText(getContext(), "Upload clicked", Toast.LENGTH_SHORT).show();
-        });
 
-        ivNoti.setOnClickListener(v -> {
-            Toast.makeText(getContext(), "Notification clicked", Toast.LENGTH_SHORT).show();
-        });
 
         llYourLikes.setOnClickListener(v -> {
             navigateToFragment(new LikedTracksFragment());

@@ -48,6 +48,7 @@ public class LikedTracksFragment extends Fragment implements SongOptionsBottomSh
 
     public LikedTracksFragment() {}
 
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -172,6 +173,11 @@ public class LikedTracksFragment extends Fragment implements SongOptionsBottomSh
     @Override
     public void onTrackDeleted(TrackResponse track) {
         loadLikedTracks();
+    }
+
+    @Override
+    public void onTrackRemovedFromPlaylist(TrackResponse track) {
+
     }
 
     @Override

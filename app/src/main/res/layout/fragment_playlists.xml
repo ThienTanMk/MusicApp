@@ -63,7 +63,7 @@
         <ImageView
             android:layout_width="48dp"
             android:layout_height="48dp"
-            android:src="@android:drawable/ic_menu_add"
+            android:src="@drawable/ic_add"
             android:background="#333333"
             app:tint="#FFFFFF" />
 
@@ -90,6 +90,7 @@
         android:layout_height="0dp"
         android:layout_weight="1"
         android:divider="@null"
-        android:dividerHeight="0dp" />
+        android:dividerHeight="0dp"
+        android:scrollbars="none"/>
 
 </LinearLayout>

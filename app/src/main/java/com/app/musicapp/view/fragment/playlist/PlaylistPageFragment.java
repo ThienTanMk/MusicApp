@@ -100,7 +100,7 @@ public class PlaylistPageFragment extends Fragment implements OnLikeChangeListen
         if (playlistResponseData != null) {
             tvPlaylistTitleHeader.setText("Playlist " + (playlistResponseData.getCreatedAt() != null ? playlistResponseData.getCreatedAt().getYear() : "Unknown"));
             tvPlaylistTitle.setText(playlistResponseData.getTitle() != null ? playlistResponseData.getTitle() : "Untitled");
-            tvPlaylistArtists.setText(playlistResponseData.getUserId() != null ? playlistResponseData.getUserId() : "Unknown User");
+            tvPlaylistArtists.setText(playlistResponseData.getUser().getDisplayName() != null ? playlistResponseData.getUserId() : "Unknown User");
 
             Glide.with(getContext())
                     .load(playlistResponseData.getImagePath() != null ? playlistResponseData.getImagePath() : R.drawable.logo)

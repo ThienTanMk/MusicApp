@@ -29,6 +29,7 @@ import com.app.musicapp.model.response.ApiResponse;
 import com.app.musicapp.model.response.UploadAvatarResponse;
 import com.app.musicapp.model.response.UploadCoverResponse;
 import com.app.musicapp.model.response.UserProfileResponse;
+import com.app.musicapp.util.FileUtil;
 import com.bumptech.glide.Glide;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
@@ -55,7 +56,6 @@ public class EditProfileFragment extends Fragment {
     private Uri selectedImageUri;
     private boolean hasChanges = false;
     private boolean isAvatarSelected = false;
-    private Call<?> pendingCall;
     private ProgressBar progressBar;
 
     public EditProfileFragment() {
@@ -201,17 +201,17 @@ public class EditProfileFragment extends Fragment {
         if (!isAdded()) return;
         progressBar.setVisibility(View.VISIBLE); // Hiển thị ProgressBar
         Call<ApiResponse<UserProfileResponse>> call = ApiClient.getUserProfileApiService().updateUserProfile(request);
-        pendingCall = call;
         call.enqueue(new Callback<ApiResponse<UserProfileResponse>>() {
             @Override
             public void onResponse(@NonNull Call<ApiResponse<UserProfileResponse>> call, @NonNull Response<ApiResponse<UserProfileResponse>> response) {
-                pendingCall = null;
                 if (!isAdded()) return;
                 progressBar.setVisibility(View.GONE);
                 Log.d("EditProfileFragment", "saveProfile response code: " + response.code() + ", body: " + (response.body() != null ? response.body().toString() : "null"));
                 if (response.isSuccessful()) {
                     currentDisplayName = request.getDisplayName();
                     hasChanges = false;
+//                    changeAvatar(selectedImageUri);
+//                    changeCover(selectedImageUri);
                     Toast.makeText(getContext(), "Cập nhật hồ sơ thành công", Toast.LENGTH_SHORT).show();
                     if (requireActivity() != null) {
                         requireActivity().getSupportFragmentManager().popBackStack();
@@ -224,7 +224,6 @@ public class EditProfileFragment extends Fragment {
 
             @Override
             public void onFailure(@NonNull Call<ApiResponse<UserProfileResponse>> call, @NonNull Throwable t) {
-                pendingCall = null;
                 if (!isAdded()) return;
                 progressBar.setVisibility(View.GONE);
                 Log.e("EditProfileFragment", "saveProfile error: " + t.getMessage());
@@ -234,23 +233,17 @@ public class EditProfileFragment extends Fragment {
     }
     private void changeCover(Uri imageUri) {
         try {
-            File file = createFileFromUri(imageUri, "cover_image_" + System.currentTimeMillis() + ".jpg");
-            if (file == null || !file.exists() || file.length() == 0) {
-                if (isAdded()) {
-                    Log.e("EditProfileFragment", "Invalid cover file");
-                    Toast.makeText(getContext(), "Không thể xử lý ảnh bìa", Toast.LENGTH_SHORT).show();
-                }
-                return;
+            MultipartBody.Part imagePart = null;
+            if (imageUri != null) {
+                File imageFile = FileUtil.getFile(getContext(), imageUri);
+                RequestBody imageRequestBody = RequestBody.create(MediaType.parse("image/*"), imageFile);
+                imagePart = MultipartBody.Part.createFormData("cover", imageFile.getName(), imageRequestBody);
             }
-            RequestBody requestBody = RequestBody.create(MediaType.parse("image/jpeg"), file);
-            MultipartBody.Part coverPart = MultipartBody.Part.createFormData("cover", file.getName(), requestBody);
 
-            Call<ApiResponse<UploadCoverResponse>> call = ApiClient.getUserProfileApiService().uploadCover(coverPart);
-            pendingCall = call;
+            Call<ApiResponse<UploadCoverResponse>> call = ApiClient.getUserProfileApiService().uploadCover(imagePart);
             call.enqueue(new Callback<ApiResponse<UploadCoverResponse>>() {
                 @Override
                 public void onResponse(@NonNull Call<ApiResponse<UploadCoverResponse>> call, @NonNull Response<ApiResponse<UploadCoverResponse>> response) {
-                    pendingCall = null;
                     if (!isAdded()) return;
                     Log.d("EditProfileFragment", "uploadCover response code: " + response.code() + ", body: " + (response.body() != null ? response.body().toString() : "null"));
                     if (response.isSuccessful() && response.body() != null && response.body().getData() != null) {
@@ -266,7 +259,6 @@ public class EditProfileFragment extends Fragment {
 
                 @Override
                 public void onFailure(@NonNull Call<ApiResponse<UploadCoverResponse>> call, @NonNull Throwable t) {
-                    pendingCall = null;
                     if (!isAdded()) return;
                     Log.e("EditProfileFragment", "uploadCover error: " + t.getMessage());
                     Toast.makeText(getContext(), "Lỗi cập nhật ảnh bìa: " + t.getMessage(), Toast.LENGTH_SHORT).show();
@@ -281,23 +273,17 @@ public class EditProfileFragment extends Fragment {
     }
     private void changeAvatar(Uri imageUri) {
         try {
-            File file = createFileFromUri(imageUri, "avatar_image_" + System.currentTimeMillis() + ".jpg");
-            if (file == null || !file.exists() || file.length() == 0) {
-                if (isAdded()) {
-                    Log.e("EditProfileFragment", "Invalid avatar file");
-                    Toast.makeText(getContext(), "Không thể xử lý ảnh đại diện", Toast.LENGTH_SHORT).show();
-                }
-                return;
+            MultipartBody.Part imagePart = null;
+            if (imageUri != null) {
+                File imageFile = FileUtil.getFile(getContext(), imageUri);
+                RequestBody imageRequestBody = RequestBody.create(MediaType.parse("image/*"), imageFile);
+                imagePart = MultipartBody.Part.createFormData("avatar", imageFile.getName(), imageRequestBody);
             }
-            RequestBody requestBody = RequestBody.create(MediaType.parse("image/jpeg"), file);
-            MultipartBody.Part avatarPart = MultipartBody.Part.createFormData("avatar", file.getName(), requestBody);
 
-            Call<ApiResponse<UploadAvatarResponse>> call = ApiClient.getUserProfileApiService().uploadAvatar(avatarPart);
-            pendingCall = call;
+            Call<ApiResponse<UploadAvatarResponse>> call = ApiClient.getUserProfileApiService().uploadAvatar(imagePart);
             call.enqueue(new Callback<ApiResponse<UploadAvatarResponse>>() {
                 @Override
                 public void onResponse(@NonNull Call<ApiResponse<UploadAvatarResponse>> call, @NonNull Response<ApiResponse<UploadAvatarResponse>> response) {
-                    pendingCall = null;
                     if (!isAdded()) return;
                     Log.d("EditProfileFragment", "uploadAvatar response code: " + response.code() + ", body: " + (response.body() != null ? response.body().toString() : "null"));
                     if (response.isSuccessful() && response.body() != null && response.body().getData() != null) {
@@ -312,7 +298,6 @@ public class EditProfileFragment extends Fragment {
                 }
                 @Override
                 public void onFailure(@NonNull Call<ApiResponse<UploadAvatarResponse>> call, @NonNull Throwable t) {
-                    pendingCall = null;
                     if (!isAdded()) return;
                     Log.e("EditProfileFragment", "uploadAvatar error: " + t.getMessage());
                     Toast.makeText(getContext(), "Lỗi cập nhật ảnh đại diện: " + t.getMessage(), Toast.LENGTH_SHORT).show();
@@ -325,35 +310,8 @@ public class EditProfileFragment extends Fragment {
             }
         }
     }
-    private File createFileFromUri(Uri uri, String fileName) {
-        try {
-            InputStream inputStream = requireContext().getContentResolver().openInputStream(uri);
-            if (inputStream == null) {
-                Log.e("EditProfileFragment", "Cannot open input stream for URI: " + uri);
-                return null;
-            }
-            File file = new File(requireContext().getCacheDir(), fileName);
-            FileOutputStream outputStream = new FileOutputStream(file);
-            byte[] buffer = new byte[4096];
-            int bytesRead;
-            while ((bytesRead = inputStream.read(buffer)) != -1) {
-                outputStream.write(buffer, 0, bytesRead);
-            }
-            inputStream.close();
-            outputStream.close();
-            Log.d("EditProfileFragment", "Created file: " + file.getAbsolutePath() + ", size: " + file.length());
-            return file;
-        } catch (Exception e) {
-            Log.e("EditProfileFragment", "Error creating file: " + e.getMessage());
-            return null;
-        }
-    }
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (pendingCall != null) {
-            pendingCall.cancel();
-            pendingCall = null;
-        }
     }
 }

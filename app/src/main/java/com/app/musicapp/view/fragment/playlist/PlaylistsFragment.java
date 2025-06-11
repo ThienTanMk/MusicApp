@@ -17,6 +17,7 @@ import com.app.musicapp.adapter.playlist.PlaylistAdapter;
 import com.app.musicapp.api.ApiClient;
 import com.app.musicapp.helper.SharedPreferencesManager;
 import com.app.musicapp.interfaces.OnLikeChangeListener;
+import com.app.musicapp.model.request.AddPlaylistRequest;
 import com.app.musicapp.model.response.ApiResponse;
 import com.app.musicapp.model.response.GenreResponse;
 import com.app.musicapp.model.response.PlaylistResponse;
@@ -87,28 +88,10 @@ public class PlaylistsFragment extends Fragment implements OnLikeChangeListener,
                     Toast.makeText(getContext(), "Tiêu đề Playlist không được trống", Toast.LENGTH_SHORT).show();
                     return;
                 }
-
-                // Tạo playlist mới
                 String privacy = switchMakePublic.isChecked() ? "public" : "private";
-                PlaylistResponse newPlaylistResponse = new PlaylistResponse(
-                        String.valueOf(playlists.size() + 1),
-                        title,
-                        LocalDateTime.now(),
-                        "Created by user1",
-                        privacy,
-                        "user1",
-                        new GenreResponse("1","Rock",LocalDateTime.now()),
-                        null,
-                        LocalDateTime.now(),
-                        new ArrayList<>(),
-                        new ArrayList<>(),false,null
-                );
+                AddPlaylistRequest request = new AddPlaylistRequest(title, privacy,new ArrayList<>());
 
-                // Thêm playlist mới vào danh sách
-                playlists.add(0, newPlaylistResponse); // Thêm vào đầu danh sách
-                playlistAdapter.notifyDataSetChanged();
-
-                Toast.makeText(getContext(), "Playlist created: " + title, Toast.LENGTH_SHORT).show();
+                createPlaylist(request);
                 bottomSheetDialog.dismiss();
             });
             bottomSheetDialog.show();
@@ -116,7 +99,43 @@ public class PlaylistsFragment extends Fragment implements OnLikeChangeListener,
 
         return view;
     }
+    private void createPlaylist(AddPlaylistRequest request){
+        progressBar.setVisibility(View.VISIBLE);
+        String userId = SharedPreferencesManager.getInstance(requireContext()).getUserId();
+        if (userId == null) {
+            progressBar.setVisibility(View.GONE);
+            Toast.makeText(requireContext(), "Vui lòng đăng nhập lại", Toast.LENGTH_SHORT).show();
+            startActivity(new Intent(requireContext(), SignIn.class));
+            requireActivity().finish();
+            return;
+        }
+        Log.d("PlaylistsFragment", "Fetching playlists for userId: " + userId);
+        ApiClient.getPlaylistService().createPlaylist(request).enqueue(new Callback<ApiResponse<PlaylistResponse>>() {
+            @Override
+            public void onResponse(Call<ApiResponse<PlaylistResponse>> call, Response<ApiResponse<PlaylistResponse>> response) {
+                progressBar.setVisibility(View.GONE);
+                if (response.isSuccessful() && response.body() != null && response.body().getData() != null) {
+                    PlaylistResponse playlistResponse = response.body().getData();
+                    playlists.add(0, playlistResponse);
+                    playlistAdapter.notifyDataSetChanged();
 
+                    Toast.makeText(requireContext(), "Tạo playlist thành công", Toast.LENGTH_SHORT).show();
+                } else if (response.body() != null && response.body().getCode() == 1401) {
+                    Toast.makeText(requireContext(), "Vui lòng đăng nhập lại", Toast.LENGTH_SHORT).show();
+                    startActivity(new Intent(requireContext(), SignIn.class));
+                    requireActivity().finish();
+                } else {
+                    Toast.makeText(requireContext(), "Không thể tạo playlist", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponse<PlaylistResponse>> call, Throwable t) {
+                progressBar.setVisibility(View.GONE);
+                Toast.makeText(requireContext(), "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
     private void loadPlaylists() {
         progressBar.setVisibility(View.VISIBLE);
         String userId = SharedPreferencesManager.getInstance(requireContext()).getUserId();
@@ -153,6 +172,7 @@ public class PlaylistsFragment extends Fragment implements OnLikeChangeListener,
             }
         });
     }
+
     @Override
     public void onLikeChanged(String playlistId, boolean isLiked) {
         for (int i = 0; i < playlists.size(); i++) {

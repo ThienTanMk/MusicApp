@@ -61,6 +61,7 @@ public class TrackAdapter extends BaseAdapter {
                changeCurrentPlayedView();
             });
         }
+        trackIdToView = new HashMap<>();
     }
     // Phương thức mới để cập nhật danh sách
     public void updateTracks(List<TrackResponse> newTracks) {

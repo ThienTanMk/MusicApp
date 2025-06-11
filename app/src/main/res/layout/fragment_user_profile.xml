@@ -134,7 +134,9 @@
                 android:padding="6dp"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"/>
+                app:layout_constraintStart_toStartOf="parent"
+                android:clickable="true"
+                android:enabled="true"/>
 
             <ImageButton
                 android:id="@+id/btn_play"
@@ -180,7 +182,6 @@
                 android:minHeight="48dp"
                 android:layout_gravity="end|right"
                 android:background="@drawable/custom_btn_seeall_library"
-                android:layout_marginBottom="8dp"
                 android:text="See all"
                 android:textColor="#FFFFFF"
                 android:textSize="14sp"

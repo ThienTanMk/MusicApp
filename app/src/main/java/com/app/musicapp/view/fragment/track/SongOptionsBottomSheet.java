@@ -27,6 +27,7 @@ import com.app.musicapp.util.LocalDateTimeAdapter;
 import com.app.musicapp.view.activity.CommentActivity;
 import com.app.musicapp.view.fragment.UploadTrackFragment;
 import com.app.musicapp.view.fragment.playlist.AddTrackToPlaylistFragment;
+import com.app.musicapp.view.fragment.profile.UserProfileFragment;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.bumptech.glide.request.RequestOptions;
@@ -147,8 +148,15 @@ public class SongOptionsBottomSheet extends BottomSheetDialogFragment {
         });
 
         goToArtistOption.setOnClickListener(v -> {
-            Toast.makeText(getContext(), "Going to artist profile: " + trackResponse.getUserId(), Toast.LENGTH_SHORT).show();
-            dismiss();
+            UserProfileFragment userProfileFragment = UserProfileFragment.newInstance(trackResponse.getUserId(), "track");
+            if (getActivity() != null){
+                getActivity().getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.fragment_container, userProfileFragment)
+                        .addToBackStack(null)
+                        .commit();
+                dismiss();
+            }
         });
 
         viewCommentsOption.setOnClickListener(v -> {

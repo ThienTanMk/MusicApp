@@ -37,6 +37,7 @@ import com.app.musicapp.view.fragment.album.AlbumPageFragment;
 import com.app.musicapp.view.fragment.follow.FollowerFragment;
 import com.app.musicapp.view.fragment.follow.FollowingFragment;
 import com.app.musicapp.view.fragment.playlist.PlaylistPageFragment;
+import com.app.musicapp.view.fragment.playlist.PlaylistsFragment;
 import com.bumptech.glide.Glide;
 
 import java.util.*;
@@ -115,19 +116,16 @@ public class UserProfileFragment extends Fragment {
     private void initAdapters() {
         trackAdapter = new TrackAdapter(this, new ArrayList<>());
         playlistAdapter = new PlayListRVAdapter(new ArrayList<>(), playlist -> {
-            // Handle playlist click
             PlaylistPageFragment fragment = PlaylistPageFragment.newInstance(new ArrayList<>(Collections.singletonList(playlist)));
             navigateToFragment(fragment);
         });
         albumAdapter = new AlbumRVAdapter(new ArrayList<>(), album -> {
-            // Handle album click
             AlbumPageFragment fragment = AlbumPageFragment.newInstance(album);
             navigateToFragment(fragment);
         });
 
         lvTracks.setAdapter(trackAdapter);
 
-        // Setup RecyclerView with GridLayoutManager (2 columns)
         rvPlaylists.setLayoutManager(new GridLayoutManager(requireContext(), 2));
         rvPlaylists.setAdapter(playlistAdapter);
         rvAlbums.setLayoutManager(new GridLayoutManager(requireContext(), 2));
@@ -190,6 +188,14 @@ public class UserProfileFragment extends Fragment {
                     getActivity().getSupportFragmentManager()
                             .beginTransaction()
                             .replace(R.id.fragment_container, library)
+                            .commit();
+                    Log.w("UserProfileFragment", "Back to: " + source);
+                }
+                if ("playlist".equals(source)) {
+                    PlaylistsFragment playlistsFragment = new PlaylistsFragment();
+                    getActivity().getSupportFragmentManager()
+                            .beginTransaction()
+                            .replace(R.id.fragment_container, playlistsFragment)
                             .commit();
                     Log.w("UserProfileFragment", "Back to: " + source);
                 }
@@ -303,7 +309,10 @@ public class UserProfileFragment extends Fragment {
         }
 
         btnFollow.setText(profile.isFollowing() ? "Following" : "Follow");
-        btnFollow.setOnClickListener(v -> convertFollow(profile));
+        btnFollow.setOnClickListener(v -> {
+            Log.d("DEBUG", "Follow button clicked");
+            convertFollow(profile);
+        });
     }
     private void loadFollowCounts() {
         // Tải số lượng follower
@@ -422,7 +431,7 @@ public class UserProfileFragment extends Fragment {
             @Override
             public void onResponse(@NonNull Call<ApiResponse<List<PlaylistResponse>>> call, @NonNull Response<ApiResponse<List<PlaylistResponse>>> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    if (response.body().getCode() == 1000 && response.body().getData() != null) {
+                    if (response.body().getData() != null) {
                         List<PlaylistResponse> playlists = response.body().getData();
                         playlistAdapter.updatePlaylists(playlists);
                         Log.d("UserProfileFragment", "Playlists loaded: " + playlists.size());
@@ -461,7 +470,7 @@ public class UserProfileFragment extends Fragment {
             @Override
             public void onResponse(@NonNull Call<ApiResponse<List<AlbumResponse>>> call, @NonNull Response<ApiResponse<List<AlbumResponse>>> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    if (response.body().getCode() == 1000 && response.body().getData() != null) {
+                    if (response.body().getData() != null) {
                         List<AlbumResponse> albums = response.body().getData();
                         albumAdapter.updateAlbums(albums);
                         Log.d("UserProfileFragment", "Albums loaded: " + albums.size());
