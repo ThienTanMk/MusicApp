@@ -129,7 +129,11 @@ public class CommentActivity extends AppCompatActivity {
 
         this.trackTitle.setText(_trackTitle);
         this.trackArtist.setText(_trackArtist);
-        Glide.with(this).load(UrlHelper.getCoverImageUrl(_trackCover)).into(imageCover);
+        Glide.with(this)
+                .load(UrlHelper.getCoverImageUrl(_trackCover))
+                .placeholder(R.drawable.logo)
+                .error(R.drawable.logo)
+                .into(imageCover);
 
 
         editTextComment.addTextChangedListener(new TextWatcher() {

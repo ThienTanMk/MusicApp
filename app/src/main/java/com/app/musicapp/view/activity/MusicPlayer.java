@@ -311,7 +311,7 @@ public class MusicPlayer extends AppCompatActivity {
                 Intent intent = new Intent(MusicPlayer.this,CommentActivity.class);
                 intent.putExtra("track_id",currentTrack.getId());
                 intent.putExtra("track_title",currentTrack.getTitle());
-                intent.putExtra("track_artist","temp");
+                intent.putExtra("track_artist",currentTrack.getUser()==null?"loading":currentTrack.getUser().getDisplayName());
                 intent.putExtra("track_cover",currentTrack.getCoverImageName());
                 startActivity(intent);
             }

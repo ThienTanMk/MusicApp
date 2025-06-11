@@ -45,9 +45,11 @@ public class TrackAdapter extends BaseAdapter {
 
     public TrackAdapter(Fragment fragment, List<TrackResponse> trackResponseList) {
         this.fragment = fragment;
-        this.trackResponseList = trackResponseList;
+        this.trackResponseList = new ArrayList<>(trackResponseList);
         this.context = fragment.getContext();
         this.inflater = LayoutInflater.from(fragment.getContext());
+        trackIdToView = new HashMap<>();
+
         if(fragment.getContext() instanceof MainActivity){
             musicService = ((MainActivity) fragment.getContext()).getMusicService();
         }
@@ -59,7 +61,6 @@ public class TrackAdapter extends BaseAdapter {
                changeCurrentPlayedView();
             });
         }
-        trackIdToView = new HashMap<>();
     }
     // Phương thức mới để cập nhật danh sách
     public void updateTracks(List<TrackResponse> newTracks) {

@@ -165,7 +165,7 @@ public class LibraryPageFragment extends Fragment {
                 if(response.isSuccessful()&&response.body()!=null){
                     trackResponseList.clear();
                     trackResponseList.addAll(response.body().getData());
-                    historyAdapter.notifyDataSetChanged();
+                    historyAdapter.updateTracks(trackResponseList);
                 }
             }
 

@@ -276,6 +276,23 @@
                 ex.printStackTrace();
             }
         }
+        private void addHistory(String trackId){
+            try{
+                ApiClient.getHistoryApiService().listenTrack(trackId).enqueue(new Callback<ApiResponse<Object>>() {
+                    @Override
+                    public void onResponse(Call<ApiResponse<Object>> call, Response<ApiResponse<Object>> response) {
+
+                    }
+
+                    @Override
+                    public void onFailure(Call<ApiResponse<Object>> call, Throwable t) {
+
+                    }
+                });
+            }catch (Exception ex){
+                ex.printStackTrace();
+            }
+        }
         // nghe nhac + gui start + gui track info + update seek bar + pause
         private void playUrl(String url) {
             
@@ -296,7 +313,7 @@
                     sendPlayAction();
                     sendTrackInfo();
                     updateNotification(getCurrentTrack(),true);
-
+                    addHistory(getCurrentTrack().getId());
                     startSeekbarUpdate();
                 });
                 mediaPlayer.setOnCompletionListener(mp -> {

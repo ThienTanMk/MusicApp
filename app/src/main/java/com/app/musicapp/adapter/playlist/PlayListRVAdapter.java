@@ -9,6 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.app.musicapp.R;
+import com.app.musicapp.helper.UrlHelper;
 import com.app.musicapp.model.response.PlaylistResponse;
 import com.bumptech.glide.Glide;
 
@@ -47,7 +48,7 @@ public class PlayListRVAdapter extends RecyclerView.Adapter<PlayListRVAdapter.Vi
         holder.tvPlaylistTitle.setText(playlistResponse.getTitle() != null ? playlistResponse.getTitle() : "Untitled");
         holder.tvPlaylistArtist.setText(playlistResponse.getUser().getDisplayName() != null ? playlistResponse.getUser().getDisplayName() : "Unknown User");
         Glide.with(holder.itemView.getContext())
-                .load(playlistResponse.getImagePath() != null ? playlistResponse.getImagePath() : R.drawable.logo)
+                .load(playlistResponse.getImagePath() != null ? UrlHelper.getCoverImageUrl(playlistResponse.getImagePath()) : R.drawable.logo)
                 .placeholder(R.drawable.logo)
                 .into(holder.ivPlaylistImage);
 

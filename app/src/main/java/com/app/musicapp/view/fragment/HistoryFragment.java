@@ -43,7 +43,7 @@ public class HistoryFragment extends Fragment {
                 if(response.isSuccessful()&&response.body()!=null){
                     histories.clear();
                     histories.addAll(response.body().getData());
-                    trackAdapter.notifyDataSetChanged();
+                    trackAdapter.updateTracks(histories);
                 }
             }
 
@@ -81,7 +81,7 @@ public class HistoryFragment extends Fragment {
                public void onResponse(Call<ApiResponse<String>> call, Response<ApiResponse<String>> response) {
                    if(response.isSuccessful()){
                        histories.clear();
-                       trackAdapter.notifyDataSetChanged();
+                       trackAdapter.updateTracks(histories);
                    }
                }
 

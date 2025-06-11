@@ -1,5 +1,6 @@
 package com.app.musicapp.view.fragment.track;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,6 +24,7 @@ import com.app.musicapp.model.response.TrackResponse;
 import com.app.musicapp.model.response.ApiResponse;
 import com.app.musicapp.model.response.PlaylistResponse;
 import com.app.musicapp.util.LocalDateTimeAdapter;
+import com.app.musicapp.view.activity.CommentActivity;
 import com.app.musicapp.view.fragment.UploadTrackFragment;
 import com.app.musicapp.view.fragment.playlist.AddTrackToPlaylistFragment;
 import com.bumptech.glide.Glide;
@@ -150,8 +152,13 @@ public class SongOptionsBottomSheet extends BottomSheetDialogFragment {
         });
 
         viewCommentsOption.setOnClickListener(v -> {
-            Toast.makeText(getContext(), "Viewing comments for: " + trackResponse.getTitle(), Toast.LENGTH_SHORT).show();
-            dismiss();
+            if(trackResponse==null) return;
+            Intent intent = new Intent(getContext(), CommentActivity.class);
+            intent.putExtra("track_id",trackResponse.getId());
+            intent.putExtra("track_title",trackResponse.getTitle());
+            intent.putExtra("track_artist",trackResponse.getUser()==null?"loading":trackResponse.getUser().getDisplayName());
+            intent.putExtra("track_cover",trackResponse.getCoverImageName());
+            startActivity(intent);
         });
 
         behindTrackOption.setOnClickListener(v -> {
