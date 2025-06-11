@@ -137,7 +137,6 @@
         }
         public TrackResponse getCurrentTrack(){
             if(this.nextUpItems==null||this.nextUpItems.isEmpty()) {
-                Toast.makeText(getBaseContext(),"Can not play now. Track is empty",Toast.LENGTH_SHORT).show();
                 return null;
             }
             return this.nextUpItems.get(currentIndex);
@@ -353,7 +352,7 @@
 
         public void playMusicAtIndex(int index){
             if(index>nextUpItems.size()) {
-                Toast.makeText(getBaseContext(),"Can not play now",Toast.LENGTH_SHORT).show();
+                return;
             }
             currentIndex = index;
             TrackResponse track = this.nextUpItems.get(currentIndex);
@@ -371,7 +370,6 @@
         // check next up tracks and send play + track 
         public void playCurrentMusic(){
             if(nextUpItems==null||nextUpItems.isEmpty()||currentIndex==-1||currentIndex>=nextUpItems.size()){
-                Toast.makeText(getBaseContext(),"Can not play now",Toast.LENGTH_SHORT).show();
                 return;
             }
             var track = nextUpItems.get(currentIndex);
