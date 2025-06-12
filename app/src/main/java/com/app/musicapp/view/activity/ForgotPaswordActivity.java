@@ -27,7 +27,7 @@ import retrofit2.Response;
 
 public class ForgotPaswordActivity extends AppCompatActivity {
 
-    TextInputEditText edittextEmail, editTextOtp;
+    TextInputEditText edittextEmail, editTextOtp, editTextPassword;
     Boolean isClicked = false;
     Button buttonContinue;
     @Override
@@ -41,13 +41,14 @@ public class ForgotPaswordActivity extends AppCompatActivity {
     private void confirmView(){
         isClicked = false;
         editTextOtp.setVisibility(View.VISIBLE);
+        editTextPassword.setVisibility(View.VISIBLE);
         edittextEmail.setEnabled(false);
         buttonContinue.setText("Confirm");
         buttonContinue.setOnClickListener(v->{
             if(isClicked)return;
-            isClicked = true;
             String otp = editTextOtp.getText().toString();
             String email = edittextEmail.getText().toString();
+            String newPassword = editTextPassword.getText().toString();
             if(otp.isEmpty()){
                 editTextOtp.setError("OTP is required");
                 return;
@@ -56,7 +57,16 @@ public class ForgotPaswordActivity extends AppCompatActivity {
                 editTextOtp.setError("OTP is invalid");
                 return;
             }
-            ConfirmOtpRequest confirmOtpRequest = new ConfirmOtpRequest(email,otp);
+            if(newPassword.isEmpty()){
+                editTextPassword.setError("Password is required");
+                return;
+            }
+            if(newPassword.length()<8){
+                editTextPassword.setError("Password must be at least 8 characters");
+                return;
+            }
+            isClicked = true;
+            ConfirmOtpRequest confirmOtpRequest = new ConfirmOtpRequest(email,otp,newPassword);
             ApiClient.getUserService().confirmOtp(confirmOtpRequest).enqueue(new Callback<ApiResponse<Void>>() {
                 @Override
                 public void onResponse(Call<ApiResponse<Void>> call, Response<ApiResponse<Void>> response) {
@@ -92,17 +102,19 @@ public class ForgotPaswordActivity extends AppCompatActivity {
     private void initView(){
         edittextEmail = findViewById(R.id.edittext_email);
         editTextOtp = findViewById(R.id.edittext_otp);
+        editTextPassword = findViewById(R.id.edittext_new_password);
         buttonContinue = findViewById(R.id.button_continue);
         editTextOtp.setVisibility(View.GONE);
+        editTextPassword.setVisibility(View.GONE);
 
         buttonContinue.setOnClickListener(v->{
             if(isClicked)return;
-            isClicked = true;
            String email = edittextEmail.getText().toString();
             if(!Patterns.EMAIL_ADDRESS.matcher(email).matches()){
                 edittextEmail.setError("Email is invalid");
                 return;
             }
+            isClicked = true;
             EmailRequest emailRequest = new EmailRequest(email);
             ApiClient.getUserService().sendOtp(emailRequest).enqueue(new Callback<ApiResponse<Void>>() {
                 @Override
