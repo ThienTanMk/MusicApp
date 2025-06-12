@@ -12,7 +12,7 @@
         android:background="@color/background"
         android:fitsSystemWindows="true"
         android:orientation="vertical"
-        android:padding="8dp"
+        android:padding="20dp"
         tools:context=".view.fragment.HomePageFragment">
 
         <!-- Tiêu đề, nút thông báo, nút upload -->
@@ -55,11 +55,18 @@
             android:layout_width="match_parent"
             android:layout_height="91dp"
             android:layout_marginTop="16dp"
-            android:background="@drawable/background_yourlike_homepage"
+            android:background="@drawable/background_homepage"
+            android:scaleType="centerCrop"
             android:clickable="true"
             android:focusable="true"
             android:orientation="horizontal"
             android:padding="8dp">
+
+            <ImageView
+                android:layout_width="53dp"
+                android:layout_height="wrap_content"
+                android:src="@drawable/red_heart_icon"
+                android:layout_marginRight="90dp"/>
 
             <TextView
                 android:layout_width="0dp"

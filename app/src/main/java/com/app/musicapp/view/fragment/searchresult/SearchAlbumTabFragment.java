@@ -19,7 +19,7 @@ import java.util.*;
 public class SearchAlbumTabFragment extends Fragment {
 
     private static final String ARG_ALBUMS = "albums";
-    private List<com.app.musicapp.model.response.AlbumResponse> albumResponseResults;
+    private List<AlbumResponse> albumResponseResults;
 
     public static SearchAlbumTabFragment newInstance(List<AlbumResponse> albumResponses) {
         SearchAlbumTabFragment fragment = new SearchAlbumTabFragment();

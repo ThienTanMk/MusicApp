@@ -35,11 +35,14 @@
             app:tint="#FFFFFF" />
         <ImageView
             android:id="@+id/iv_avatar"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
+            android:layout_width="55dp"
+            android:layout_height="55dp"
             android:src="@drawable/ic_person"
-            android:padding="8dp"
-            android:background="@drawable/circle_background" />
+            android:background="@drawable/custom_user_avatar"
+            android:scaleType="centerCrop"
+            android:clipToOutline="true"
+            android:outlineProvider="background"
+            android:padding="8dp" />
     </LinearLayout>
 
     <ListView

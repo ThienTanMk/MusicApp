@@ -1,6 +1,5 @@
 package com.app.musicapp.view.fragment;
 
-import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
 
@@ -9,28 +8,25 @@ import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
 import androidx.appcompat.widget.SearchView;
 import com.app.musicapp.R;
-import com.app.musicapp.adapter.UploadsAdapter;
 import com.app.musicapp.adapter.track.TrackAdapter;
 import com.app.musicapp.helper.SharedPreferencesManager;
 import com.app.musicapp.model.response.ApiResponse;
 import com.app.musicapp.model.response.TrackResponse;
 import com.app.musicapp.view.fragment.track.SongOptionsBottomSheet;
+import com.app.musicapp.view.fragment.track.UploadTrackFragment;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.app.musicapp.api.ApiClient;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-import java.time.LocalDateTime;
 import java.util.*;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import com.app.musicapp.R;
 
 public class UploadsFragment extends Fragment implements SongOptionsBottomSheet.TrackOptionsListener {
 

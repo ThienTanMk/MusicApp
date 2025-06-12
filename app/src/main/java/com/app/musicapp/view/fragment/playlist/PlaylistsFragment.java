@@ -37,6 +37,11 @@ public class PlaylistsFragment extends Fragment implements OnLikeChangeListener,
 
     public PlaylistsFragment() {}
 
+    public static PlaylistsFragment newInstance() {
+        PlaylistsFragment fragment = new PlaylistsFragment();
+        return fragment;
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {

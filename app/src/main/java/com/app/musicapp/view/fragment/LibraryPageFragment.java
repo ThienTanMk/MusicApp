@@ -193,7 +193,7 @@ public class LibraryPageFragment extends Fragment {
                     String avatarUrl = response.body().getData().getAvatar();
                     if (avatarUrl != null && !avatarUrl.isEmpty()) {
                         Glide.with(requireContext())
-                                .load(UrlHelper.getCoverImageUrl(avatarUrl))
+                                .load(UrlHelper.getAvatarImageUrl(avatarUrl))
                                 .placeholder(R.drawable.logo)
                                 .error(R.drawable.logo)
                                 .into(ivAvatar);

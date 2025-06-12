@@ -263,7 +263,7 @@ public class UserProfileFragment extends Fragment {
     }
 
     private void loadUserProfile() {
-        String currentUserId = SharedPreferencesManager.getInstance(requireContext()).getUserId();
+        String currentUserId = SharedPreferencesManager.getInstance(getContext()).getUserId();
         boolean isOwnProfile = userId.equals(currentUserId);
         btnFollow.setVisibility(isOwnProfile ? View.GONE : View.VISIBLE);
 
@@ -294,7 +294,7 @@ public class UserProfileFragment extends Fragment {
 
         if (profile.getAvatar() != null) {
             Glide.with(requireContext())
-                    .load(UrlHelper.getCoverImageUrl(profile.getAvatar()))
+                    .load(UrlHelper.getAvatarImageUrl(profile.getAvatar()))
                     .placeholder(R.drawable.logo)
                     .error(R.drawable.logo)
                     .into(ivAvatar);
@@ -309,10 +309,7 @@ public class UserProfileFragment extends Fragment {
         }
 
         btnFollow.setText(profile.isFollowing() ? "Following" : "Follow");
-        btnFollow.setOnClickListener(v -> {
-            Log.d("DEBUG", "Follow button clicked");
-            convertFollow(profile);
-        });
+        btnFollow.setOnClickListener(v -> convertFollow(profile));
     }
     private void loadFollowCounts() {
         // Tải số lượng follower
@@ -357,38 +354,45 @@ public class UserProfileFragment extends Fragment {
     }
 
     private void convertFollow(ProfileWithCountFollowResponse profile) {
-        AddFollowRequest request = new AddFollowRequest(userId);
-        if (profile.isFollowing()) {
-            ApiClient.getUserService().unfollow(userId).enqueue(new Callback<ApiResponse<Object>>() {
-                @Override
-                public void onResponse(@NonNull Call<ApiResponse<Object>> call, @NonNull Response<ApiResponse<Object>> response) {
-                    if (response.isSuccessful()) {
-                        profile.setFollowing(false);
-                        loadFollowCounts(); // Tải lại số lượng follower
-                        updateUserProfile(profile);
-                        Toast.makeText(requireContext(), "Đã bỏ theo dõi", Toast.LENGTH_SHORT).show();
-                    }
-                }
-
-                @Override
-                public void onFailure(@NonNull Call<ApiResponse<Object>> call, @NonNull Throwable t) {
-                    Toast.makeText(requireContext(), "Lỗi: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-                }
-            });
-        } else {
+        String followStatus = btnFollow.getText().toString();
+        if (followStatus.equals("Follow")) {
+            AddFollowRequest request = new AddFollowRequest(userId);
             ApiClient.getUserService().follow(request).enqueue(new Callback<ApiResponse<Object>>() {
                 @Override
                 public void onResponse(@NonNull Call<ApiResponse<Object>> call, @NonNull Response<ApiResponse<Object>> response) {
                     if (response.isSuccessful()) {
-                        profile.setFollowing(true);
-                        loadFollowCounts(); // Tải lại số lượng follower
-                        updateUserProfile(profile);
-                        Toast.makeText(requireContext(), "Đã theo dõi", Toast.LENGTH_SHORT).show();
+                        btnFollow.setText("Following");
+                        profile.setFollowing(true); // Cập nhật trạng thái
+                        loadFollowCounts(); // Cập nhật số lượng follower
+                    } else {
+                        Log.e("UserProfileFragment", "Follow failed, response code=" + response.code());
+                        Toast.makeText(requireContext(), "Failed to follow", Toast.LENGTH_SHORT).show();
                     }
                 }
 
                 @Override
                 public void onFailure(@NonNull Call<ApiResponse<Object>> call, @NonNull Throwable t) {
+                    Log.e("UserProfileFragment", "Follow error: " + t.getMessage());
+                    Toast.makeText(requireContext(), "Lỗi: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
+        } else {
+            ApiClient.getUserService().unfollow(profile.getUserId()).enqueue(new Callback<ApiResponse<Object>>() {
+                @Override
+                public void onResponse(@NonNull Call<ApiResponse<Object>> call, @NonNull Response<ApiResponse<Object>> response) {
+                    if (response.isSuccessful()) {
+                        btnFollow.setText("Follow");
+                        profile.setFollowing(false); // Cập nhật trạng thái
+                        loadFollowCounts(); // Cập nhật số lượng follower
+                    } else {
+                        Log.e("UserProfileFragment", "Unfollow failed, response code=" + response.code());
+                        Toast.makeText(requireContext(), "Failed to unfollow", Toast.LENGTH_SHORT).show();
+                    }
+                }
+
+                @Override
+                public void onFailure(@NonNull Call<ApiResponse<Object>> call, @NonNull Throwable t) {
+                    Log.e("UserProfileFragment", "Unfollow error: " + t.getMessage());
                     Toast.makeText(requireContext(), "Lỗi: " + t.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             });
@@ -401,7 +405,7 @@ public class UserProfileFragment extends Fragment {
         ApiClient.getTrackApiService().getTracksByUserId(userId).enqueue(new Callback<ApiResponse<List<TrackResponse>>>() {
             @Override
             public void onResponse(@NonNull Call<ApiResponse<List<TrackResponse>>> call, @NonNull Response<ApiResponse<List<TrackResponse>>> response) {
-                if (response.isSuccessful() && response.body() != null && response.body().getData() != null) {
+                if (response.isSuccessful() && response.body() != null) {
                     List<TrackResponse> tracks = response.body().getData();
                     trackAdapter = new TrackAdapter(UserProfileFragment.this, tracks);
                     lvTracks.setAdapter(trackAdapter);

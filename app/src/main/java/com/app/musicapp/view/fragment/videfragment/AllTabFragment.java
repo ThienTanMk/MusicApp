@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -70,6 +71,7 @@ public class AllTabFragment extends Fragment {
         trackInVibeAdapter = new TrackInVibeAdapter(this, tracks.subList(0, Math.min(4, tracks.size())));
         albumInVibeAdapter = new AlbumInVibeAdapter(getContext(), albums.subList(0, Math.min(4, albums.size())));
         playlistInVibeAdapter = new PlaylistInVibeAdapter(getContext(), playlists.subList(0, Math.min(4, playlists.size())));
+        setSizePlaylist(playlists);
 
         albumInVibeAdapter.setOnAlbumClickListener(album -> {
             Log.d(TAG, "Album clicked: " + album.getAlbumTitle());
@@ -150,12 +152,29 @@ public class AllTabFragment extends Fragment {
         if (recyclerViewPlaylists != null && playlistInVibeAdapter != null) {
             List<PlaylistResponse> limitedPlaylists = newPlaylists.subList(0, Math.min(4, newPlaylists.size()));
             playlistInVibeAdapter.updateData(limitedPlaylists);
+            setSizePlaylist(limitedPlaylists);
         }
         if (recyclerViewAlbums != null && albumInVibeAdapter != null) {
             List<AlbumResponse> limitedAlbums = newAlbums.subList(0, Math.min(4, newAlbums.size()));
             albumInVibeAdapter.updateData(limitedAlbums);
         }
     }
+    private void setSizePlaylist(List<PlaylistResponse> playlists) {
+        if (recyclerViewPlaylists == null) return;
+
+        ViewGroup.LayoutParams params = recyclerViewPlaylists.getLayoutParams();
+        if (playlists != null && playlists.size() == 2) {
+            // Set height = 210dp nếu có đúng 2 item
+            params.height = (int) TypedValue.applyDimension(
+                    TypedValue.COMPLEX_UNIT_DIP, 210, getResources().getDisplayMetrics());
+        } else {
+            // Set lại chiều cao mặc định như trong XML
+            params.height = (int) TypedValue.applyDimension(
+                    TypedValue.COMPLEX_UNIT_DIP, 420, getResources().getDisplayMetrics());
+        }
+        recyclerViewPlaylists.setLayoutParams(params);
+    }
+
     private void navigateToTab(int position) {
         if (tabNavigator != null) {
             Log.d(TAG, "Navigating to tab position: " + position);

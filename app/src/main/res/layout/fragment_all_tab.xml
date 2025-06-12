@@ -32,7 +32,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:layout_marginBottom="8dp"
+                    android:layout_gravity="center_vertical"
                     android:text="Trending"
                     android:textColor="#FFFFFF"
                     android:textSize="18sp"
@@ -45,7 +45,6 @@
                     android:minWidth="48dp"
                     android:minHeight="48dp"
                     android:background="@drawable/custom_btn_seeall_library"
-                    android:layout_marginBottom="8dp"
                     android:text="See all"
                     android:textColor="#FFFFFF"
                     android:textSize="14sp"
@@ -63,10 +62,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="150dp"
                 android:orientation="horizontal"
-                android:layout_marginTop="8dp"
                 android:clipToPadding="false"
-                android:padding="4dp"
-                android:nestedScrollingEnabled="false" />
+                android:padding="4dp"/>
         </LinearLayout>
 
         <!-- Playlists -->
@@ -87,7 +84,6 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:layout_marginBottom="8dp"
                     android:text="Playlists"
                     android:textColor="#FFFFFF"
                     android:textSize="18sp"
@@ -100,7 +96,6 @@
                     android:minWidth="48dp"
                     android:minHeight="48dp"
                     android:background="@drawable/custom_btn_seeall_library"
-                    android:layout_marginBottom="8dp"
                     android:text="See all"
                     android:textColor="#FFFFFF"
                     android:textSize="14sp"
@@ -140,7 +135,6 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:layout_marginBottom="8dp"
                     android:text="Albums"
                     android:textColor="#FFFFFF"
                     android:textSize="18sp"
@@ -153,7 +147,6 @@
                     android:minWidth="48dp"
                     android:minHeight="48dp"
                     android:background="@drawable/custom_btn_seeall_library"
-                    android:layout_marginBottom="8dp"
                     android:text="See all"
                     android:textColor="#FFFFFF"
                     android:textSize="14sp"

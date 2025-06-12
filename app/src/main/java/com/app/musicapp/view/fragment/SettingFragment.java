@@ -78,7 +78,7 @@ public class SettingFragment extends Fragment {
 
     public void playList(View view) {
         FragmentTransaction transaction = requireActivity().getSupportFragmentManager().beginTransaction();
-        UploadsFragment uploadsFragment = UploadsFragment.newInstance();
+        PlaylistsFragment uploadsFragment = PlaylistsFragment.newInstance();
         transaction.replace(R.id.fragment_container, uploadsFragment);
         transaction.addToBackStack(null); // optional, nếu muốn quay lại
         transaction.commit();

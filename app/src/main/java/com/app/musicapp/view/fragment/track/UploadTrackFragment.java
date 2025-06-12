@@ -1,4 +1,4 @@
-package com.app.musicapp.view.fragment;
+package com.app.musicapp.view.fragment.track;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -25,7 +25,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
 
 import com.app.musicapp.api.ApiClient;
 import com.app.musicapp.helper.SharedPreferencesManager;
@@ -42,7 +41,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.app.musicapp.api.ApiService;
 import com.google.gson.Gson;
 
 import okhttp3.MediaType;

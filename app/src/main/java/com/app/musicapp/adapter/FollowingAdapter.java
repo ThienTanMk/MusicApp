@@ -10,7 +10,6 @@ import android.widget.*;
 import com.app.musicapp.R;
 import com.app.musicapp.api.ApiClient;
 import com.app.musicapp.helper.UrlHelper;
-import com.app.musicapp.model.FollowingUser;
 import com.app.musicapp.model.request.AddFollowRequest;
 import com.app.musicapp.model.response.ApiResponse;
 import com.app.musicapp.model.response.ProfileWithCountFollowResponse;
