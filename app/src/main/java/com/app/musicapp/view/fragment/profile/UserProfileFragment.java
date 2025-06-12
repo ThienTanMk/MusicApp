@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -216,7 +217,7 @@ public class UserProfileFragment extends Fragment {
             ivEdit.setOnClickListener(v -> {
                 if (currentProfile != null) {
                     String displayName = currentProfile.getDisplayName() != null ? currentProfile.getDisplayName() : "Người dùng không xác định";
-                    String avatarUrl = currentProfile.getAvatar() != null ? UrlHelper.getCoverImageUrl(currentProfile.getAvatar()) : null;
+                    String avatarUrl = currentProfile.getAvatar() != null ? UrlHelper.getAvatarImageUrl(currentProfile.getAvatar()) : null;
                     String coverUrl = currentProfile.getCover() != null ? UrlHelper.getCoverImageUrl(currentProfile.getCover()) : null;
                     EditProfileFragment edit = EditProfileFragment.newInstance(coverUrl, avatarUrl, displayName);
                     getActivity().getSupportFragmentManager()
@@ -437,6 +438,7 @@ public class UserProfileFragment extends Fragment {
                 if (response.isSuccessful() && response.body() != null) {
                     if (response.body().getData() != null) {
                         List<PlaylistResponse> playlists = response.body().getData();
+                        setSizePlaylist(playlists);
                         playlistAdapter.updatePlaylists(playlists);
                         Log.d("UserProfileFragment", "Playlists loaded: " + playlists.size());
                         if (playlists.isEmpty()) {
@@ -508,6 +510,22 @@ public class UserProfileFragment extends Fragment {
             }
         });
     }
+    private void setSizePlaylist(List<PlaylistResponse> playlists) {
+        if (rvPlaylists == null) return;
+
+        ViewGroup.LayoutParams params = rvPlaylists.getLayoutParams();
+        if (playlists != null && playlists.size() == 2) {
+            // Set height = 210dp nếu có đúng 2 item
+            params.height = (int) TypedValue.applyDimension(
+                    TypedValue.COMPLEX_UNIT_DIP, 210, getResources().getDisplayMetrics());
+        } else {
+            // Set lại chiều cao mặc định như trong XML
+            params.height = (int) TypedValue.applyDimension(
+                    TypedValue.COMPLEX_UNIT_DIP, 420, getResources().getDisplayMetrics());
+        }
+        rvPlaylists.setLayoutParams(params);
+    }
+
     @Override
     public void onResume() {
         super.onResume();

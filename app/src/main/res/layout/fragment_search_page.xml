@@ -8,10 +8,9 @@
     android:layout_height="match_parent"
     android:background="@color/background"
     android:orientation="vertical"
-    android:padding="20dp"
-    tools:context=".view.fragment.searchpage.SearchPageFragment"
-    android:fitsSystemWindows="true">
-
+    android:padding="8dp"
+    tools:context=".view.fragment.searchpage.SearchPageFragment">
+<!--    android:fitsSystemWindows="true"-->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

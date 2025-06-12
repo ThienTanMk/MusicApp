@@ -323,7 +323,6 @@ public class UploadTrackFragment extends Fragment {
                         @Override
                         public void onResponse(Call<ApiResponse<TrackResponse>> call, Response<ApiResponse<TrackResponse>> response) {
                             if (response.isSuccessful() && response.body() != null) {
-                                Toast.makeText(getContext(), "Upload successful", Toast.LENGTH_SHORT).show();
                                 requireActivity().getSupportFragmentManager().popBackStack();
                             } else {
                                 Toast.makeText(getContext(), "Upload failed", Toast.LENGTH_SHORT).show();
