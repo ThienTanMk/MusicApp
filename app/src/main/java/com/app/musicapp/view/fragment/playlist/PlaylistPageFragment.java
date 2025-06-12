@@ -18,6 +18,7 @@ import android.widget.*;
 import com.app.musicapp.R;
 import com.app.musicapp.adapter.track.TrackRVAdapter;
 import com.app.musicapp.api.ApiClient;
+import com.app.musicapp.helper.UrlHelper;
 import com.app.musicapp.interfaces.OnLikeChangeListener;
 import com.app.musicapp.model.response.ApiResponse;
 import com.app.musicapp.model.response.PlaylistResponse;
@@ -103,7 +104,7 @@ public class PlaylistPageFragment extends Fragment implements OnLikeChangeListen
             tvPlaylistArtists.setText(playlistResponseData.getUser().getDisplayName() != null ? playlistResponseData.getUserId() : "Unknown User");
 
             Glide.with(getContext())
-                    .load(playlistResponseData.getImagePath() != null ? playlistResponseData.getImagePath() : R.drawable.logo)
+                    .load(playlistResponseData.getImagePath() != null ? UrlHelper.getCoverImageUrl( playlistResponseData.getImagePath()) : R.drawable.logo)
                     .placeholder(R.drawable.logo)
                     .into(ivPlaylistCover);
 
