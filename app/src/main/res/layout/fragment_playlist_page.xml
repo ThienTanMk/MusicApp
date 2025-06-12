@@ -164,7 +164,8 @@
                 android:layout_width="30dp"
                 android:layout_height="30dp"
                 android:src="@drawable/ic_play"
-                app:tint="#FFFFFF" />
+                app:tint="#FFFFFF"
+                android:visibility="gone"/>
         </LinearLayout>
 
         <LinearLayout
@@ -190,7 +191,8 @@
                 android:layout_marginTop="4dp"
                 android:text="Show more"
                 android:textColor="#1E90FF"
-                android:textSize="12sp" />
+                android:textSize="12sp"
+                android:visibility="gone"/>
         </LinearLayout>
 
         <!-- Danh sách bài hát -->

@@ -66,7 +66,6 @@ public class HomePageFragment extends Fragment {
         // Thiết lập RecyclerView cho userPlaylists
         rvPlaylist.setLayoutManager(new GridLayoutManager(getContext(), 1, GridLayoutManager.HORIZONTAL, false));
         playListRVAdapter = new PlayListRVAdapter(userPlaylists, item -> {
-            Toast.makeText(getContext(), "Clicked: " + item.getTitle(), Toast.LENGTH_SHORT).show();
             List<PlaylistResponse> playlistList = new ArrayList<>();
             playlistList.add(item);
             navigateToPlaylistPage(playlistList);
