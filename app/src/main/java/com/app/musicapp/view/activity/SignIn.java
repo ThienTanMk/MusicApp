@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Base64;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -28,6 +29,7 @@ import retrofit2.Response;
 public class SignIn extends AppCompatActivity {
     private TextInputEditText usernameEditText;
     private TextInputEditText passwordEditText;
+    private TextView forgotPasswordText;
     private MaterialButton loginButton;
     private View progressBar;
     private SharedPreferencesManager preferencesManager;
@@ -37,16 +39,29 @@ public class SignIn extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_in);
 
+        // Initialize SharedPreferencesManager
+        preferencesManager = SharedPreferencesManager.getInstance(this);
+
+        if(preferencesManager.getToken()!=null){
+            Intent intent = new Intent(SignIn.this, MainActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+        }
+
         // Initialize views
         usernameEditText = findViewById(R.id.usernameEditText);
         passwordEditText = findViewById(R.id.passwordEditText);
         loginButton = findViewById(R.id.loginButton);
         progressBar = findViewById(R.id.progressBar);
-        
-        // Initialize SharedPreferencesManager
-        preferencesManager = SharedPreferencesManager.getInstance(this);
+
 
         loginButton.setOnClickListener(v -> performLogin());
+
+        forgotPasswordText = findViewById(R.id.text_forgot_password);
+        forgotPasswordText.setOnClickListener(v -> {
+           Intent intent = new Intent(SignIn.this, ForgotPaswordActivity.class);
+           startActivity(intent);
+        });
     }
 
     private String extractUserIdFromToken(String token) {
@@ -74,8 +89,8 @@ public class SignIn extends AppCompatActivity {
     }
 
     private void performLogin() {
-        String username = usernameEditText.getText().toString().trim();
-        String password = passwordEditText.getText().toString().trim();
+        String username = usernameEditText.getText().toString();
+        String password = passwordEditText.getText().toString();
 
         // Validate input
         if (username.isEmpty()) {

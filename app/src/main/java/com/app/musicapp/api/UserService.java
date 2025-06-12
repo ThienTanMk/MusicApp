@@ -1,6 +1,8 @@
 package com.app.musicapp.api;
 
 import com.app.musicapp.model.request.AddFollowRequest;
+import com.app.musicapp.model.request.ConfirmOtpRequest;
+import com.app.musicapp.model.request.EmailRequest;
 import com.app.musicapp.model.response.ApiResponse;
 import com.app.musicapp.model.response.PageFollowResponse;
 
@@ -24,4 +26,10 @@ public interface UserService {
     @DELETE("/api/profile/auth/follows/unfollow/{userId}")
     Call<ApiResponse<Object>> unfollow(@Path("userId") String userId);
 
+
+    @POST("/api/identity/authenticate/otp")
+    Call<ApiResponse<Void>> sendOtp(@Body EmailRequest emailRequest);
+
+    @POST("/api/identity/authenticate/otp/confirm")
+    Call<ApiResponse<Void>> confirmOtp(@Body ConfirmOtpRequest confirmOtpRequest);
 }

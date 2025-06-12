@@ -1,22 +1,28 @@
 package com.app.musicapp.adapter.track;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.*;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.app.musicapp.R;
 import com.app.musicapp.helper.UrlHelper;
 import com.app.musicapp.model.response.TrackResponse;
+import com.app.musicapp.service.MusicService;
+import com.app.musicapp.view.activity.MainActivity;
 import com.app.musicapp.view.fragment.track.SongOptionsBottomSheet;
 import com.bumptech.glide.Glide;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class TrackRVAdapter extends RecyclerView.Adapter<TrackRVAdapter.ViewHolder> {
     private Fragment fragment;
@@ -24,6 +30,8 @@ public class TrackRVAdapter extends RecyclerView.Adapter<TrackRVAdapter.ViewHold
     private OnTrackClickListener onTrackClickListener;
     private OnTrackOptionsClickListener onTrackOptionsClickListener;
 
+    private MusicService musicService;
+    private int currentIndex= -1;
     public interface OnTrackClickListener {
         void onTrackClick(TrackResponse track);
     }
@@ -35,6 +43,35 @@ public class TrackRVAdapter extends RecyclerView.Adapter<TrackRVAdapter.ViewHold
     public TrackRVAdapter(Fragment fragment, List<TrackResponse> trackResponseList) {
         this.fragment = fragment;
         this.trackResponseList = new ArrayList<>(trackResponseList);
+
+        if(fragment.getContext() instanceof MainActivity){
+            musicService = ((MainActivity) fragment.getContext()).getMusicService();
+        }
+        if(musicService!=null&&musicService.getMusicViewModel()!=null){
+            musicService.getMusicViewModel().getIsPlaying().observe(fragment.getViewLifecycleOwner(),isPlaying -> {
+                changeCurrentPlayedView();
+            });
+            musicService.getMusicViewModel().getCurrentTrack().observe(fragment.getViewLifecycleOwner(),trackResponse -> {
+                changeCurrentPlayedView();
+                Log.i("2","b");
+            });
+        }
+    }
+
+    private void changeCurrentPlayedView(){
+        if(musicService==null) return;
+        if(trackResponseList==null|| trackResponseList.isEmpty())return;
+        TrackResponse trackResponse = musicService.getCurrentTrack();
+        if(trackResponse==null) return;
+        int index = -1;
+        for(int i =0;i< trackResponseList.size();i++){
+            if(trackResponseList.get(i).getId().equals(trackResponse.getId())){
+                index = i;
+                break;
+            }
+        }
+        if(currentIndex!=-1)notifyItemChanged(currentIndex);
+        notifyItemChanged(index);
     }
 
     public void setOnTrackClickListener(OnTrackClickListener listener) {
@@ -93,6 +130,9 @@ public class TrackRVAdapter extends RecyclerView.Adapter<TrackRVAdapter.ViewHold
             if (onTrackClickListener != null) {
                 onTrackClickListener.onTrackClick(trackResponse);
             }
+            if(musicService==null) return;
+            musicService.setNextUpItems(trackResponseList);
+            musicService.playMusicAtIndex(position);
         });
 
         // Handle menu click
@@ -101,6 +141,23 @@ public class TrackRVAdapter extends RecyclerView.Adapter<TrackRVAdapter.ViewHold
                 onTrackOptionsClickListener.onTrackOptionsClick(trackResponse);
             }
         });
+
+        holder.tvTrackArtist.setTextColor(ContextCompat.getColor(fragment.getContext(), com.google.android.material.R.color.design_default_color_background));
+
+        if(musicService!=null){
+            if(musicService.getCurrentTrack()!=null){
+                if(musicService.getCurrentTrack().getId().equals(trackResponse.getId())){
+                    currentIndex = holder.getAdapterPosition();
+                    if(musicService.isPlaying()){
+                        holder.tvTrackArtist.setText("Now playing");
+                    }
+                    else{
+                        holder.tvTrackArtist.setText("Pause");
+                    }
+                    holder.tvTrackArtist.setTextColor(ContextCompat.getColor(fragment.getContext(), R.color.soundcloud));
+                }
+            }
+        }
     }
 
     @Override

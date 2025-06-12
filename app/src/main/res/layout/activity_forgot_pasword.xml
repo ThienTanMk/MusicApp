@@ -6,7 +6,8 @@
     android:orientation="vertical"
     android:padding="16dp"
     android:background="@drawable/backgroud_sign_in"
-    android:gravity="center">
+    android:gravity="center"
+    >
 
 
     <com.google.android.material.textfield.TextInputLayout
@@ -16,10 +17,10 @@
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/usernameEditText"
+            android:id="@+id/edittext_email"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Username"
+            android:hint="Email"
             android:textColor="@color/white"
             android:inputType="text"/>
     </com.google.android.material.textfield.TextInputLayout>
@@ -28,41 +29,24 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="24dp"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-        app:passwordToggleEnabled="true">
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/passwordEditText"
+            android:id="@+id/edittext_otp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Password"
+            android:hint="OTP"
             android:textColor="@color/white"
-            android:inputType="textPassword"/>
+            android:inputType="number"/>
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/loginButton"
+        android:id="@+id/button_continue"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:backgroundTint="@null"
-        android:text="Login"
+        android:text="Continue"
         android:padding="12dp"/>
-    <TextView
-        android:textColor="@color/white"
-        android:layout_marginTop="20dp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Forgot password?"
-        android:padding="15dp"
-        android:clickable="true"
-        android:focusable="true"
-        android:background="?attr/selectableItemBackground"
-        android:id="@+id/text_forgot_password"/>
-    <ProgressBar
-        android:id="@+id/progressBar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:visibility="gone"/>
+
 
 </LinearLayout>

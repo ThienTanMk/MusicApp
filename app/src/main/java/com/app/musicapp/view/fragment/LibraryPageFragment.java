@@ -47,7 +47,7 @@ public class LibraryPageFragment extends Fragment {
     private LibraryListAdapter menuAdapter;
     private TrackAdapter historyAdapter;
     private TextView seeAllTextView;
-    private ImageView ivAvatar;
+    private ImageView ivAvatar, ivSetting;
     private List<LibraryList> libraryLists;
     private List<TrackResponse> trackResponseList;
     public LibraryPageFragment() {
@@ -65,6 +65,8 @@ public class LibraryPageFragment extends Fragment {
 
         // Khởi tạo ListView
         listViewMenu = view.findViewById(R.id.listViewMenu);
+
+        ivSetting = view.findViewById(R.id.iv_settings);
 
         // Tạo danh sách dữ liệu (dựa trên ảnh)
         libraryLists = new ArrayList<>();
@@ -130,11 +132,17 @@ public class LibraryPageFragment extends Fragment {
         listViewHistory = view.findViewById(R.id.listViewHistory);
 
         trackResponseList = new ArrayList<>();
-        getHistory();
         // Khởi tạo và gắn adapter vào ListView history
         historyAdapter = new TrackAdapter(this, trackResponseList);
         listViewHistory.setAdapter(historyAdapter);
+        getHistory();
 
+        ivSetting.setOnClickListener(v->{
+            FragmentTransaction fragmentTransaction = requireActivity().getSupportFragmentManager().beginTransaction();
+            fragmentTransaction.replace(R.id.fragment_container, new SettingFragment());
+            fragmentTransaction.addToBackStack(null);
+            fragmentTransaction.commit();
+        });
         seeAllTextView.setOnClickListener(v -> {
             FragmentTransaction fragmentTransaction = requireActivity().getSupportFragmentManager().beginTransaction();
             fragmentTransaction.replace(R.id.fragment_container, new HistoryFragment());

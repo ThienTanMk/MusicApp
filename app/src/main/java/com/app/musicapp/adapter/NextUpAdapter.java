@@ -22,9 +22,7 @@ public class NextUpAdapter extends BaseAdapter {
     private List<TrackResponse> nextUpItems;
     private Context context;
     private MusicService musicService;
-    private String username;
-    private View playingItem;
-    private int currentPosition;
+
     public NextUpAdapter(List<TrackResponse> nextUpItems, Context context, MusicService musicService) {
         this.nextUpItems = nextUpItems;
         this.context = context;
@@ -58,34 +56,20 @@ public class NextUpAdapter extends BaseAdapter {
         title.setText(item.getTitle());
         username.setText(item.getArtist());
         Glide.with(context).load(UrlHelper.getCoverImageUrl(item.getCoverImageName())).placeholder(R.drawable.img).into(cover);
+
         if(musicService.getCurrentIndex()==position){
-//            username.setText(item.getArtist());
-            this.username = item.getArtist();
             if(musicService.isPlaying())
                 username.setText("Now Playing");
             else username.setText("Paused");
             username.setTextColor(ContextCompat.getColor(context, R.color.soundcloud));
-            this.playingItem = view;
-            currentPosition = position;
         }
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                username.setText("Now Playing");
-                if(currentPosition==position){
-                    musicService.playCurrentMusic();
-                    return;
-                }
-                TextView temp_username = playingItem.findViewById(R.id.text_nextup_username);
-                temp_username.setTextColor(ContextCompat.getColor(context, com.google.android.material.R.color.design_default_color_background));
-                temp_username.setText(NextUpAdapter.this.username);
-
-                username.setTextColor(ContextCompat.getColor(context, R.color.soundcloud));
-                musicService.playMusicAtIndex(position);
-
-                currentPosition = position;
-                playingItem = view;
-                NextUpAdapter.this.username = item.getArtist();
+                if(musicService.getCurrentIndex()!=position)
+                    musicService.playMusicAtIndex(position);
+                else if(musicService.isPlaying()) musicService.pauseCurrentMusic();
+                else musicService.playCurrentMusic();
             }
         });
         return view;

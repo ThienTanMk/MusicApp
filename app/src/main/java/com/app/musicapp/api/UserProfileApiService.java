@@ -28,7 +28,7 @@ public interface UserProfileApiService {
 //search
     @GET("/api/profile/users/bulk")
     Call<ApiResponse<List<ProfileWithCountFollowResponse>>> getUserProfilesByIds(
-            @Query("ids") List<String> ids
+            @Query("userIds") List<String> ids
     );
 
     @GET("/api/profile/users/search-by-email")

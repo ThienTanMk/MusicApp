@@ -42,12 +42,12 @@ public class SearchResultFragment extends Fragment {
     private ImageView ivBack;
 //    private SearchApiService searchApiService;
     private ImageButton searchButton;
-    private ProgressBar progressBar;
+//    private ProgressBar progressBar;
     private List<TrackResponse> trackResponseResults = new ArrayList<>();
     private List<ProfileWithCountFollowResponse> userResults = new ArrayList<>();
     private List<PlaylistResponse> playlistResults = new ArrayList<>();
     private List<AlbumResponse> albumResponseResults = new ArrayList<>();
-
+    private  SearchResultPagerAdapter adapter;
     public SearchResultFragment() {
         // Required empty public constructor
     }
@@ -62,11 +62,7 @@ public class SearchResultFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//        try {
-//            searchApiService = ApiClient.getClient().create(SearchApiService.class);
-//        } catch (Exception e) {
-//            Log.e("SearchResultFragment", "Failed to initialize searchApiService: " + e.getMessage());
-//        }
+
     }
 
     @Override
@@ -81,13 +77,13 @@ public class SearchResultFragment extends Fragment {
         tabLayout = view.findViewById(R.id.tab_layout);
         viewPager = view.findViewById(R.id.view_pager_results);
         searchButton = view.findViewById(R.id.searchButton);
-        progressBar = view.findViewById(R.id.progressBar);
+//        progressBar = view.findViewById(R.id.progressBar);
         // Lấy query từ Bundle và đặt vào searchEditText
         String query = getArguments() != null ? getArguments().getString(ARG_QUERY, "") : "";
         searchEditText.setText(query);
 
         // Thiết lập ViewPager2 và TabLayout
-        SearchResultPagerAdapter adapter = new SearchResultPagerAdapter(this, trackResponseResults, userResults, playlistResults, albumResponseResults);
+         adapter = new SearchResultPagerAdapter(this, trackResponseResults, userResults, playlistResults, albumResponseResults);
         viewPager.setAdapter(adapter);
 
         new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> {
@@ -155,7 +151,7 @@ public class SearchResultFragment extends Fragment {
         return view;
     }
     private void performSearch(String query) {
-        progressBar.setVisibility(View.VISIBLE);
+//        progressBar.setVisibility(View.VISIBLE);
         GridView gridView = requireActivity().findViewById(R.id.gridViewVibes);
         TextView textView = requireActivity().findViewById(R.id.textViewVibes);
         if (gridView != null && textView != null) {
@@ -385,10 +381,8 @@ public class SearchResultFragment extends Fragment {
         }
     }
     private void updatePagerAdapter() {
-        SearchResultPagerAdapter pagerAdapter = (SearchResultPagerAdapter) viewPager.getAdapter();
-        if (pagerAdapter != null) {
-            pagerAdapter.updateData(trackResponseResults, userResults, playlistResults, albumResponseResults);
-            pagerAdapter.notifyDataSetChanged();
-        }
+        adapter = new SearchResultPagerAdapter(this, trackResponseResults, userResults, playlistResults, albumResponseResults);
+        viewPager.setAdapter(adapter);
     }
+
 }

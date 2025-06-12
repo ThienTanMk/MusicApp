@@ -5,7 +5,7 @@
     android:id="@+id/mContainer"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/primary"
+    android:background="@color/black"
     android:orientation="vertical"
     tools:context=".view.activity.MusicPlayer">
     <RelativeLayout
@@ -182,12 +182,13 @@
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/play_pause"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
             android:layout_centerHorizontal="true"
             android:layout_centerVertical="true"
             android:clickable="true"
             android:focusable="true"
+            android:backgroundTint="@color/gray"
             android:src="@drawable/pause_icon" />
 
         <ImageView

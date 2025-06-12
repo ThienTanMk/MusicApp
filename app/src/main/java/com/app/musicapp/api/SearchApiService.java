@@ -26,7 +26,7 @@ public interface SearchApiService {
     @GET("/api/user-library/album/bulk")
     Call<ApiResponse<List<AlbumResponse>>> getAlbumsByIds(@Query("album_ids") List<String> ids);
     @GET("/api/profile/users/bulk")
-    Call<ApiResponse<List<ProfileWithCountFollowResponse>>> getUserProfilesByIds(@Query("ids") List<String> ids);
+    Call<ApiResponse<List<ProfileWithCountFollowResponse>>> getUserProfilesByIds(@Query("userIds") List<String> ids);
     @GET("/api/music-service/tracks/bulk")
     Call<ApiResponse<List<TrackResponse>>> getTracksByIds(@Query("ids") List<String> ids);
 }

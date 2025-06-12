@@ -388,6 +388,12 @@ public class MusicPlayer extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        unregisterReceiver(receiver);
+        try {
+            unregisterReceiver(receiver);
+            unbindService(connection);
+        }
+        catch (Exception ex){
+            ex.printStackTrace();
+        }
     }
 }

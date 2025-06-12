@@ -36,19 +36,13 @@ public class TrackAdapter extends BaseAdapter {
     private List<TrackResponse> trackResponseList;
     private int layoutType;
 
-    private View playingItem;
     private MusicService musicService;
-    private String currentDisplayname;
-
-
-    private Map<String,View> trackIdToView;
 
     public TrackAdapter(Fragment fragment, List<TrackResponse> trackResponseList) {
         this.fragment = fragment;
         this.trackResponseList = new ArrayList<>(trackResponseList);
         this.context = fragment.getContext();
         this.inflater = LayoutInflater.from(fragment.getContext());
-        trackIdToView = new HashMap<>();
 
         if(fragment.getContext() instanceof MainActivity){
             musicService = ((MainActivity) fragment.getContext()).getMusicService();
@@ -61,7 +55,6 @@ public class TrackAdapter extends BaseAdapter {
                changeCurrentPlayedView();
             });
         }
-        trackIdToView = new HashMap<>();
     }
     // Phương thức mới để cập nhật danh sách
     public void updateTracks(List<TrackResponse> newTracks) {
@@ -87,49 +80,7 @@ public class TrackAdapter extends BaseAdapter {
 
     // receipt from outside
     public void changeCurrentPlayedView(){
-
-        if(musicService==null) return;
-        if(trackResponseList==null|| trackResponseList.isEmpty())return;
-        TrackResponse trackResponse = musicService.getCurrentTrack();
-        if(trackResponse==null) return;
-        if(!trackIdToView.containsKey(trackResponse.getId())){
-
-            if(playingItem!=null){
-                ViewHolder holder = (ViewHolder) playingItem.getTag();
-                holder.tvTrackArtist.setText(currentDisplayname);
-                holder.tvTrackArtist.setTextColor(ContextCompat.getColor(context, com.google.android.material.R.color.design_default_color_background));
-            }
-            return;
-        }
-
-        int index = -1;
-        for(int i =0;i< trackResponseList.size();i++){
-            if(trackResponseList.get(i).getId().equals(trackResponse.getId())){
-                index = i;
-                break;
-            }
-        }
-
-
-        currentDisplayname = trackResponse.getUser().getDisplayName();
-
-        View view = trackIdToView.get(trackResponse.getId());
-        ViewHolder holder = (ViewHolder) view.getTag();
-        if(musicService.isPlaying()){
-            holder.tvTrackArtist.setText("Now playing");
-        }
-        else{
-            holder.tvTrackArtist.setText("Pause");
-        }
-        holder.tvTrackArtist.setTextColor(ContextCompat.getColor(context, R.color.soundcloud));
-
-        if(playingItem!=null&&playingItem!=view){
-            ViewHolder temp_holder = (ViewHolder) playingItem.getTag();
-            temp_holder.tvTrackArtist.setText(currentDisplayname);
-            temp_holder.tvTrackArtist.setTextColor(ContextCompat.getColor(context, com.google.android.material.R.color.design_default_color_background));
-        }
-
-        playingItem = view;
+        notifyDataSetChanged();
     }
 
     @Override
@@ -159,17 +110,6 @@ public class TrackAdapter extends BaseAdapter {
                 if(musicService==null) return;
                 musicService.setNextUpItems(trackResponseList);
                 musicService.playMusicAtIndex(i);
-                currentDisplayname = trackResponse.getUser().getDisplayName();
-                holder.tvTrackArtist.setText("Now playing");
-                holder.tvTrackArtist.setTextColor(ContextCompat.getColor(context, R.color.soundcloud));
-
-                if(playingItem!=null&&playingItem!=v){
-                    ViewHolder temp_holder = (ViewHolder) playingItem.getTag();
-                    temp_holder.tvTrackArtist.setText(currentDisplayname);
-                    temp_holder.tvTrackArtist.setTextColor(ContextCompat.getColor(context, com.google.android.material.R.color.design_default_color_background));
-                }
-
-                playingItem = v;
             }
         });
 
@@ -179,8 +119,6 @@ public class TrackAdapter extends BaseAdapter {
         if (user != null && user.getDisplayName() != null) {
             holder.tvTrackArtist.setText(user.getDisplayName());
         } else {
-//            Log.w("TrackAdapter", "User or displayName is null for track: " +
-//                    (trackResponse.getTitle() != null ? trackResponse.getTitle() : "null"));
             holder.tvTrackArtist.setText("Unknown Artist");
         }
         holder.tvPlayCount.setText(formatPlayCount(trackResponse.getCountPlay()));
@@ -203,14 +141,11 @@ public class TrackAdapter extends BaseAdapter {
             }
             bottomSheet.show(fragment.getParentFragmentManager(), bottomSheet.getTag());
         });
-
+        holder.tvTrackArtist.setTextColor(ContextCompat.getColor(context, com.google.android.material.R.color.design_default_color_background));
         // xu ly nghe nhac
         if(musicService!=null){
             if(musicService.getCurrentTrack()!=null){
                 if(musicService.getCurrentTrack().getId().equals(trackResponse.getId())){
-                    currentDisplayname = trackResponse.getUser().getDisplayName();
-
-                    playingItem = view;
                     if(musicService.isPlaying()){
                         holder.tvTrackArtist.setText("Now playing");
                     }
@@ -218,12 +153,10 @@ public class TrackAdapter extends BaseAdapter {
                         holder.tvTrackArtist.setText("Pause");
                     }
                     holder.tvTrackArtist.setTextColor(ContextCompat.getColor(context, R.color.soundcloud));
-
                 }
             }
         }
 
-        trackIdToView.putIfAbsent(trackResponse.getId(),view);
         return view;
     }
     private String formatPlayCount(int count) {

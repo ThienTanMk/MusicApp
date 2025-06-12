@@ -68,6 +68,7 @@ public class MainActivity extends AppCompatActivity {
         }
     };
     private void updateTrackInfo(){
+        if (isFinishing() || isDestroyed()) return;
         TrackResponse track = musicService.getCurrentTrack();
         if(track==null) return;
         artistName.setText(track.getUser().getDisplayName());
@@ -243,6 +244,7 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
         try {
             unbindService(connection);
+            unregisterReceiver(receiver);
         }
         catch (Exception ex){
 

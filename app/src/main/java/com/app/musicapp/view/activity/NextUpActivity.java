@@ -1,8 +1,10 @@
 package com.app.musicapp.view.activity;
 
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -49,6 +51,13 @@ public class NextUpActivity extends AppCompatActivity {
 
         }
     };
+    private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+
+            nextUpAdapter.notifyDataSetChanged();
+        }
+    };
     @Override
     protected void onStart() {
         super.onStart();
@@ -65,8 +74,14 @@ public class NextUpActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-
         this.initView();
+
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(MusicService.ACTION_CHANGED_CURRENT_TRACK);
+        intentFilter.addAction(MusicService.ACTION_PAUSE);
+        intentFilter.addAction(MusicService.ACTION_PLAY);
+        registerReceiver(broadcastReceiver,intentFilter,Context.RECEIVER_EXPORTED);
+
     }
     private void initView(){
         this.closeButton = findViewById(R.id.image_nextup_close_button);
@@ -77,4 +92,16 @@ public class NextUpActivity extends AppCompatActivity {
             }
         });
     }
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        try {
+            unbindService(connection);
+            unregisterReceiver(broadcastReceiver);
+        }
+        catch (Exception ex){
+
+        }
+    }
+
 }

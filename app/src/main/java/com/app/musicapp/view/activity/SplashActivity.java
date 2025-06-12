@@ -11,6 +11,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.app.musicapp.R;
+import com.app.musicapp.helper.SharedPreferencesManager;
 
 public class SplashActivity extends AppCompatActivity {
 
@@ -24,16 +25,14 @@ public class SplashActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-//        // Kiểm tra trạng thái đăng nhập
-//        SharedPreferences prefs = getSharedPreferences("user_prefs", MODE_PRIVATE);
-//        boolean isLoggedIn = prefs.getBoolean("is_logged_in", false);
-//
-//        if (isLoggedIn) {
-//            // Nếu đã đăng nhập, chuyển thẳng đến MainActivity
-//            Intent intent = new Intent(SplashActivity.this, MainActivity.class);
-//            startActivity(intent);
-//            finish();
-//        }
+
+        SharedPreferencesManager preferencesManager = SharedPreferencesManager.getInstance(this);
+
+        if(preferencesManager.getToken()!=null){
+            Intent intent = new Intent(this, MainActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+        }
     }
     public void signIn(View view) {
         Intent intent = new Intent(SplashActivity.this, SignIn.class);

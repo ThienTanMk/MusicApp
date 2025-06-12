@@ -91,8 +91,7 @@ public class FollowerFragment extends Fragment {
         ApiClient.getUserService().getFollowers(userId,0,1000).enqueue(new Callback<ApiResponse<PageFollowResponse>>() {
             @Override
             public void onResponse(Call<ApiResponse<PageFollowResponse>> call, Response<ApiResponse<PageFollowResponse>> response) {
-                Log.i("follower",response.body().getData().getContent().get(0).getDisplayName());
-                if(response.isSuccessful()&&response.body().getData()!=null){
+                if(response.isSuccessful()&&response.body()!=null&&response.body().getData()!=null){
                     followerList.clear();
                     followerList.addAll(response.body().getData().getContent());
                     followerAdapter.notifyDataSetChanged();
