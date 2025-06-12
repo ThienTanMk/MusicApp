@@ -514,7 +514,7 @@ public class UserProfileFragment extends Fragment {
         if (rvPlaylists == null) return;
 
         ViewGroup.LayoutParams params = rvPlaylists.getLayoutParams();
-        if (playlists != null && playlists.size() == 2) {
+        if (playlists != null && playlists.size() < 3) {
             // Set height = 210dp nếu có đúng 2 item
             params.height = (int) TypedValue.applyDimension(
                     TypedValue.COMPLEX_UNIT_DIP, 210, getResources().getDisplayMetrics());

@@ -1,7 +1,6 @@
 package com.app.musicapp.adapter.playlist;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,8 +11,10 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.app.musicapp.R;
+import com.app.musicapp.helper.UrlHelper;
 import com.app.musicapp.model.response.PlaylistResponse;
 import com.app.musicapp.model.response.TagResponse;
+import com.bumptech.glide.Glide;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,28 +54,15 @@ public class PlaylistInVibeAdapter extends RecyclerView.Adapter<PlaylistInVibeAd
         // Lấy tag đầu tiên làm thông tin
         List<TagResponse> tags = playlistResponse.getPlaylistTags();
         if (tags != null && !tags.isEmpty()) {
-            holder.tvPlaylistArtist.setText(tags.get(0).getName());
+            holder.tvPlaylistTag.setText(tags.get(0).getName());
         } else {
-            holder.tvPlaylistArtist.setText("No Category");
+            holder.tvPlaylistTag.setText("No Tag");
         }
-        try {
-            String imagePath = playlistResponse.getImagePath();
-            String resourceName = imagePath != null ? imagePath.replace(".jpg", "") : "";
-            if (!resourceName.isEmpty()) {
-                Resources resources = context.getResources();
-                int resourceId = resources.getIdentifier(resourceName, "drawable", context.getPackageName());
-                if (resourceId != 0) {
-                    holder.ivPlaylistImage.setImageResource(resourceId);
-                } else {
-                    holder.ivPlaylistImage.setImageResource(R.drawable.logo);
-                }
-            } else {
-                holder.ivPlaylistImage.setImageResource(R.drawable.logo);
-            }
-        } catch (Exception e) {
-            holder.ivPlaylistImage.setImageResource(R.drawable.logo);
-            e.printStackTrace();
-        }
+        Glide.with(holder.itemView.getContext())
+                .load(playlistResponse.getImagePath() != null ? UrlHelper.getCoverImageUrl(playlistResponse.getImagePath()) : R.drawable.logo)
+                .placeholder(R.drawable.logo)
+                .into(holder.ivPlaylistImage);
+
         holder.itemView.setOnClickListener(v -> {
             Log.d("PlaylistInVibeAdapter", "Item clicked: " + playlistResponse.getTitle());
             if (listener != null) {
@@ -91,13 +79,13 @@ public class PlaylistInVibeAdapter extends RecyclerView.Adapter<PlaylistInVibeAd
     static class ViewHolder extends RecyclerView.ViewHolder {
         ImageView ivPlaylistImage;
         TextView tvPlaylistTitle;
-        TextView tvPlaylistArtist;
+        TextView tvPlaylistTag;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             ivPlaylistImage = itemView.findViewById(R.id.iv_playlist_image);
             tvPlaylistTitle = itemView.findViewById(R.id.tv_playlist_title);
-            tvPlaylistArtist = itemView.findViewById(R.id.tv_playlist_artist);
+            tvPlaylistTag = itemView.findViewById(R.id.tv_playlist_artist);
         }
     }
 }

@@ -11,7 +11,9 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.app.musicapp.R;
+import com.app.musicapp.helper.UrlHelper;
 import com.app.musicapp.model.response.AlbumResponse;
+import com.bumptech.glide.Glide;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,23 +57,10 @@ public class AlbumInVibeAdapter extends RecyclerView.Adapter<AlbumInVibeAdapter.
             holder.tvAlbumArtist.setText("No Artist");
         }
 
-        try {
-            String imagePath = albumResponse.getImagePath();
-            String resourceName = imagePath != null ? imagePath.replace(".jpg", "") : "";
-            if (!resourceName.isEmpty()) {
-                int resourceId = context.getResources().getIdentifier(resourceName, "drawable", context.getPackageName());
-                if (resourceId != 0) {
-                    holder.ivAlbumImage.setImageResource(resourceId);
-                } else {
-                    holder.ivAlbumImage.setImageResource(R.drawable.logo);
-                }
-            } else {
-                holder.ivAlbumImage.setImageResource(R.drawable.logo);
-            }
-        } catch (Exception e) {
-            holder.ivAlbumImage.setImageResource(R.drawable.logo);
-            e.printStackTrace();
-        }
+        Glide.with(holder.itemView.getContext())
+                .load(albumResponse.getImagePath() != null ? UrlHelper.getCoverImageUrl(albumResponse.getImagePath()) : R.drawable.logo)
+                .placeholder(R.drawable.logo)
+                .into(holder.ivAlbumImage);
         holder.itemView.setOnClickListener(v -> {
             Log.d("AlbumInVibeAdapter", "Item clicked: " + albumResponse.getAlbumTitle());
             if (listener != null) {

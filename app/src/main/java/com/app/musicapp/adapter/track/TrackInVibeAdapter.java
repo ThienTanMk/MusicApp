@@ -9,8 +9,10 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.app.musicapp.R;
+import com.app.musicapp.helper.UrlHelper;
 import com.app.musicapp.model.response.TrackResponse;
 import com.app.musicapp.view.fragment.track.SongOptionsBottomSheet;
+import com.bumptech.glide.Glide;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,9 +43,17 @@ public class TrackInVibeAdapter extends RecyclerView.Adapter<TrackInVibeAdapter.
 
         TrackResponse trackResponse = trackResponseList.get(position);
         holder.tvTrackTitle.setText(trackResponse.getTitle());
-        holder.tvTrackArtist.setText(trackResponse.getUserId());
+        holder.tvTrackArtist.setText(trackResponse.getUser().getDisplayName() != null ? trackResponse.getUser().getDisplayName(): "Unknow User");
 
-        holder.ivTrackImage.setImageResource(R.drawable.logo);
+        if (trackResponse.getCoverImageName() != null) {
+            Glide.with(fragment)
+                    .load(UrlHelper.getCoverImageUrl(trackResponse.getCoverImageName()))
+                    .placeholder(R.drawable.logo)
+                    .error(R.drawable.logo)
+                    .into(holder.ivTrackImage);
+        } else {
+            holder.ivTrackImage.setImageResource(R.drawable.logo);
+        }
 
         holder.ivMenu.setOnClickListener(v -> {
             Toast.makeText(fragment.getContext(), "Menu clicked for: " + trackResponse.getTitle(), Toast.LENGTH_SHORT).show();
