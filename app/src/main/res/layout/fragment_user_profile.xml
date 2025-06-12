@@ -146,7 +146,8 @@
                 android:contentDescription="play"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"/>
+                app:layout_constraintEnd_toEndOf="parent"
+                android:visibility="gone"/>
 
             <ImageButton
                 android:id="@+id/btn_shuffle"
@@ -156,7 +157,8 @@
                 android:contentDescription="shuffle"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@id/btn_play"/>
+                app:layout_constraintEnd_toStartOf="@id/btn_play"
+                android:visibility="gone"/>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
