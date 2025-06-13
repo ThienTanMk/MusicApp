@@ -30,7 +30,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_marginStart="12dp"
-            android:text="Liked trackResponses"
+            android:text="Liked Tracks"
             android:textColor="#FFFFFF"
             android:textSize="20sp"
             android:textStyle="bold" />

@@ -43,6 +43,11 @@ public interface StatisticApiService {
             @Query("from_date") String fromDate,
             @Query("to_date") String toDate
     );
+    @GET("/api/user-library/statistic/comments/all")
+    Call<ApiResponse<CommentStatisticResponse>> getAllComments(
+            @Query("from_date") String fromDate,
+            @Query("to_date") String toDate
+    );
 
     @GET("/api/user-library/statistic/likes/all")
     Call<ApiResponse<LikeResponse>> getAllLiked(

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <!-- Thanh chọn ngày giống overview -->
+        <LinearLayout
+            android:id="@+id/layout_statistic_type"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="8dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp">
+
+            <Button
+                android:id="@+id/btnPickDate"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:text="Chọn ngày"
+                android:backgroundTint="@color/surface"
+                android:textColor="@color/white"/>
+        </LinearLayout>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Top listeners"
+            android:textSize="16sp"
+            android:layout_marginStart="16dp"
+            android:textColor="@color/white"
+            android:layout_marginBottom="8dp" />
+        <!-- TextView hiển thị thời gian -->
+        <TextView
+            android:id="@+id/text_time_top_listeners"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Last 7 days"
+            android:textSize="16sp"
+            android:layout_marginStart="16dp"
+            android:layout_marginBottom="8dp" />
+
+        <!-- RecyclerView cho top listeners -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_top_listeners"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:nestedScrollingEnabled="false"
+            android:overScrollMode="never"
+            android:clipToPadding="false"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="16dp" />
+    </LinearLayout>
+</ScrollView>

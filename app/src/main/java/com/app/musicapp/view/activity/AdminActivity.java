@@ -12,6 +12,7 @@ import androidx.fragment.app.FragmentTransaction;
 import com.app.musicapp.R;
 import com.app.musicapp.view.fragment.admin.ManageGenreFragment;
 import com.app.musicapp.view.fragment.admin.ManageTagFragment;
+import com.app.musicapp.view.fragment.insight.InsightsFragment;
 
 public class AdminActivity extends AppCompatActivity {
     private ImageView imageBack;
@@ -35,6 +36,7 @@ public class AdminActivity extends AppCompatActivity {
         // XỬ LÝ MỞ FRAGMENT KHI CLICK TEXT
         textManageGenre.setOnClickListener(v -> openFragment(new ManageGenreFragment()));
         textManageTag.setOnClickListener(v -> openFragment(new ManageTagFragment()));
+        textStatistic.setOnClickListener(v -> openFragment(InsightsFragment.newInstance("admin")));
     }
 
     private void openFragment(Fragment fragment) {

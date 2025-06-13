@@ -28,6 +28,8 @@ import com.app.musicapp.model.response.ProfileWithCountFollowResponse;
 import com.app.musicapp.model.response.TrackResponse;
 import com.app.musicapp.view.fragment.album.AlbumsFragment;
 import com.app.musicapp.view.fragment.follow.FollowingFragment;
+import com.app.musicapp.view.fragment.insight.InsightsFragment;
+import com.app.musicapp.view.fragment.insight.OverviewFragment;
 import com.app.musicapp.view.fragment.playlist.PlaylistsFragment;
 import com.app.musicapp.view.fragment.track.LikedTracksFragment;
 import com.app.musicapp.view.fragment.profile.UserProfileFragment;
@@ -74,7 +76,7 @@ public class LibraryPageFragment extends Fragment {
         libraryLists.add(new LibraryList("Playlists"));
         libraryLists.add(new LibraryList("Albums"));
         libraryLists.add(new LibraryList("Following"));
-        //libraryLists.add(new LibraryList("Your insights"));
+        libraryLists.add(new LibraryList("Your insights"));
         libraryLists.add(new LibraryList("Your uploads"));
 
         // Khởi tạo và gắn adapter vào ListView
@@ -114,6 +116,10 @@ public class LibraryPageFragment extends Fragment {
                 case "Following":
                     FollowingFragment followingFragment = FollowingFragment.newInstance();
                     transaction.replace(R.id.fragment_container, followingFragment);
+                    break;
+                case "Your insights":
+                    InsightsFragment overviewFragment = InsightsFragment.newInstance("user");
+                    transaction.replace(R.id.fragment_container, overviewFragment);
                     break;
                 case "Your uploads":
                     UploadsFragment uploadsFragment = UploadsFragment.newInstance();

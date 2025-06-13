@@ -9,4 +9,20 @@ import java.util.List;
 public class PlayResponse implements Serializable {
     private List<DailyPlay> dailyPlays;
     private List<UserStatistic> topListenerIds;
+
+    public List<DailyPlay> getDailyPlays() {
+        return dailyPlays;
+    }
+
+    public void setDailyPlays(List<DailyPlay> dailyPlays) {
+        this.dailyPlays = dailyPlays;
+    }
+
+    public List<UserStatistic> getTopListenerIds() {
+        return topListenerIds;
+    }
+
+    public void setTopListenerIds(List<UserStatistic> topListenerIds) {
+        this.topListenerIds = topListenerIds;
+    }
 }
