@@ -29,14 +29,12 @@ import com.app.musicapp.model.response.ApiResponse;
 import com.app.musicapp.model.response.UploadAvatarResponse;
 import com.app.musicapp.model.response.UploadCoverResponse;
 import com.app.musicapp.model.response.UserProfileResponse;
-import com.app.musicapp.util.FileUtil;
+import com.app.musicapp.helper.FileUtil;
 import com.bumptech.glide.Glide;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
 
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;

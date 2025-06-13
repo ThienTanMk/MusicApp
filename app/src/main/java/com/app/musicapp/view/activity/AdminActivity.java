@@ -6,16 +6,12 @@ import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.app.musicapp.R;
 import com.app.musicapp.view.fragment.admin.ManageGenreFragment;
 import com.app.musicapp.view.fragment.admin.ManageTagFragment;
-import com.app.musicapp.view.fragment.admin.StatisticFragment;
 
 public class AdminActivity extends AppCompatActivity {
     private ImageView imageBack;
@@ -37,7 +33,6 @@ public class AdminActivity extends AppCompatActivity {
         imageBack.setOnClickListener(v -> onBackPressed());
 
         // XỬ LÝ MỞ FRAGMENT KHI CLICK TEXT
-        textStatistic.setOnClickListener(v -> openFragment(new StatisticFragment()));
         textManageGenre.setOnClickListener(v -> openFragment(new ManageGenreFragment()));
         textManageTag.setOnClickListener(v -> openFragment(new ManageTagFragment()));
     }

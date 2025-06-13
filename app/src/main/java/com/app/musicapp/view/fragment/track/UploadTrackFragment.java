@@ -33,7 +33,7 @@ import com.app.musicapp.model.request.TrackRequest;
 import com.app.musicapp.model.response.ApiResponse;
 import com.app.musicapp.model.response.GenreResponse;
 import com.app.musicapp.model.response.TrackResponse;
-import com.app.musicapp.util.FileUtil;
+import com.app.musicapp.helper.FileUtil;
 import com.bumptech.glide.Glide;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 

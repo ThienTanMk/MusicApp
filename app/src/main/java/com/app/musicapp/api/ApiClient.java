@@ -1,11 +1,9 @@
 package com.app.musicapp.api;
 
 import android.content.Context;
-import android.nfc.Tag;
 
-import com.app.musicapp.api.TagApiService;
-import com.app.musicapp.util.LocalDateAdapter;
-import com.app.musicapp.util.LocalDateTimeAdapter;
+import com.app.musicapp.helper.LocalDateAdapter;
+import com.app.musicapp.helper.LocalDateTimeAdapter;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -18,7 +16,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class ApiClient {
     // Replace 192.168.1.x with your computer's actual IP address
-    private static final String BASE_URL = "http://192.168.1.116:8888/";
+    private static final String BASE_URL = "http://192.168.1.138:8888/";
     private static Retrofit retrofit = null;
     private static Context context;
 

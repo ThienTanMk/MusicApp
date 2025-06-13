@@ -1,9 +1,8 @@
-package com.app.musicapp.util;
+package com.app.musicapp.helper;
 
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
-import android.provider.MediaStore;
 import android.provider.OpenableColumns;
 
 import java.io.File;

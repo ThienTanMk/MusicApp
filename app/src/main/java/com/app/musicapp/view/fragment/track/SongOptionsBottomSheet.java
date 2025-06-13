@@ -23,7 +23,7 @@ import com.app.musicapp.model.response.TagResponse;
 import com.app.musicapp.model.response.TrackResponse;
 import com.app.musicapp.model.response.ApiResponse;
 import com.app.musicapp.model.response.PlaylistResponse;
-import com.app.musicapp.util.LocalDateTimeAdapter;
+import com.app.musicapp.helper.LocalDateTimeAdapter;
 import com.app.musicapp.view.activity.CommentActivity;
 import com.app.musicapp.view.fragment.playlist.AddTrackToPlaylistFragment;
 import com.app.musicapp.view.fragment.profile.UserProfileFragment;
