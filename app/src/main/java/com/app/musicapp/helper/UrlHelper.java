@@ -1,7 +1,7 @@
 package com.app.musicapp.helper;
 
 public class UrlHelper {
-    private final static String BASE_URL = "http://192.168.1.4:8888/api";
+    private final static String BASE_URL = "http://192.168.1.116:8888/api";
     public static String getAudioUrl(String audioName){
         return BASE_URL+ "/file-service/audios/"+audioName;
     }
