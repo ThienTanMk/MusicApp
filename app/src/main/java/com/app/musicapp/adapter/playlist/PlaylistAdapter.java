@@ -74,20 +74,6 @@ public class PlaylistAdapter extends ArrayAdapter<PlaylistResponse> {
         int trackCount = (playlistResponse.getPlaylistTrackResponses() != null) ? playlistResponse.getPlaylistTrackResponses().size() : 0;
         tvTrackCount.setText(trackCount + " Tracks");
 
-//        try {
-//            String imagePath = playlistResponse.getImagePath();
-//            String resourceName = imagePath != null ? imagePath.replace(".jpg", "") : "";
-//            if (!resourceName.isEmpty()) {
-//                Resources resources = getContext().getResources();
-//                int resourceId = resources.getIdentifier(resourceName, "drawable", getContext().getPackageName());
-//                ivPlaylistImage.setImageResource(resourceId != 0 ? resourceId : R.drawable.logo);
-//            } else {
-//                ivPlaylistImage.setImageResource(R.drawable.logo);
-//            }
-//        } catch (Exception e) {
-//            ivPlaylistImage.setImageResource(R.drawable.logo);
-//        }
-
         if (playlistResponse.getImagePath() != null) {
             Glide.with(getContext())
                     .load(UrlHelper.getCoverImageUrl(playlistResponse.getImagePath()))

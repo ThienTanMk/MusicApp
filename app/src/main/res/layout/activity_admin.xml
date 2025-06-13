@@ -5,6 +5,77 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".view.activity.AdminActivity">
+    tools:context=".view.activity.AdminActivity"
+    android:background="@color/background"
+    android:paddingHorizontal="20dp"
+    android:padding="20dp">
 
+    <LinearLayout
+        android:id="@+id/header_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintTop_toTopOf="parent">
+        <ImageView
+            android:background="@drawable/rounded"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:src="@drawable/ic_arrow_back"
+            android:id="@+id/image_back"
+            />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Admin"
+            android:textColor="@color/white"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:layout_marginLeft="30dp"
+            android:layout_weight="1"/>
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/text_statistic"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Statistic"
+        android:textColor="@color/white"
+        android:drawableEnd="@drawable/ic_chevron_right"
+        android:paddingVertical="5dp"
+        android:clickable="true"
+        android:textSize="15dp"
+        android:focusable="true"
+        android:background="?attr/selectableItemBackground"
+        android:layout_marginVertical="10dp"
+        app:layout_constraintTop_toBottomOf="@id/header_layout"/>
+
+    <TextView
+        android:id="@+id/text_manage_genre"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:drawableEnd="@drawable/ic_chevron_right"
+        android:text="Manage Genre"
+        android:layout_marginVertical="10dp"
+        android:textSize="15dp"
+        android:paddingVertical="5dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:background="?attr/selectableItemBackground"
+        android:textColor="@color/white"
+        app:layout_constraintTop_toBottomOf="@id/text_statistic"/>
+
+    <TextView
+        android:id="@+id/text_manage_tag"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginVertical="10dp"
+        android:drawableEnd="@drawable/ic_chevron_right"
+        android:text="Manage Tag"
+        android:paddingVertical="5dp"
+        android:textSize="15dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:background="?attr/selectableItemBackground"
+        android:textColor="@color/white"
+        app:layout_constraintTop_toBottomOf="@id/text_manage_genre"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

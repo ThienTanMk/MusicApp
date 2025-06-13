@@ -8,18 +8,31 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.app.musicapp.R;
+import com.app.musicapp.api.ApiClient;
 import com.app.musicapp.helper.SharedPreferencesManager;
+import com.app.musicapp.model.response.ApiResponse;
+import com.app.musicapp.model.response.RoleResponse;
+import com.app.musicapp.model.response.UserResponse;
+import com.app.musicapp.view.activity.AdminActivity;
 import com.app.musicapp.view.activity.SignIn;
 import com.app.musicapp.view.fragment.playlist.PlaylistsFragment;
 import com.app.musicapp.view.fragment.track.LikedTracksFragment;
 
-public class SettingFragment extends Fragment {
+import java.util.Set;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
+public class SettingFragment extends Fragment {
+    private TextView text_admin;
     public SettingFragment() {
         // Required empty public constructor
     }
@@ -44,6 +57,7 @@ public class SettingFragment extends Fragment {
         view.findViewById(R.id.text_your_tracks).setOnClickListener(this::tracks);
         view.findViewById(R.id.text_liked_tracks).setOnClickListener(this::likeTracks);
         view.findViewById(R.id.text_playlist).setOnClickListener(this::playList);
+        text_admin.setOnClickListener(this::admin);
         view.findViewById(R.id.button_signout).setOnClickListener(this::signOut);
     }
 
@@ -52,7 +66,11 @@ public class SettingFragment extends Fragment {
                              Bundle savedInstanceState) {
 
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_setting, container, false);
+        View view =  inflater.inflate(R.layout.fragment_setting, container, false);
+        text_admin = view.findViewById(R.id.text_admin);
+        getRole();
+        return view;
+
     }
 
     public void back(View view) {
@@ -83,7 +101,10 @@ public class SettingFragment extends Fragment {
         transaction.addToBackStack(null); // optional, nếu muốn quay lại
         transaction.commit();
     }
-
+    public void admin(View view){
+        Intent intent = new Intent(getContext(), AdminActivity.class);
+        startActivity(intent);
+    }
     public void signOut(View view) {
         if(getContext()==null)return;
         SharedPreferencesManager.getInstance(getContext()).clearSession();
@@ -91,5 +112,33 @@ public class SettingFragment extends Fragment {
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         getContext().startActivity(intent);
     }
+    private void getRole(){
+        ApiClient.getIdentityService().getUserinfo().enqueue(new Callback<ApiResponse<UserResponse>>() {
+            @Override
+            public void onResponse(Call<ApiResponse<UserResponse>> call, Response<ApiResponse<UserResponse>> response) {
+                if(response.isSuccessful() && response.body() != null){
+                    Set<RoleResponse> roles = response.body().getData().getRoles();
+                    Log.e("role", "onResponse: "+ roles );
+                    boolean isAdmin = false;
+                    for (RoleResponse role : roles) {
+                        if ("ADMIN".equals(role.getName())) {
+                            isAdmin = true;
+                            break;
+                        }
+                    }
 
+                    if (isAdmin) {
+                        text_admin.setVisibility(View.VISIBLE);
+                    } else {
+                        text_admin.setVisibility(View.GONE);
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponse<UserResponse>> call, Throwable t) {
+                text_admin.setVisibility(View.GONE);
+            }
+        });
+    }
 }

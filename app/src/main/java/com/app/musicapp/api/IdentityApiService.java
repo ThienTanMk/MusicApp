@@ -17,4 +17,7 @@ public interface IdentityApiService {
 
     @GET("/api/identity/authenticate/check-username/{username}")
     Call<ApiResponse<CheckUsernameResponse>> checkUsername(@Path("username") String username);
+
+    @GET("/api/identity/users/my-info")
+    Call<ApiResponse<UserResponse>> getUserinfo();
 }

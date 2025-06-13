@@ -1,9 +1,11 @@
 package com.app.musicapp.model.response;
 
+import com.app.musicapp.interfaces.BaseManageItem;
+
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
-public class TagResponse implements Serializable {
+public class TagResponse implements Serializable, BaseManageItem {
     private String id;
     private String name;
     private LocalDateTime createdAt;

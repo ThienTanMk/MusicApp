@@ -74,7 +74,7 @@ public class LibraryPageFragment extends Fragment {
         libraryLists.add(new LibraryList("Playlists"));
         libraryLists.add(new LibraryList("Albums"));
         libraryLists.add(new LibraryList("Following"));
-        libraryLists.add(new LibraryList("Your insights"));
+        //libraryLists.add(new LibraryList("Your insights"));
         libraryLists.add(new LibraryList("Your uploads"));
 
         // Khởi tạo và gắn adapter vào ListView
