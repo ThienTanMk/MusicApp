@@ -15,6 +15,7 @@ import android.view.ViewGroup;
 import com.app.musicapp.R;
 import com.app.musicapp.helper.SharedPreferencesManager;
 import com.app.musicapp.view.activity.SignIn;
+import com.app.musicapp.view.activity.SplashActivity;
 import com.app.musicapp.view.fragment.playlist.PlaylistsFragment;
 import com.app.musicapp.view.fragment.track.LikedTracksFragment;
 
@@ -87,7 +88,7 @@ public class SettingFragment extends Fragment {
     public void signOut(View view) {
         if(getContext()==null)return;
         SharedPreferencesManager.getInstance(getContext()).clearSession();
-        Intent intent = new Intent(getContext(), SignIn.class);
+        Intent intent = new Intent(getContext(), SplashActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         getContext().startActivity(intent);
     }

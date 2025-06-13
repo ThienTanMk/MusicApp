@@ -24,8 +24,6 @@ import com.app.musicapp.helper.UrlHelper;
 import com.app.musicapp.model.response.AlbumResponse;
 import com.app.musicapp.model.response.ApiResponse;
 import com.app.musicapp.model.response.TrackResponse;
-import com.app.musicapp.service.MusicService;
-import com.app.musicapp.view.activity.MusicPlayer;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 
@@ -42,7 +40,7 @@ import retrofit2.Response;
 public class AlbumPageFragment extends Fragment {
     private AlbumResponse album;
     private ImageView ivLike;
-    private MusicService musicService;
+    TextView tvLikeCount;
     private TrackRVAdapter trackAdapter;
     public static AlbumPageFragment newInstance(AlbumResponse album) {
         AlbumPageFragment fragment = new AlbumPageFragment();
@@ -51,21 +49,7 @@ public class AlbumPageFragment extends Fragment {
         fragment.setArguments(args);
         return fragment;
     }
-    private ServiceConnection connection = new ServiceConnection() {
 
-        @Override
-        public void onServiceConnected(ComponentName className,
-                                       IBinder service) {
-            // We've bound to LocalService, cast the IBinder and get LocalService instance.
-            MusicService.LocalBinder binder = (MusicService.LocalBinder) service;
-            musicService = binder.getService();
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName arg0) {
-
-        }
-    };
     public AlbumPageFragment() {
         // Required empty public constructor
     }
@@ -94,20 +78,17 @@ public class AlbumPageFragment extends Fragment {
         TextView tvNumOfTracks = view.findViewById(R.id.tv_num_of_tracks);
         TextView tvTotalDuration = view.findViewById(R.id.tv_total_duration);
         ivLike = view.findViewById(R.id.iv_like);
-        TextView tvLikeCount = view.findViewById(R.id.tv_like_count);
+        tvLikeCount = view.findViewById(R.id.tv_like_count);
         ImageView ivMenu = view.findViewById(R.id.iv_menu);
         ImageView ivPlay = view.findViewById(R.id.iv_play);
         TextView tvDescription = view.findViewById(R.id.tv_description);
         TextView tvShowMore = view.findViewById(R.id.tv_show_more);
         RecyclerView rvTracks = view.findViewById(R.id.rv_tracks);
-        Intent intent = new Intent(getContext(), MusicService.class);
-        getContext().bindService(intent, connection, Context.BIND_AUTO_CREATE);
-        getContext().startForegroundService(intent);
         if (album != null) {
             tvAlbumTitleHeader.setText("Album " + album.getCreatedAt().getYear());
             tvAlbumTitle.setText(album.getAlbumTitle());
             tvAlbumArtists.setText(album.getMainArtists());
-
+            getLikeCount();
             // Load album image using Glide
             if (album.getImagePath() != null) {
                 Context context = getContext();
@@ -134,25 +115,11 @@ public class AlbumPageFragment extends Fragment {
             long totalDurationSeconds = calculateTotalDuration(album.getTracks());
             String duration = String.format("%d:%02d", totalDurationSeconds / 60, totalDurationSeconds % 60);
             tvTotalDuration.setText(" · " + duration);
-            tvLikeCount.setText("210");
+
             tvDescription.setText(album.getDescription() != null ? album.getDescription() : "No description");
             rvTracks.setLayoutManager(new LinearLayoutManager(getContext()));
             trackAdapter = new TrackRVAdapter(this, album.getTracks() != null ? album.getTracks() : new ArrayList<>());
             trackAdapter.setOnTrackClickListener(track -> {
-                // Handle track click
-                if (musicService != null) {
-                    musicService.setNextUpItems(album.getTracks());
-                    // Start playing the track
-                    if (Objects.equals(musicService.getCurrentTrack().getId(), track.getId())) {
-                        musicService.playCurrentMusic();
-                    } else {
-                        musicService.playMusicAtIndex(album.getTracks().indexOf(track));
-                    }
-                    Intent musicIntent = new Intent(getContext(), MusicPlayer.class);
-                    startActivity(musicIntent);
-                } else {
-                    Toast.makeText(getContext(), "Music service not connected", Toast.LENGTH_SHORT).show();
-                }
             });
             rvTracks.setAdapter(trackAdapter);
         }
@@ -188,7 +155,7 @@ public class AlbumPageFragment extends Fragment {
                     if (response.isSuccessful() && response.body() != null) {
                         album.setIsLiked(false);
                         updateLikeUI();
-                        
+                        getLikeCount();
                     } else {
                         Toast.makeText(getContext(), "Không thể bỏ thích album", Toast.LENGTH_SHORT).show();
                     }
@@ -207,6 +174,7 @@ public class AlbumPageFragment extends Fragment {
                     if (response.isSuccessful() && response.body() != null) {
                         album.setIsLiked(true);
                         updateLikeUI();
+                        getLikeCount();
                         Toast.makeText(getContext(), "Đã thích album", Toast.LENGTH_SHORT).show();
                     } else {
                         Toast.makeText(getContext(), "Không thể thích album", Toast.LENGTH_SHORT).show();
@@ -242,5 +210,19 @@ public class AlbumPageFragment extends Fragment {
         }
         return totalSeconds;
     }
-    
+    private void getLikeCount() {
+        ApiClient.getAlbumService().getAlbumLikeCount(album.getId()).enqueue(new Callback<ApiResponse<Integer>>() {
+            @Override
+            public void onResponse(Call<ApiResponse<Integer>> call, Response<ApiResponse<Integer>> response) {
+                if (response.isSuccessful() && response.body() !=null) {
+                    tvLikeCount.setText(String.valueOf(response.body().getData()));
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponse<Integer>> call, Throwable t) {
+
+            }
+        });
+    }
 }
