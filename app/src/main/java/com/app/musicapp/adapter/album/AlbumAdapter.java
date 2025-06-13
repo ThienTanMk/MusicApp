@@ -36,8 +36,8 @@ public class AlbumAdapter extends BaseAdapter {
 
     public AlbumAdapter(Context context, List<AlbumResponse> albums) {
         this.context = context;
-        //this.albums = albums != null ? albums : new ArrayList<>();
-        this.albums = albums != null ? new ArrayList<>(albums) : new ArrayList<>();
+        this.albums = albums != null ? albums : new ArrayList<>();
+//        this.albums = albums != null ? new ArrayList<>(albums) : new ArrayList<>();
     }
     public void updateAlbums(List<AlbumResponse> newAlbums) {
         this.albums.clear();
@@ -104,7 +104,7 @@ public class AlbumAdapter extends BaseAdapter {
 
         // Update like UI based on current state
         updateLikeUI(holder, album.getIsLiked());
-            
+        getLikeCount(i,holder);
         // Set like button click listener
         holder.ivLike.setOnClickListener(v -> {
             if (album.getIsLiked()) {
@@ -112,6 +112,7 @@ public class AlbumAdapter extends BaseAdapter {
             } else {
                 likeAlbum(album.getId(), holder);
             }
+
         });
 
          holder.ivMenu.setOnClickListener(v -> {
@@ -207,5 +208,20 @@ public class AlbumAdapter extends BaseAdapter {
                     isLiked ? R.color.like_active : R.color.like_inactive)
             );
         }
+    }
+    private void getLikeCount(int i, ViewHolder holder) {
+        ApiClient.getAlbumService().getAlbumLikeCount(albums.get(i).getId()).enqueue(new Callback<ApiResponse<Integer>>() {
+            @Override
+            public void onResponse(Call<ApiResponse<Integer>> call, Response<ApiResponse<Integer>> response) {
+                if (response.isSuccessful() && response.body().getData()!=null) {
+                    holder.tvLikeCount.setText(String.valueOf(response.body().getData()));
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponse<Integer>> call, Throwable t) {
+
+            }
+        });
     }
 }
