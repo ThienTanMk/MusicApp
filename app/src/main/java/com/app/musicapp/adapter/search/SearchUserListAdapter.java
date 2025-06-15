@@ -10,6 +10,7 @@ import androidx.annotation.Nullable;
 
 import com.app.musicapp.R;
 import com.app.musicapp.api.ApiClient;
+import com.app.musicapp.helper.SharedPreferencesManager;
 import com.app.musicapp.helper.UrlHelper;
 import com.app.musicapp.model.request.AddFollowRequest;
 import com.app.musicapp.model.response.ApiResponse;
@@ -68,7 +69,7 @@ public class SearchUserListAdapter extends ArrayAdapter<ProfileWithCountFollowRe
                 .error(R.drawable.logo)
                 .into(ivUserImage);
         String userId = user.getUserId();
-        boolean isFollowing = followStates.getOrDefault(userId, false);
+        boolean isFollowing = user.isFollowing();
         btnFollowing.setText(isFollowing ? "Following" : "Follow");
 
         // Sự kiện click vào nút Following
@@ -87,7 +88,10 @@ public class SearchUserListAdapter extends ArrayAdapter<ProfileWithCountFollowRe
                 listener.onUserClick(user);
             }
         });
-
+        String logInUserId = SharedPreferencesManager.getInstance(getContext()).getUserId();
+        if(user.getUserId().equals(logInUserId)){
+            btnFollowing.setVisibility(View.GONE);
+        }
         return convertView;
     }
 

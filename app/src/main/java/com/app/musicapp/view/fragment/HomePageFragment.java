@@ -5,6 +5,7 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -18,10 +19,13 @@ import com.app.musicapp.R;
 import com.app.musicapp.adapter.album.AlbumRVAdapter;
 import com.app.musicapp.adapter.playlist.PlayListRVAdapter;
 import com.app.musicapp.api.ApiClient;
+import com.app.musicapp.bridge.NotificationBridge;
 import com.app.musicapp.helper.SharedPreferencesManager;
+import com.app.musicapp.model.NotificationViewModel;
 import com.app.musicapp.model.response.AlbumResponse;
 import com.app.musicapp.model.response.ApiResponse;
 import com.app.musicapp.model.response.PlaylistResponse;
+import com.app.musicapp.view.activity.MainActivity;
 import com.app.musicapp.view.activity.SignIn;
 import com.app.musicapp.view.fragment.album.AlbumPageFragment;
 import com.app.musicapp.view.fragment.playlist.PlaylistPageFragment;
@@ -34,7 +38,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class HomePageFragment extends Fragment {
-//    private ImageView ivUpload, ivNoti, ivRandom;
+    private ImageView ivUpload, ivNoti, ivRandom;
     private LinearLayout llYourLikes;
     private View progressBar;
     private RecyclerView rvPlaylist, rvPlaylistLike, rvAlbum;
@@ -43,6 +47,7 @@ public class HomePageFragment extends Fragment {
     private List<AlbumResponse> likedAlbumResponses = new ArrayList<>();
     private PlayListRVAdapter playListRVAdapter, likedPlaylistRVAdapter;
     private AlbumRVAdapter albumRVAdapter;
+    private NotificationViewModel viewModel;
     public HomePageFragment() {
         // Required empty public constructor
     }
@@ -54,7 +59,7 @@ public class HomePageFragment extends Fragment {
 
         // Ánh xạ view
 //        ivUpload = view.findViewById(R.id.iv_upload);
-//        ivNoti = view.findViewById(R.id.iv_noti);
+        ivNoti = view.findViewById(R.id.iv_noti);
 //        ivRandom = view.findViewById(R.id.iv_random);
         llYourLikes = view.findViewById(R.id.ll_your_likes);
         rvPlaylist = view.findViewById(R.id.rv_playlist);
@@ -98,6 +103,18 @@ public class HomePageFragment extends Fragment {
             navigateToFragment(new LikedTracksFragment());
         });
 
+        viewModel = new ViewModelProvider(requireActivity()).get(NotificationViewModel.class);
+        NotificationBridge.setViewModel(viewModel);
+        ivNoti.setOnClickListener(v->{
+            navigateToFragment(new NotificationFragment(viewModel));
+            ivNoti.setImageResource(R.drawable.ic_noti);
+        });
+
+        viewModel.getNotification().observe(requireActivity(), message -> {
+            if (message != null) {
+                ivNoti.setImageResource(R.drawable.ic_red_noti);
+            }
+        });
         return view;
     }
     private void fetchCreatedPlaylists() {
@@ -134,15 +151,15 @@ public class HomePageFragment extends Fragment {
                     }
                 } else {
                     String errorMsg = "Failed to fetch created playlists, HTTP Code: " + response.code();
-                    Toast.makeText(getContext(), errorMsg, Toast.LENGTH_LONG).show();
+//                    Toast.makeText(getContext(), errorMsg, Toast.LENGTH_LONG).show();
                     Log.e("HomePageFragment", errorMsg);
                 }
             }
 
             @Override
             public void onFailure(@NonNull Call<ApiResponse<List<PlaylistResponse>>> call, @NonNull Throwable t) {
-                progressBar.setVisibility(View.GONE);
-                Toast.makeText(requireContext(), "Network error: " + t.getMessage(), Toast.LENGTH_LONG).show();
+//                progressBar.setVisibility(View.GONE);
+//                Toast.makeText(requireContext(), "Network error: " + t.getMessage(), Toast.LENGTH_LONG).show();
                 Log.e("HomePageFragment", "Network error: " + t.getMessage());
             }
         });
@@ -189,8 +206,7 @@ public class HomePageFragment extends Fragment {
 
             @Override
             public void onFailure(@NonNull Call<ApiResponse<List<PlaylistResponse>>> call, @NonNull Throwable t) {
-                progressBar.setVisibility(View.GONE);
-                Toast.makeText(requireContext(), "Network error: " + t.getMessage(), Toast.LENGTH_LONG).show();
+//                progressBar.setVisibility(View.GONE);
                 Log.e("HomePageFragment", "Network error: " + t.getMessage());
             }
         });
@@ -233,8 +249,8 @@ public class HomePageFragment extends Fragment {
 
             @Override
             public void onFailure(@NonNull Call<ApiResponse<List<AlbumResponse>>> call, @NonNull Throwable t) {
-                progressBar.setVisibility(View.GONE);
-                Toast.makeText(requireContext(), "Network error: " + t.getMessage(), Toast.LENGTH_LONG).show();
+//                progressBar.setVisibility(View.GONE);
+//                Toast.makeText(requireContext(), "Network error: " + t.getMessage(), Toast.LENGTH_LONG).show();
                 Log.e("HomePageFragment", "Network error: " + t.getMessage());
             }
         });

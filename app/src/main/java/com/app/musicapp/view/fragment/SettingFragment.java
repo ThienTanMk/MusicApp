@@ -24,6 +24,7 @@ import com.app.musicapp.view.activity.AdminActivity;
 import com.app.musicapp.view.activity.SignIn;
 import com.app.musicapp.view.activity.SplashActivity;
 import com.app.musicapp.view.fragment.playlist.PlaylistsFragment;
+import com.app.musicapp.view.fragment.profile.UserProfileFragment;
 import com.app.musicapp.view.fragment.track.LikedTracksFragment;
 
 import java.util.Set;
@@ -58,6 +59,7 @@ public class SettingFragment extends Fragment {
         view.findViewById(R.id.text_your_tracks).setOnClickListener(this::tracks);
         view.findViewById(R.id.text_liked_tracks).setOnClickListener(this::likeTracks);
         view.findViewById(R.id.text_playlist).setOnClickListener(this::playList);
+        view.findViewById(R.id.text_account).setOnClickListener(this::userProfile);
         text_admin.setOnClickListener(this::admin);
         view.findViewById(R.id.button_signout).setOnClickListener(this::signOut);
     }
@@ -87,6 +89,15 @@ public class SettingFragment extends Fragment {
         transaction.commit();
     }
 
+    public void userProfile(View view){
+        FragmentTransaction transaction = requireActivity().getSupportFragmentManager().beginTransaction();
+        String logInUserId = SharedPreferencesManager.getInstance(getContext()).getUserId();
+
+        UserProfileFragment userProfileFragment = UserProfileFragment.newInstance(logInUserId, "setting");
+        transaction.replace(R.id.fragment_container, userProfileFragment);
+        transaction.addToBackStack(null); // optional, nếu muốn quay lại
+        transaction.commit();
+    }
     public void likeTracks(View view) {
         FragmentTransaction transaction = requireActivity().getSupportFragmentManager().beginTransaction();
         LikedTracksFragment likedTracksFragment = new LikedTracksFragment();

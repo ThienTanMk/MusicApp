@@ -92,11 +92,22 @@ public class CommentActivity extends AppCompatActivity {
             @SuppressLint("NotifyDataSetChanged")
             @Override
             public void onResponse(Call<ApiResponse<List<CommentResponse>>> call, Response<ApiResponse<List<CommentResponse>>> response){
-                commentResponses.clear();
-                if(response.body()!=null)
-                    commentResponses.addAll(response.body().getData());
-                commentAdapter.notifyDataSetChanged();
-                commentCount.setText(String.valueOf(commentResponses.size())+" Comments");
+                try{
+                    commentResponses.clear();
+                    if(response.body()!=null)
+                        commentResponses.addAll(response.body().getData());
+                    commentAdapter.notifyDataSetChanged();
+                    int size = 0;
+                    for(var c: commentResponses){
+                        size++;
+                        for(var s: c.getReplies()){
+                            size++;
+                        }
+                    }
+                    commentCount.setText(String.valueOf(size)+" Comments");
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
 
             @Override

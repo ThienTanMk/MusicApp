@@ -200,6 +200,9 @@ public class UserProfileFragment extends Fragment {
                             .commit();
                     Log.w("UserProfileFragment", "Back to: " + source);
                 }
+                if("setting".equals(source)){
+                    getActivity().getSupportFragmentManager().popBackStack();
+                }
                 getActivity().getSupportFragmentManager().popBackStack();
             } else {
                 Log.e("UserProfileFragment", "getActivity is null");
@@ -438,7 +441,9 @@ public class UserProfileFragment extends Fragment {
                 if (response.isSuccessful() && response.body() != null) {
                     if (response.body().getData() != null) {
                         List<PlaylistResponse> playlists = response.body().getData();
-                        setSizePlaylist(playlists);
+                        try {
+                            setSizePlaylist(playlists);
+                        }catch (Exception e){}
                         playlistAdapter.updatePlaylists(playlists);
                         Log.d("UserProfileFragment", "Playlists loaded: " + playlists.size());
                         if (playlists.isEmpty()) {

@@ -271,8 +271,9 @@
         <ImageView
             android:layout_width="25dp"
             android:layout_height="25dp"
-            android:layout_weight="1"
-            android:src="@drawable/ellipsis_icon"
-            android:id="@+id/options"/>
+            android:id="@+id/image_follow"
+            android:src="@drawable/user_plus_icon"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp" />
     </LinearLayout>
 </RelativeLayout>

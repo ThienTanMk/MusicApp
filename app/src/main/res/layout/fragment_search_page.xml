@@ -59,5 +59,7 @@
         android:verticalSpacing="4dp"
         android:horizontalSpacing="4dp"
         android:stretchMode="columnWidth"
-        android:scrollbars="none"/>
+        android:scrollbars="none"
+        android:layout_marginBottom="60dp"
+        />
 </LinearLayout>

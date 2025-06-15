@@ -158,7 +158,9 @@ public class UploadsFragment extends Fragment implements SongOptionsBottomSheet.
 
                     @Override
                     public void onFailure(Call<ApiResponse<List<TrackResponse>>> call, Throwable t) {
-                        Toast.makeText(getContext(), "Error loading tracks: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                        try{
+                            Toast.makeText(getContext(), "Error loading tracks: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                        }catch (Exception e){}
                     }
                 });
     }

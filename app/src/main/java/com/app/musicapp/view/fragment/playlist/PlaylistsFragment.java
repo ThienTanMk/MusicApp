@@ -109,9 +109,9 @@ public class PlaylistsFragment extends Fragment implements OnLikeChangeListener,
         String userId = SharedPreferencesManager.getInstance(requireContext()).getUserId();
         if (userId == null) {
             progressBar.setVisibility(View.GONE);
-            Toast.makeText(requireContext(), "Vui lòng đăng nhập lại", Toast.LENGTH_SHORT).show();
-            startActivity(new Intent(requireContext(), SignIn.class));
-            requireActivity().finish();
+            try {
+                Toast.makeText(requireContext(), "Vui lòng đăng nhập lại", Toast.LENGTH_SHORT).show();
+            } catch (Exception e) {}
             return;
         }
         Log.d("PlaylistsFragment", "Fetching playlists for userId: " + userId);
@@ -136,8 +136,8 @@ public class PlaylistsFragment extends Fragment implements OnLikeChangeListener,
 
             @Override
             public void onFailure(Call<ApiResponse<PlaylistResponse>> call, Throwable t) {
-                progressBar.setVisibility(View.GONE);
-                Toast.makeText(requireContext(), "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+//                progressBar.setVisibility(View.GONE);
+//                Toast.makeText(requireContext(), "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -161,19 +161,14 @@ public class PlaylistsFragment extends Fragment implements OnLikeChangeListener,
                     playlists.clear();
                     playlists.addAll(response.body().getData());
                     playlistAdapter.notifyDataSetChanged();
-                } else if (response.body() != null && response.body().getCode() == 1401) {
-                    Toast.makeText(requireContext(), "Vui lòng đăng nhập lại", Toast.LENGTH_SHORT).show();
-                    startActivity(new Intent(requireContext(), SignIn.class));
-                    requireActivity().finish();
-                } else {
+                } else{
                     Toast.makeText(requireContext(), "Không thể tải danh sách playlist", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(@NonNull Call<ApiResponse<List<PlaylistResponse>>> call, @NonNull Throwable t) {
-                progressBar.setVisibility(View.GONE);
-                Toast.makeText(requireContext(), "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+//                progressBar.setVisibility(View.GONE);
             }
         });
     }

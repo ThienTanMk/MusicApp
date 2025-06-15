@@ -4,15 +4,11 @@
     import android.app.Notification;
     import android.app.NotificationChannel;
     import android.app.NotificationManager;
-    import android.app.PendingIntent;
     import android.app.Service;
     import android.content.Intent;
     import android.content.pm.PackageManager;
     import android.graphics.Bitmap;
-    import android.graphics.BitmapFactory;
-    import android.graphics.drawable.Drawable;
     import android.media.AudioManager;
-    import android.media.MediaMetadataRetriever;
     import android.media.MediaPlayer;
     import android.os.Binder;
     import android.os.Build;
@@ -22,9 +18,6 @@
     import android.support.v4.media.session.MediaSessionCompat;
     import android.support.v4.media.session.PlaybackStateCompat;
     import android.util.Log;
-    import android.widget.Toast;
-
-    import androidx.annotation.NonNull;
     import androidx.annotation.Nullable;
     import androidx.core.app.ActivityCompat;
     import androidx.core.app.NotificationCompat;
@@ -32,17 +25,16 @@
 
     import com.app.musicapp.R;
     import com.app.musicapp.api.ApiClient;
+    import com.app.musicapp.helper.SharedPreferencesManager;
     import com.app.musicapp.helper.UrlHelper;
     import com.app.musicapp.model.MusicViewModel;
     import com.app.musicapp.model.response.ApiResponse;
     import com.app.musicapp.model.response.TrackResponse;
     import com.bumptech.glide.Glide;
-    import com.bumptech.glide.request.target.CustomTarget;
-    import com.bumptech.glide.request.transition.Transition;
 
     import java.io.IOException;
-    import java.net.URL;
     import java.util.ArrayList;
+    import java.util.Collections;
     import java.util.List;
     import java.util.Random;
 
@@ -54,67 +46,48 @@
 
     public class MusicService extends Service {
         private List<TrackResponse> nextUpItems;
+        private List<TrackResponse> holderItems;
         private MediaPlayer mediaPlayer;
         private final Handler handler = new Handler();
-
         private String playBackMode;
+        private boolean isShuffle;
         private int currentIndex;
-
         private MediaSessionCompat mediaSession;
         private MusicViewModel musicViewModel;
-
-
-        // nhận yêu cầu tiếp tục bài nhạc
-        public static final String ACTION_PLAY = "ACTION_PLAY";
-        // nhận yêu cầu ngừng phát
-        public static final String ACTION_PAUSE = "ACTION_PAUSE";
-
-        public static final String ACTION_PLAY_BACK = "ACTION_PLAY_BACK";
-        public static final String ACTION_PLAY_NEXT = "ACTION_PLAY_NEXT";
-        // phát update seek bar từ bên ngoài
-        public static final String ACTION_UPDATE_SEEKBAR_PROGRESS = "ACTION_UPDATE_SEEKBAR_PROGRESS";
-
-        // PHÁT THÔNG BÁO THAY ĐỔI BÀI NHẠC KHÁC RA NGOÀI
-        // VÍ DỤ CLICK LIKE TRONG DANH SÁCH NHẠC -> ACTIVITY MUSIC PLAYER HAY NOTICATION CŨNG PHẢI THAY ĐỔI
-        public static final String ACTION_CHANGED_CURRENT_TRACK="ACTION_CHANGED_CURRENT_TRACK";
-
         public static final String REPEAT_ONE = "REPEAT_ONE";
         public static final String REPEAT_ALL = "REPEAT_ALL";
-        public static final String SHUFFLE = "SHUFFLE";
-
         public static final String PLAY_ONCE = "PLAY_ONCE";
 
 
-
-        // bind serivce ko dung
         @Override
         public int onStartCommand(Intent intent, int flags, int startId) {
             Log.i("start command","start command on music service");
-
             return super.onStartCommand(intent, flags, startId);
         }
 
 
-        //TEST DATA
-        private void getLikedTrack(){
-            ApiClient.getApiService().getLikedTrack().enqueue(new Callback<ApiResponse<List<TrackResponse>>>() {
-                @Override
-                public void onResponse(Call<ApiResponse<List<TrackResponse>>> call, Response<ApiResponse<List<TrackResponse>>> response) {
-                    if(response.isSuccessful()&&response.body()!=null&&response.body().getData()!=null){
-                        nextUpItems = response.body().getData();
-                        currentIndex = 0;
-                        sendTrackInfo();
+        private void getYourTrack(){
+            try{
+                String logInUserId = SharedPreferencesManager.getInstance(getBaseContext()).getUserId();
+                if(logInUserId==null) return;
+                ApiClient.getTrackApiService().getTracksByUserId(logInUserId).enqueue(new Callback<ApiResponse<List<TrackResponse>>>() {
+                    @Override
+                    public void onResponse(Call<ApiResponse<List<TrackResponse>>> call, Response<ApiResponse<List<TrackResponse>>> response) {
+                        if(response.isSuccessful()&&response.body()!=null&&response.body().getData()!=null&&!response.body().getData().isEmpty()){
+                            nextUpItems = response.body().getData();
+                            currentIndex = 0;
+                            musicViewModel.setCurrentTrack(getCurrentTrack());
+                        }
+                        else{
+                            currentIndex = -1;
+                        }
                     }
-                    else{
-                        currentIndex = -1;
-                    }
-
-                }
-                @Override
-                public void onFailure(Call<ApiResponse<List<TrackResponse>>> call, Throwable t) {}
-            });
-
+                    @Override
+                    public void onFailure(Call<ApiResponse<List<TrackResponse>>> call, Throwable t) {}
+                });
+            }catch (Exception ex){}
         }
+
 
         @Override
         public void onCreate() {
@@ -122,25 +95,26 @@
             mediaSession = new MediaSessionCompat(this, "music_session");
             this.currentIndex = -1;
             this.playBackMode = PLAY_ONCE;
-
+            this.isShuffle = false;
+            this.holderItems = new ArrayList<>();
+            musicViewModel = new MusicViewModel();
             // tạo notification
             createNotificationChannel();
-
-            getLikedTrack();
+            getYourTrack();
         }
 
-        public void setMusicViewModel(MusicViewModel musicViewModel){
-            this.musicViewModel = musicViewModel;
-        }
+
         public MusicViewModel getMusicViewModel(){
             return musicViewModel;
         }
+
         public TrackResponse getCurrentTrack(){
             if(this.nextUpItems==null||this.nextUpItems.isEmpty()) {
                 return null;
             }
             return this.nextUpItems.get(currentIndex);
         }
+
         public List<TrackResponse> getNextUpItems(){
             return this.nextUpItems;
         }
@@ -159,6 +133,7 @@
             if(!isChanged) return;
             this.nextUpItems = trackResponses;
         }
+
         public int getCurrentIndex(){
             return currentIndex;
         }
@@ -168,21 +143,43 @@
             mediaPlayer.seekTo(progress);
             startSeekbarUpdate();
         }
-        private void sendTrackInfo(){
-            Intent intent = new Intent(ACTION_CHANGED_CURRENT_TRACK);
-            sendBroadcast(intent);
-            if(musicViewModel!=null){
-                musicViewModel.setCurrentTrack(getCurrentTrack());
-            }
-        }
+
         public String getPlayBackMode(){
             return playBackMode;
         }
         public void setPlayBackMode(String playBackMode){
             this.playBackMode = playBackMode;
-            Intent intent = new Intent(playBackMode);
-            sendBroadcast(intent);
+            musicViewModel.setPlayBackMode(playBackMode);
         }
+
+        public void setShuffle(boolean isShuffle){
+            this.isShuffle = isShuffle;
+            musicViewModel.setShuffle(isShuffle);
+            TrackResponse currentTrack = getCurrentTrack();
+            if(currentTrack == null) return;
+            String trackId = currentTrack.getId();
+            if (this.nextUpItems != null && nextUpItems.size() > 0) {
+                if (isShuffle) {
+                    holderItems.clear();
+                    holderItems.addAll(nextUpItems);
+                    Collections.shuffle(nextUpItems); // 🔀 Trộn ngẫu nhiên danh sách
+                }
+                else {
+                    nextUpItems.clear();
+                    nextUpItems.addAll(holderItems);
+                }
+            }
+            for(var track: nextUpItems){
+                if(track.getId().equals(trackId)){
+                    currentIndex = nextUpItems.indexOf(track);
+                    break;
+                }
+            }
+        }
+        public boolean isShuffle(){
+            return isShuffle;
+        }
+
         private void determineNextSong(){
             if(playBackMode.equals(REPEAT_ONE)){
                 playCurrentMusic();
@@ -194,14 +191,10 @@
                 currentIndex ++;
                 playMusicAtIndex(currentIndex);
             }
-            else if(playBackMode.equals(SHUFFLE)){
-                Random random = new Random();
-                currentIndex = random.nextInt(nextUpItems.size());
-                playMusicAtIndex(currentIndex);
-            }
             else{
                 if(currentIndex==nextUpItems.size()-1){
-                    sendPauseAction();
+                    musicViewModel.setPlaying(false);
+
                     return;
                 }
                 currentIndex++;
@@ -250,16 +243,10 @@
                 mediaPlayer.setDataSource(url);
                 mediaPlayer.prepareAsync();
                 mediaPlayer.setOnPreparedListener(mp -> {
-                    Intent intent = new Intent(ACTION_UPDATE_SEEKBAR_PROGRESS);
-                    intent.putExtra("current_position", mediaPlayer.getCurrentPosition());
-                    intent.putExtra("duration", 0);
 
-                    if(musicViewModel!=null){
-                        musicViewModel.setProgress(mediaPlayer.getCurrentPosition());
-                    }
-
-                    sendBroadcast(intent);
-                    sendTrackInfo();
+                    musicViewModel.setProgress(mediaPlayer.getCurrentPosition());
+                    musicViewModel.setDuration(mediaPlayer.getDuration());
+                    musicViewModel.setCurrentTrack(getCurrentTrack());
                     updateNotification(getCurrentTrack(),false);
                 });
                 mediaPlayer.setOnCompletionListener(mp -> {
@@ -267,7 +254,7 @@
                 });
 
                 mediaPlayer.setOnErrorListener((mp, what, extra) -> {
-                    sendPauseAction();
+                    musicViewModel.setPlaying(false);
                     return true;
                 });
             }
@@ -279,19 +266,13 @@
             try{
                 ApiClient.getHistoryApiService().listenTrack(trackId).enqueue(new Callback<ApiResponse<Object>>() {
                     @Override
-                    public void onResponse(Call<ApiResponse<Object>> call, Response<ApiResponse<Object>> response) {
-
-                    }
-
+                    public void onResponse(Call<ApiResponse<Object>> call, Response<ApiResponse<Object>> response) {}
                     @Override
-                    public void onFailure(Call<ApiResponse<Object>> call, Throwable t) {
-
-                    }
+                    public void onFailure(Call<ApiResponse<Object>> call, Throwable t) {}
                 });
-            }catch (Exception ex){
-                ex.printStackTrace();
-            }
+            }catch (Exception ex){ex.printStackTrace();}
         }
+
         // nghe nhac + gui start + gui track info + update seek bar + pause
         private void playUrl(String url) {
             
@@ -309,8 +290,8 @@
 
                 mediaPlayer.setOnPreparedListener(mp -> {
                     mp.start();
-                    sendPlayAction();
-                    sendTrackInfo();
+                    musicViewModel.setPlaying(true);
+                    musicViewModel.setCurrentTrack(getCurrentTrack());
                     updateNotification(getCurrentTrack(),true);
                     addHistory(getCurrentTrack().getId());
                     startSeekbarUpdate();
@@ -320,7 +301,7 @@
                 });
 
                 mediaPlayer.setOnErrorListener((mp, what, extra) -> {
-                    sendPauseAction();
+                    musicViewModel.setPlaying(false);
                     return true;
                 });
 
@@ -329,22 +310,8 @@
                 stopSelf();
             }
         }
-        private void sendPauseAction(){
-            Intent intent = new Intent(ACTION_PAUSE);
-            sendBroadcast(intent);
-            mediaSession.setPlaybackState(getPlayBackState());
-            if(musicViewModel!=null){
-                musicViewModel.setPlaying(true);
-            }
-        }
-        private void sendPlayAction(){
-            mediaSession.setPlaybackState(getPlayBackState());
-            Intent intent = new Intent(ACTION_PLAY);
-            sendBroadcast(intent);
-            if(musicViewModel!=null){
-                musicViewModel.setPlaying(true);
-            }
-        }
+
+
         public boolean isPlaying(){
             if(this.mediaPlayer==null) return false;
             return this.mediaPlayer.isPlaying();
@@ -363,7 +330,7 @@
             if (mediaPlayer == null || !mediaPlayer.isPlaying()) return;
             mediaPlayer.pause();
             updateNotification(getCurrentTrack(),false);
-            sendPauseAction();
+            musicViewModel.setPlaying(false);
             stopSeekbarUpdate();
         }
 
@@ -378,8 +345,8 @@
                 return;
             }
             mediaPlayer.start();
-            sendPlayAction();
-            sendTrackInfo();
+            musicViewModel.setPlaying(true);
+            musicViewModel.setCurrentTrack(getCurrentTrack());
             startSeekbarUpdate();
             updateNotification(track,true);
         }
@@ -398,25 +365,14 @@
             public void run() {
                 if (mediaPlayer != null && mediaPlayer.isPlaying()) {
                     isStop = false;
-                    // Gửi broadcast cập nhật progress nếu cần (ví dụ)
-                    Intent intent = new Intent(ACTION_UPDATE_SEEKBAR_PROGRESS);
-                    intent.putExtra("current_position", mediaPlayer.getCurrentPosition());
-                    intent.putExtra("duration", mediaPlayer.getDuration());
-                    sendBroadcast(intent);
-                    if(musicViewModel!=null){
-                        musicViewModel.setProgress(mediaPlayer.getCurrentPosition());
-                    }
+                    musicViewModel.setDuration(mediaPlayer.getDuration());
+                    musicViewModel.setProgress(mediaPlayer.getCurrentPosition());
                     handler.postDelayed(this, 1000);
                 }
                 else if(!isStop){
                     isStop=true;
-                    Intent intent = new Intent(ACTION_UPDATE_SEEKBAR_PROGRESS);
-                    intent.putExtra("current_position", mediaPlayer.getCurrentPosition());
-                    intent.putExtra("duration", mediaPlayer.getDuration());
-                    sendBroadcast(intent);
-                    if(musicViewModel!=null){
-                        musicViewModel.setProgress(mediaPlayer.getCurrentPosition());
-                    }
+                    musicViewModel.setDuration(mediaPlayer.getDuration());
+                    musicViewModel.setProgress(mediaPlayer.getCurrentPosition());
                 }
                 mediaSession.setPlaybackState(getPlayBackState());
             }

@@ -39,13 +39,13 @@
 <!--                android:src="@drawable/ic_upload"-->
 <!--                app:tint="@null" />-->
 
-<!--            <ImageView-->
-<!--                android:id="@+id/iv_noti"-->
-<!--                android:layout_width="32dp"-->
-<!--                android:layout_height="32dp"-->
-<!--                android:background="@color/background"-->
-<!--                android:src="@drawable/ic_noti"-->
-<!--                app:tint="@null" />-->
+            <ImageView
+                android:id="@+id/iv_noti"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:background="@color/background"
+                android:src="@drawable/ic_noti"
+                app:tint="@null" />
         </LinearLayout>
 
         <!-- Mục Your Likes, nút ngẫu nhiên -->

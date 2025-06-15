@@ -23,6 +23,7 @@ import com.app.musicapp.adapter.NextUpAdapter;
 import com.app.musicapp.model.response.TrackResponse;
 import com.app.musicapp.service.MusicService;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class NextUpActivity extends AppCompatActivity {
@@ -32,18 +33,19 @@ public class NextUpActivity extends AppCompatActivity {
     NextUpAdapter nextUpAdapter;
     MusicService musicService;
 
-    private ServiceConnection connection = new ServiceConnection() {
+    private final ServiceConnection connection = new ServiceConnection() {
 
         @Override
         public void onServiceConnected(ComponentName className,
                                        IBinder service) {
-            // We've bound to LocalService, cast the IBinder and get LocalService instance.
             MusicService.LocalBinder binder = (MusicService.LocalBinder) service;
             musicService = binder.getService();
             nextUpListView = findViewById(R.id.next_up_listview);
-            nextUpItems = musicService.getNextUpItems();
+            nextUpItems = new ArrayList<>();
+            nextUpItems.addAll(musicService.getNextUpItems());
             nextUpAdapter = new NextUpAdapter(nextUpItems,NextUpActivity.this,musicService);
             nextUpListView.setAdapter(nextUpAdapter);
+            setListener();
         }
 
         @Override
@@ -51,13 +53,20 @@ public class NextUpActivity extends AppCompatActivity {
 
         }
     };
-    private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-
+    private void setListener(){
+        musicService.getMusicViewModel().getIsPlaying().observe(this,isPlaying -> {
             nextUpAdapter.notifyDataSetChanged();
-        }
-    };
+        });
+        musicService.getMusicViewModel().getCurrentTrack().observe(this,track -> {
+            nextUpAdapter.notifyDataSetChanged();
+        });
+        musicService.getMusicViewModel().getIsShuffle().observe(this,isShuffle -> {
+            nextUpItems.clear();
+                nextUpItems.addAll(musicService.getNextUpItems());
+                nextUpAdapter.notifyDataSetChanged();
+                return;
+        });
+    }
     @Override
     protected void onStart() {
         super.onStart();
@@ -76,11 +85,7 @@ public class NextUpActivity extends AppCompatActivity {
         });
         this.initView();
 
-        IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(MusicService.ACTION_CHANGED_CURRENT_TRACK);
-        intentFilter.addAction(MusicService.ACTION_PAUSE);
-        intentFilter.addAction(MusicService.ACTION_PLAY);
-        registerReceiver(broadcastReceiver,intentFilter,Context.RECEIVER_EXPORTED);
+
 
     }
     private void initView(){
@@ -97,7 +102,6 @@ public class NextUpActivity extends AppCompatActivity {
         super.onDestroy();
         try {
             unbindService(connection);
-            unregisterReceiver(broadcastReceiver);
         }
         catch (Exception ex){
 

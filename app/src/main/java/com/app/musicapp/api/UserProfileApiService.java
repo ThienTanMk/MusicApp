@@ -57,4 +57,10 @@ public interface UserProfileApiService {
     Call<ApiResponse<UploadCoverResponse>> uploadCover(
             @Part MultipartBody.Part cover
     );
+
+    @GET("/api/profile/follows/is-following")
+    Call<ApiResponse<Boolean>> isFollowing(
+            @Query("followerId") String followerId,
+            @Query("followingId") String followingId
+    );
 }

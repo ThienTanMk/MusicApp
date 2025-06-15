@@ -154,8 +154,10 @@ public class AlbumsFragment extends Fragment implements OnLikeChangeListener {
 
             @Override
             public void onFailure(Call<ApiResponse<List<AlbumResponse>>> call, Throwable t) {
-                progressBar.setVisibility(View.GONE);
-                Toast.makeText(getContext(), "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+//                progressBar.setVisibility(View.GONE);
+                try {
+                    Toast.makeText(getContext(), "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                } catch (Exception e) {}
             }
         });
     }

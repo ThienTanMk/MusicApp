@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
@@ -21,7 +22,9 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.app.musicapp.R;
 import com.app.musicapp.api.ApiClient;
+import com.app.musicapp.helper.SharedPreferencesManager;
 import com.app.musicapp.helper.UrlHelper;
+import com.app.musicapp.model.request.AddFollowRequest;
 import com.app.musicapp.model.response.ApiResponse;
 import com.app.musicapp.model.response.TrackResponse;
 import com.app.musicapp.service.MusicService;
@@ -34,43 +37,13 @@ import retrofit2.Response;
 
 public class MusicPlayer extends AppCompatActivity {
     TextView trackTitle, artistName, durationPlayed, durationTotal, headerTrackTitle, commentCount, likeCount;
-    ImageView coverArt, nextBtn, prevBtn, backBtn, shuffleBtn, repeatBtn, likeBtn;
+    ImageView coverArt, nextBtn, prevBtn, backBtn, shuffleBtn, repeatBtn, likeBtn,followBtn;
     FloatingActionButton playPauseBtn;
     SeekBar seekBar;
     LinearLayout comment;
     ImageView nextUp;
     MusicService  musicService;
-
-    private boolean isLiked = false;
-
-    private final BroadcastReceiver receiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-            if(MusicService.ACTION_UPDATE_SEEKBAR_PROGRESS.equals(action)){
-                int currentPosition = intent.getIntExtra("current_position",0);
-                int duration = intent.getIntExtra("duration",0);
-                seekBar.setProgress(currentPosition);
-                durationPlayed.setText(formattedTime(currentPosition/1000));
-                if(seekBar.getMax()!=duration){
-                    seekBar.setMax(duration);
-                    durationTotal.setText(formattedTime(duration/1000));
-                }
-
-            }else if(MusicService.ACTION_CHANGED_CURRENT_TRACK.equals(action)){
-                updateTrackInfo();
-            }
-            else if(MusicService.ACTION_PLAY.equals(action)){
-                playPauseBtn.setImageResource(R.drawable.play_icon);
-            }
-            else if(MusicService.ACTION_PAUSE.equals(action)){
-                playPauseBtn.setImageResource(R.drawable.pause_icon);
-            }
-            else if(MusicService.PLAY_ONCE.equals(action)||MusicService.REPEAT_ALL.equals(action)||MusicService.REPEAT_ONE.equals(action)||MusicService.SHUFFLE.equals(action)){
-                updatePlayBackModeBtn();
-            }
-        }
-    };
+    private boolean isLiked = false, isFollowing = false;
 
     private String convertIntToString(Integer value){
         if(value<1000)
@@ -96,6 +69,33 @@ public class MusicPlayer extends AppCompatActivity {
             }
         });
     }
+    private void updateFollow(String userId){
+        String logInUserId = SharedPreferencesManager.getInstance(getBaseContext()).getUserId();
+        if(logInUserId.equals(userId)){
+            followBtn.setColorFilter(R.color.gray);
+            followBtn.setImageResource(R.drawable.ic_person);
+            isFollowing = true;
+            return;
+        }
+        ApiClient.getUserProfileApiService().isFollowing(logInUserId,userId).enqueue(new Callback<ApiResponse<Boolean>>() {
+            @Override
+            public void onResponse(Call<ApiResponse<Boolean>> call, Response<ApiResponse<Boolean>> response) {
+                if(response.isSuccessful()&&response.body().getData()){
+                    followBtn.setImageResource(R.drawable.ic_person);
+                    isFollowing = true;
+                }
+                else{
+                    isFollowing = false;
+                    followBtn.setImageResource(R.drawable.user_plus_icon);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponse<Boolean>> call, Throwable t) {
+
+            }
+        });
+    }
     private void updateLikeCount(String trackId){
         ApiClient.getLikedTrackService().getTrackLikeCount(trackId).enqueue(new Callback<ApiResponse<Integer>>() {
 
@@ -117,6 +117,12 @@ public class MusicPlayer extends AppCompatActivity {
             public void onResponse(Call<ApiResponse<Boolean>> call, Response<ApiResponse<Boolean>> response) {
                 if(response.isSuccessful()&&response.body()!=null&&response.body().getData()!=null){
                     isLiked = response.body().getData();
+                    if(isLiked){
+                            likeBtn.setImageResource(R.drawable.red_heart_icon);
+                    }
+                    else{
+                        likeBtn.setImageResource(R.drawable.heart_icon);
+                    }
                 }
             }
 
@@ -126,11 +132,10 @@ public class MusicPlayer extends AppCompatActivity {
             }
         });
     }
-    private void updatePlayBackModeBtn(){
-        String action = musicService.getPlayBackMode();
+    private void updatePlayBackModeBtn(String action){
+        if(action==null)return;
         repeatBtn.setColorFilter(this.getResources().getColor(R.color.white));
         repeatBtn.setImageResource(R.drawable.repeat_icon);
-        shuffleBtn.setColorFilter(this.getResources().getColor(R.color.white));
 
         if(MusicService.REPEAT_ONE.equals(action)){
             repeatBtn.setImageResource(R.drawable.repeat_one_icon);
@@ -139,23 +144,14 @@ public class MusicPlayer extends AppCompatActivity {
         else if(MusicService.REPEAT_ALL.equals(action)){
             repeatBtn.setColorFilter(this.getResources().getColor(R.color.soundcloud));
         }
-        else if(MusicService.SHUFFLE.equals(action)){
-            shuffleBtn.setColorFilter(this.getResources().getColor(R.color.soundcloud));
-        }
     }
 
-    private void updateTrackInfo(){
-        var currentTrackResponse = musicService.getCurrentTrack();
+    private void updateTrackInfo(TrackResponse currentTrackResponse){
         if(currentTrackResponse==null) return;
         trackTitle.setText(currentTrackResponse.getTitle());
         headerTrackTitle.setText(currentTrackResponse.getTitle());
-        artistName.setText(currentTrackResponse.getArtist());
-        if(currentTrackResponse.getLiked()!=null&&currentTrackResponse.getLiked()){
-            likeBtn.setImageResource(R.drawable.red_heart_icon);
-        }
-        else{
-            likeBtn.setImageResource(R.drawable.heart_icon);
-        }
+        artistName.setText(currentTrackResponse.getUser().getDisplayName());
+
         Glide.with(MusicPlayer.this)
                 .load(UrlHelper.getCoverImageUrl(currentTrackResponse.getCoverImageName()))
                 .placeholder(R.drawable.logo)
@@ -164,9 +160,17 @@ public class MusicPlayer extends AppCompatActivity {
 
         updateCommentCount(currentTrackResponse.getId());
         updateLikeCount(currentTrackResponse.getId());
+        updateFollow(currentTrackResponse.getUserId());
+
         if(musicService.isPlaying()) playPauseBtn.setImageResource(R.drawable.play_icon);
         else playPauseBtn.setImageResource(R.drawable.pause_icon);
-        updatePlayBackModeBtn();
+        if(musicService.isShuffle()){
+            shuffleBtn.setColorFilter(R.color.soundcloud);
+        }
+        else{
+            shuffleBtn.setColorFilter(R.color.white);
+        }
+        updatePlayBackModeBtn(musicService.getPlayBackMode());
     }
     private ServiceConnection connection = new ServiceConnection() {
 
@@ -176,7 +180,9 @@ public class MusicPlayer extends AppCompatActivity {
             // We've bound to LocalService, cast the IBinder and get LocalService instance.
             MusicService.LocalBinder binder = (MusicService.LocalBinder) service;
             musicService = binder.getService();
-            updateTrackInfo();
+            updateTrackInfo(musicService.getCurrentTrack());
+            setListener();
+
         }
 
         @Override
@@ -191,16 +197,6 @@ public class MusicPlayer extends AppCompatActivity {
         setContentView(R.layout.activity_music_player);
 
         initViews();
-
-        IntentFilter filter = new IntentFilter(MusicService.ACTION_UPDATE_SEEKBAR_PROGRESS);
-        filter.addAction(MusicService.ACTION_CHANGED_CURRENT_TRACK);
-        filter.addAction(MusicService.ACTION_PLAY);
-        filter.addAction(MusicService.ACTION_PAUSE);
-        filter.addAction(MusicService.PLAY_ONCE);
-        filter.addAction(MusicService.REPEAT_ALL);
-        filter.addAction(MusicService.REPEAT_ONE);
-        filter.addAction(MusicService.SHUFFLE);
-        registerReceiver(receiver, filter,Context.RECEIVER_EXPORTED);
     }
 
     @Override
@@ -223,13 +219,48 @@ public class MusicPlayer extends AppCompatActivity {
             return totalout;
         }
     }
-
     @Override
     protected void onRestart() {
         super.onRestart();
-        updatePlayBackModeBtn();
+        updatePlayBackModeBtn(musicService.getPlayBackMode());
     }
+//===========================================================================================
 
+    private void setListener(){
+        musicService.getMusicViewModel().getProgress().observe(this,progress->{
+            seekBar.setProgress(progress);
+            durationPlayed.setText(formattedTime(progress/1000));
+        });
+        musicService.getMusicViewModel().getDuration().observe(this,duration->{
+            seekBar.setMax(duration);
+            durationTotal.setText(formattedTime(duration/1000));
+        });
+        musicService.getMusicViewModel().getIsPlaying().observe(this,isPlaying->{
+            if(isPlaying){
+                playPauseBtn.setImageResource(R.drawable.play_icon);
+            }
+            else{
+                playPauseBtn.setImageResource(R.drawable.pause_icon);
+            }
+        });
+        musicService.getMusicViewModel().getIsShuffle().observe(this,isShuffle->{
+            Log.i("a",String.valueOf(isShuffle));
+            if(isShuffle){
+                shuffleBtn.setColorFilter(this.getResources().getColor(R.color.soundcloud));
+            }
+            else {
+                shuffleBtn.setColorFilter(this.getResources().getColor(R.color.white));
+            }
+        });
+        musicService.getMusicViewModel().getPlayBackMode().observe(this,action->{
+            if(action==null)return;
+            updatePlayBackModeBtn(action);
+        });
+        musicService.getMusicViewModel().getCurrentTrack().observe(this,track->{
+            if(track==null)return;
+            updateTrackInfo(track);
+        });
+    }
     private void initViews() {
         trackTitle = findViewById(R.id.track_title);
         artistName = findViewById(R.id.artist);
@@ -248,7 +279,12 @@ public class MusicPlayer extends AppCompatActivity {
         commentCount = findViewById(R.id.text_comment_count);
         likeCount = findViewById(R.id.text_like_count);
         likeBtn = findViewById(R.id.image_like_btn);
+        followBtn = findViewById(R.id.image_follow);
         headerTrackTitle = findViewById(R.id.text_track_title_header);
+        followBtn.setOnClickListener(v->{
+            var track = musicService.getCurrentTrack();
+            track.getUser().getUserId();
+        });
 
         likeBtn.setOnClickListener(v->{
             var track = musicService.getCurrentTrack();
@@ -365,11 +401,7 @@ public class MusicPlayer extends AppCompatActivity {
         shuffleBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String action = MusicService.SHUFFLE;
-                if(musicService.getPlayBackMode().equals(MusicService.SHUFFLE))
-                    action = MusicService.PLAY_ONCE;
-                musicService.setPlayBackMode(action);
-
+                musicService.setShuffle(!musicService.isShuffle());
             }
         });
         nextBtn.setOnClickListener(new View.OnClickListener() {
@@ -385,11 +417,40 @@ public class MusicPlayer extends AppCompatActivity {
         });
     }
 
+    private void toggleFollow(String userId){
+        String logInUserId = SharedPreferencesManager.getInstance(getBaseContext()).getUserId();
+        if(logInUserId.equals(userId)) return;
+        if(isFollowing)
+        ApiClient.getUserService().unfollow(userId).enqueue(new Callback<ApiResponse<Object>>() {
+            @Override
+            public void onResponse(Call<ApiResponse<Object>> call, Response<ApiResponse<Object>> response) {
+                if(response.isSuccessful()){
+                    isFollowing = false;
+                    followBtn.setImageResource(R.drawable.user_plus_icon);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponse<Object>> call, Throwable t) {
+
+            }
+        });
+        else ApiClient.getUserService().follow(new AddFollowRequest(userId)).enqueue(new Callback<ApiResponse<Object>>() {
+            @Override
+            public void onResponse(Call<ApiResponse<Object>> call, Response<ApiResponse<Object>> response) {
+                isFollowing = true;
+                followBtn.setImageResource(R.drawable.ic_person);
+            }
+            @Override
+            public void onFailure(Call<ApiResponse<Object>> call, Throwable t) {};
+        });
+    }
+
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
         try {
-            unregisterReceiver(receiver);
             unbindService(connection);
         }
         catch (Exception ex){

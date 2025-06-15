@@ -161,7 +161,11 @@ public class VibeDetailFragment extends Fragment {
             }
             @Override
             public void onFailure(Call<ApiResponse<GenreResponse>> call, Throwable t) {
-                Toast.makeText(getContext(), "Lỗi khi lấy thể loại: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                try{
+                    Toast.makeText(getContext(), "Lỗi khi lấy thể loại: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                } catch (Exception e) {
+
+                }
             }
         });
     }
@@ -198,7 +202,11 @@ public class VibeDetailFragment extends Fragment {
 
             @Override
             public void onFailure(Call<ApiResponse<List<TrackResponse>>> call, Throwable t) {
-                Toast.makeText(getContext(), "Lỗi khi lấy bài hát: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                try{
+                    Toast.makeText(getContext(), "Lỗi khi lấy bài hát: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                } catch (Exception e) {
+
+                }
             }
         });
 
@@ -218,7 +226,9 @@ public class VibeDetailFragment extends Fragment {
 
             @Override
             public void onFailure(Call<ApiResponse<List<PlaylistResponse>>> call, Throwable t) {
-                Toast.makeText(getContext(), "Lỗi khi lấy playlist: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                try{
+                    Toast.makeText(getContext(), "Lỗi khi lấy playlist: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                }catch (Exception e){}
             }
         });
 
@@ -238,7 +248,9 @@ public class VibeDetailFragment extends Fragment {
 
             @Override
             public void onFailure(Call<ApiResponse<List<AlbumResponse>>> call, Throwable t) {
-                Toast.makeText(getContext(), "Lỗi khi lấy album: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                try {
+                    Toast.makeText(getContext(), "Lỗi khi lấy album: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                }catch (Exception e){}
             }
         });
     }

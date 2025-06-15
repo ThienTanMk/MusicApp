@@ -185,9 +185,13 @@ public class SearchResultFragment extends Fragment {
 
             @Override
             public void onFailure(Call<ApiResponse<List<String>>> call, Throwable t) {
-                trackResponseResults.clear();
-                updatePagerAdapter();
-                Toast.makeText(getContext(), "Lỗi khi tìm kiếm bài hát: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                try {
+                    trackResponseResults.clear();
+                    updatePagerAdapter();
+                    Toast.makeText(getContext(), "Lỗi khi tìm kiếm bài hát: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                } catch (Exception e) {
+
+                }
             }
         });
     }
@@ -208,9 +212,12 @@ public class SearchResultFragment extends Fragment {
 
             @Override
             public void onFailure(Call<ApiResponse<List<TrackResponse>>> call, Throwable t) {
-                trackResponseResults.clear();
-                updatePagerAdapter();
-                Toast.makeText(getContext(), "Lỗi khi lấy chi tiết bài hát: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                try {
+                    trackResponseResults.clear();
+                    updatePagerAdapter();
+                    Toast.makeText(getContext(), "Lỗi khi lấy chi tiết bài hát: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                }catch (Exception ex){
+                }
             }
         });
     }
@@ -236,9 +243,11 @@ public class SearchResultFragment extends Fragment {
 
             @Override
             public void onFailure(Call<ApiResponse<List<String>>> call, Throwable t) {
-                userResults.clear();
-                updatePagerAdapter();
-                Toast.makeText(getContext(), "Lỗi khi tìm kiếm người dùng: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                try {
+                    userResults.clear();
+                    updatePagerAdapter();
+                    Toast.makeText(getContext(), "Lỗi khi tìm kiếm người dùng: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                } catch (Exception e) {}
             }
         });
     }
@@ -260,9 +269,11 @@ public class SearchResultFragment extends Fragment {
 
             @Override
             public void onFailure(Call<ApiResponse<List<ProfileWithCountFollowResponse>>> call, Throwable t) {
-                userResults.clear();
-                updatePagerAdapter();
-                Toast.makeText(getContext(), "Lỗi khi lấy chi tiết người dùng: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                try{
+                    userResults.clear();
+                    updatePagerAdapter();
+                    Toast.makeText(getContext(), "Lỗi khi lấy chi tiết người dùng: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                }catch (Exception e){}
             }
         });
     }
@@ -288,9 +299,11 @@ public class SearchResultFragment extends Fragment {
 
             @Override
             public void onFailure(Call<ApiResponse<List<String>>> call, Throwable t) {
-                playlistResults.clear();
-                updatePagerAdapter();
-                Toast.makeText(getContext(), "Lỗi khi tìm kiếm playlist: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                try{
+                    playlistResults.clear();
+                    updatePagerAdapter();
+                    Toast.makeText(getContext(), "Lỗi khi tìm kiếm playlist: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                }catch (Exception e){}
             }
         });
     }
@@ -312,9 +325,11 @@ public class SearchResultFragment extends Fragment {
 
             @Override
             public void onFailure(Call<ApiResponse<List<PlaylistResponse>>> call, Throwable t) {
-                playlistResults.clear();
-                updatePagerAdapter();
-                Toast.makeText(getContext(), "Lỗi khi lấy chi tiết playlist: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                try{
+                    playlistResults.clear();
+                    updatePagerAdapter();
+                    Toast.makeText(getContext(), "Lỗi khi lấy chi tiết playlist: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                }catch (Exception e){}
             }
         });
     }
@@ -340,9 +355,12 @@ public class SearchResultFragment extends Fragment {
 
             @Override
             public void onFailure(Call<ApiResponse<List<String>>> call, Throwable t) {
-                albumResponseResults.clear();
-                updatePagerAdapter();
-                Toast.makeText(getContext(), "Lỗi khi tìm kiếm album: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                try{
+                    albumResponseResults.clear();
+                    updatePagerAdapter();
+                    Toast.makeText(getContext(), "Lỗi khi tìm kiếm album: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+                catch (Exception e){}
             }
         });
     }
@@ -364,9 +382,12 @@ public class SearchResultFragment extends Fragment {
 
             @Override
             public void onFailure(Call<ApiResponse<List<AlbumResponse>>> call, Throwable t) {
-                albumResponseResults.clear();
-                updatePagerAdapter();
-                Toast.makeText(getContext(), "Lỗi khi lấy chi tiết album: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                try{
+                    albumResponseResults.clear();
+                    updatePagerAdapter();
+                    Toast.makeText(getContext(), "Lỗi khi lấy chi tiết album: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+                catch (Exception e){}
             }
         });
     }

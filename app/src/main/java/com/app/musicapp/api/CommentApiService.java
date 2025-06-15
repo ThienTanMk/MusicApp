@@ -31,4 +31,7 @@ public interface CommentApiService {
     Call<ApiResponse<Void>> likeComment(@Path("id") String commentId);
     @DELETE("/api/comment-service/comments/{id}/likes")
     Call<ApiResponse<Void>> unlikeComment(@Path("id") String commentId);
+
+    @DELETE("/api/comment-service/comments/{id}")
+    Call<ApiResponse<Void>> deleteComment(@Path("id") String commentId);
 }

@@ -46,30 +46,12 @@ public class MainActivity extends AppCompatActivity {
 
     LinearLayout miniPlayer;
     TextView artistName, trackTitle;
-    private List<Fragment> fragments;
 
     MusicService  musicService;
     private Boolean isBound = false;
 
-    private final BroadcastReceiver receiver = new BroadcastReceiver() {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-            if(MusicService.ACTION_CHANGED_CURRENT_TRACK.equals(action)){
-                updateTrackInfo();
-            }
-            else if(MusicService.ACTION_PLAY.equals(action)){
-                playBtn.setImageResource(R.drawable.play_icon);
-            }
-            else if(MusicService.ACTION_PAUSE.equals(action)){
-                playBtn.setImageResource(R.drawable.pause_icon);
-            }
-        }
-    };
-    private void updateTrackInfo(){
+    private void updateTrackInfo(TrackResponse track){
         if (isFinishing() || isDestroyed()) return;
-        TrackResponse track = musicService.getCurrentTrack();
         if(track==null) return;
         artistName.setText(track.getUser().getDisplayName());
         trackTitle.setText(track.getTitle());
@@ -89,16 +71,18 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onServiceConnected(ComponentName className, IBinder service) {
             isBound = true;
+
             MusicService.LocalBinder binder = (MusicService.LocalBinder) service;
             musicService = binder.getService();
 
-            MusicViewModel musicViewModel =  new ViewModelProvider(MainActivity.this).get(MusicViewModel.class);
-            musicService.setMusicViewModel(musicViewModel);
+            setListener();
 
-            if(musicService.getNextUpItems()==null||musicService.getNextUpItems().isEmpty())
-                return;
+            // music service ko co nhac
+            if(musicService.getNextUpItems()==null||musicService.getNextUpItems().isEmpty()) return;
+
             miniPlayer.setVisibility(View.VISIBLE);
-            updateTrackInfo();
+
+            updateTrackInfo(musicService.getCurrentTrack());
         }
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
@@ -210,14 +194,22 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-
-        IntentFilter filter = new IntentFilter(MusicService.ACTION_UPDATE_SEEKBAR_PROGRESS);
-        filter.addAction(MusicService.ACTION_CHANGED_CURRENT_TRACK);
-        filter.addAction(MusicService.ACTION_PLAY);
-        filter.addAction(MusicService.ACTION_PAUSE);
-        registerReceiver(receiver, filter,Context.RECEIVER_EXPORTED);
     }
 
+    private void setListener(){
+        musicService.getMusicViewModel().getCurrentTrack().observe(this,track->{
+            if(track==null) return;
+            updateTrackInfo(track);
+        });
+        musicService.getMusicViewModel().getIsPlaying().observe(this,isPlaying->{
+            if(isPlaying){
+                playBtn.setImageResource(R.drawable.play_icon);
+            }
+            else{
+                playBtn.setImageResource(R.drawable.pause_icon);
+            }
+        });
+    }
     @Override
     public void onBackPressed() {
         if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
@@ -243,8 +235,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         try {
-            unbindService(connection);
-            unregisterReceiver(receiver);
+            if(isBound)
+                unbindService(connection);
         }
         catch (Exception ex){
 

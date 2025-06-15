@@ -3,6 +3,7 @@ package com.app.musicapp.view.activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Base64;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -17,6 +18,7 @@ import com.app.musicapp.model.response.ApiResponse;
 import com.app.musicapp.model.response.LoginResponse;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 import org.json.JSONObject;
 
@@ -87,7 +89,19 @@ public class SignIn extends AppCompatActivity {
             return null;
         }
     }
+    private void sendTokenServer(String token) {
+        ApiClient.getNotificationApiService().sendToken(token).enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                Log.i("Notification",response.message());
+            }
 
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+
+            }
+        });
+    }
     private void performLogin() {
         String username = usernameEditText.getText().toString();
         String password = passwordEditText.getText().toString();
@@ -130,6 +144,10 @@ public class SignIn extends AppCompatActivity {
                             String userId = extractUserIdFromToken(token);
                             if (userId != null) {
                                 preferencesManager.saveUserId(userId);
+                                FirebaseMessaging.getInstance().getToken()
+                                        .addOnSuccessListener(notiToken -> {
+                                            sendTokenServer(notiToken); // gửi token + userId lên server
+                                        });
                                 // Navigate to MainActivity
                                 Toast.makeText(SignIn.this, "Login successful", Toast.LENGTH_SHORT).show();
                                 startActivity(new Intent(SignIn.this, MainActivity.class));
