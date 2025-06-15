@@ -287,7 +287,9 @@ public class UserProfileFragment extends Fragment {
 
             @Override
             public void onFailure(@NonNull Call<ApiResponse<ProfileWithCountFollowResponse>> call, @NonNull Throwable t) {
-                Toast.makeText(requireContext(), "Lỗi: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                try {
+                    Toast.makeText(requireContext(), "Lỗi: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                } catch (Exception e) {}
                 ivEdit.setVisibility(View.GONE);
             }
         });
@@ -332,7 +334,9 @@ public class UserProfileFragment extends Fragment {
             @Override
             public void onFailure(@NonNull Call<ApiResponse<PageFollowResponse>> call, @NonNull Throwable t) {
                 tvFollowerCount.setText("0 Follower");
-                Toast.makeText(requireContext(), "Lỗi khi tải số lượng người theo dõi: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                try {
+                    Toast.makeText(requireContext(), "Lỗi khi tải số lượng người theo dõi: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                } catch (Exception e) {}
             }
         });
 
@@ -352,7 +356,9 @@ public class UserProfileFragment extends Fragment {
             @Override
             public void onFailure(@NonNull Call<ApiResponse<PageFollowResponse>> call, @NonNull Throwable t) {
                 tvFollowingCount.setText("0");
-                Toast.makeText(requireContext(), "Lỗi khi tải số lượng người đang theo dõi: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                try {
+                    Toast.makeText(requireContext(), "Lỗi khi tải số lượng người đang theo dõi: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                } catch (Exception e) {}
             }
         });
     }
@@ -377,7 +383,7 @@ public class UserProfileFragment extends Fragment {
                 @Override
                 public void onFailure(@NonNull Call<ApiResponse<Object>> call, @NonNull Throwable t) {
                     Log.e("UserProfileFragment", "Follow error: " + t.getMessage());
-                    Toast.makeText(requireContext(), "Lỗi: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+//                    Toast.makeText(requireContext(), "Lỗi: " + t.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             });
         } else {
@@ -397,7 +403,7 @@ public class UserProfileFragment extends Fragment {
                 @Override
                 public void onFailure(@NonNull Call<ApiResponse<Object>> call, @NonNull Throwable t) {
                     Log.e("UserProfileFragment", "Unfollow error: " + t.getMessage());
-                    Toast.makeText(requireContext(), "Lỗi: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+//                    Toast.makeText(requireContext(), "Lỗi: " + t.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             });
         }
@@ -428,7 +434,7 @@ public class UserProfileFragment extends Fragment {
 
             @Override
             public void onFailure(@NonNull Call<ApiResponse<List<TrackResponse>>> call, @NonNull Throwable t) {
-                Toast.makeText(requireContext(), "Lỗi khi tải danh sách bài hát: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+//                Toast.makeText(requireContext(), "Lỗi khi tải danh sách bài hát: " + t.getMessage(), Toast.LENGTH_SHORT).show();
                 lvTracks.setVisibility(View.GONE);
                 tvNoTracks.setVisibility(View.VISIBLE);
             }
@@ -461,7 +467,7 @@ public class UserProfileFragment extends Fragment {
                     }
                 } else {
                     Log.e("UserProfileFragment", "Failed to load playlists: " + response.message() + ", HTTP code: " + response.code());
-                    Toast.makeText(requireContext(), "Lỗi tải playlist: " + response.message(), Toast.LENGTH_SHORT).show();
+//                    Toast.makeText(requireContext(), "Lỗi tải playlist: " + response.message(), Toast.LENGTH_SHORT).show();
                     rvPlaylists.setVisibility(View.GONE);
                     tvNoPlaylists.setVisibility(View.VISIBLE);
                 }
@@ -500,7 +506,7 @@ public class UserProfileFragment extends Fragment {
                     }
                 } else {
                     Log.e("UserProfileFragment", "Failed to load albums: " + response.message() + ", HTTP code: " + response.code());
-                    Toast.makeText(requireContext(), "Lỗi tải album: " + response.message(), Toast.LENGTH_SHORT).show();
+//                    Toast.makeText(requireContext(), "Lỗi tải album: " + response.message(), Toast.LENGTH_SHORT).show();
                     rvAlbums.setVisibility(View.GONE);
                     tvNoAlbums.setVisibility(View.VISIBLE);
                 }
@@ -509,7 +515,7 @@ public class UserProfileFragment extends Fragment {
             @Override
             public void onFailure(@NonNull Call<ApiResponse<List<AlbumResponse>>> call, @NonNull Throwable t) {
                 Log.e("UserProfileFragment", "Network error loading albums: " + t.getMessage());
-                Toast.makeText(requireContext(), "Lỗi mạng: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+//                Toast.makeText(requireContext(), "Lỗi mạng: " + t.getMessage(), Toast.LENGTH_SHORT).show();
                 rvAlbums.setVisibility(View.GONE);
                 tvNoAlbums.setVisibility(View.VISIBLE);
             }

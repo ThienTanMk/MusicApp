@@ -81,7 +81,10 @@ public class ManageListAdapter<T extends BaseManageItem> extends BaseAdapter {
 
             @Override
             public void onFailure(Call<ApiResponse<String>> call, Throwable t) {
-                Toast.makeText(context, "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                try{
+                  Toast.makeText(context, "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                } catch (Exception e) {
+                }
             }
         });
     }

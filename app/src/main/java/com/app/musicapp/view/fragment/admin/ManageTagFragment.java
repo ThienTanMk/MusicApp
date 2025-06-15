@@ -52,13 +52,10 @@ public class ManageTagFragment extends Fragment {
         btnAddTag = view.findViewById(R.id.btn_add_tag);
         listViewTag = view.findViewById(R.id.list_tag);
 
-        // Nút back
         view.findViewById(R.id.image_back).setOnClickListener(v -> back());
 
-        // Nút add
         btnAddTag.setOnClickListener(v -> addTag());
 
-        // Adapter dùng chung
         tagAdapter = new ManageListAdapter<>(
                 getContext(),
                 tagList,
@@ -68,7 +65,6 @@ public class ManageTagFragment extends Fragment {
         );
         listViewTag.setAdapter(tagAdapter);
 
-        // Load tag ban đầu
         loadTags();
     }
 
@@ -100,7 +96,10 @@ public class ManageTagFragment extends Fragment {
 
             @Override
             public void onFailure(Call<ApiResponse<TagResponse>> call, Throwable t) {
-                Toast.makeText(getContext(), "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                try {
+                    Toast.makeText(getContext(), "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                } catch (Exception e) {
+                }
             }
         });
     }
@@ -118,7 +117,10 @@ public class ManageTagFragment extends Fragment {
 
             @Override
             public void onFailure(Call<ApiResponse<List<TagResponse>>> call, Throwable t) {
-                Toast.makeText(getContext(), "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                try {
+                    Toast.makeText(getContext(), "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                } catch (Exception e) {
+                }
             }
         });
     }

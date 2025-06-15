@@ -118,7 +118,10 @@ public class SearchUserListAdapter extends ArrayAdapter<ProfileWithCountFollowRe
 
             @Override
             public void onFailure(Call<ApiResponse<Object>> call, Throwable t) {
-                Toast.makeText(getContext(), "Lỗi khi follow: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+               try {
+                   Toast.makeText(getContext(), "Lỗi khi follow: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+               } catch (Exception e) {
+               }
             }
         });
     }
@@ -145,7 +148,10 @@ public class SearchUserListAdapter extends ArrayAdapter<ProfileWithCountFollowRe
 
             @Override
             public void onFailure(Call<ApiResponse<Object>> call, Throwable t) {
-                Toast.makeText(getContext(), "Lỗi khi bỏ theo dõi: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                try {
+                    Toast.makeText(getContext(), "Lỗi khi bỏ theo dõi: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                } catch (Exception e) {
+                }
             }
         });
     }

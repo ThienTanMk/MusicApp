@@ -267,12 +267,10 @@ public class PlaylistOptionsBottomSheet extends BottomSheetDialogFragment {
                         return;
                     }
 
-                    // Show confirmation dialog
                     new AlertDialog.Builder(requireContext())
                             .setTitle("Delete Playlist")
                             .setMessage("Are you sure you want to delete this playlist?")
                             .setPositiveButton("Delete", (dialog, which) -> {
-                                // Call delete API after confirmation
                                 ApiClient.getPlaylistService().deletePlaylistByIdV1(playlistResponse.getId())
                                         .enqueue(new Callback<ApiResponse<String>>() {
                                             @Override
@@ -286,7 +284,7 @@ public class PlaylistOptionsBottomSheet extends BottomSheetDialogFragment {
                                                     playlistOptionsListener.onPlaylistDeleted(playlistResponse);
                                                     LocalBroadcastManager.getInstance(requireContext()).sendBroadcast(intent);
                                                     dismiss();
-                                                } else if (response.body() != null && response.body().getCode() == 1401) {
+                                                } else if (response.body() != null && response.body().getCode() == 103) {
                                                     Log.e("PlaylistOptionsBottomSheet", "Unauthorized: Please log in again");
                                                     showToast("Vui lòng đăng nhập lại");
                                                     startActivity(new Intent(requireContext(), SignIn.class));
@@ -300,7 +298,10 @@ public class PlaylistOptionsBottomSheet extends BottomSheetDialogFragment {
                                             @Override
                                             public void onFailure(@NonNull Call<ApiResponse<String>> call, @NonNull Throwable t) {
                                                 Log.e("PlaylistOptionsBottomSheet", "Network error: " + t.getMessage());
-                                                showToast("Lỗi mạng: " + t.getMessage());
+                                                try {
+                                                    showToast("Lỗi mạng: " + t.getMessage());
+                                                } catch (Exception e) {
+                                                }
                                             }
                                         });
                             })
@@ -309,13 +310,19 @@ public class PlaylistOptionsBottomSheet extends BottomSheetDialogFragment {
                 });
 
                 optionPlayNext.setOnClickListener(v -> {
-                    showToast("Phát tiếp theo: " + playlistResponse.getTitle());
+                    try {
+                        showToast("Phát tiếp theo: " + playlistResponse.getTitle());
+                    } catch (Exception e) {
+                    }
                     dismiss();
                 });
             }
         } else {
             Log.e("PlaylistOptionsBottomSheet", "playlistResponse is null");
-            showToast("Không thể hiển thị thông tin playlist");
+            try {
+                showToast("Không thể hiển thị thông tin playlist");
+            } catch (Exception e) {
+            }
             dismiss();
         }
 

@@ -90,9 +90,7 @@ public class PlaylistPageFragment extends Fragment implements OnLikeChangeListen
         ivLike = view.findViewById(R.id.iv_like);
         tvLikeCount = view.findViewById(R.id.tv_like_count);
         ImageView ivMenu = view.findViewById(R.id.iv_menu);
-        ImageView ivPlay = view.findViewById(R.id.iv_play);
         TextView tvDescription = view.findViewById(R.id.tv_description);
-        TextView tvShowMore = view.findViewById(R.id.tv_show_more);
         rvTracks = view.findViewById(R.id.rv_tracks);
 
 
@@ -146,15 +144,6 @@ public class PlaylistPageFragment extends Fragment implements OnLikeChangeListen
                 Toast.makeText(getContext(), "No playlist data available", Toast.LENGTH_SHORT).show();
             }
         });
-        ivPlay.setOnClickListener(v -> {
-            // Logic phát playlist
-            Toast.makeText(getContext(), "Playing: " + (playlist != null && !playlist.isEmpty() ? ((PlaylistResponse) playlist.get(0)).getTitle() : "Unknown"), Toast.LENGTH_SHORT).show();
-        });
-        tvShowMore.setOnClickListener(v -> {
-            // Mở rộng description
-            Toast.makeText(getContext(), "Show more clicked", Toast.LENGTH_SHORT).show();
-        });
-
         return view;
     }
     private void setupRecyclerView() {
@@ -206,7 +195,10 @@ public class PlaylistPageFragment extends Fragment implements OnLikeChangeListen
             public void onFailure(@NonNull Call<ApiResponse<Integer>> call, @NonNull Throwable t) {
                 Log.e("PlaylistPageFragment", "Network error fetching like count: " + t.getMessage());
                 tvLikeCount.setText("0");
-                Toast.makeText(getContext(), "Network error", Toast.LENGTH_SHORT).show();
+                try {
+                    Toast.makeText(getContext(), "Network error", Toast.LENGTH_SHORT).show();
+                } catch (Exception e) {
+                }
             }
         });
     }
@@ -250,7 +242,10 @@ public class PlaylistPageFragment extends Fragment implements OnLikeChangeListen
             @Override
             public void onFailure(@NonNull Call<ApiResponse<Boolean>> call, @NonNull Throwable t) {
                 Log.e("PlaylistPageFragment", "Network error: " + t.getMessage());
-                Toast.makeText(getContext(), "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+               try {
+                   Toast.makeText(getContext(), "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+               } catch (Exception e) {
+               }
             }
         });
     }
@@ -345,6 +340,5 @@ public class PlaylistPageFragment extends Fragment implements OnLikeChangeListen
 
     @Override
     public void onTrackDeleted(TrackResponse track) {
-        // This won't be called in playlist context
     }
 }

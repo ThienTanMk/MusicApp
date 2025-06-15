@@ -38,7 +38,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class HomePageFragment extends Fragment {
-    private ImageView ivUpload, ivNoti, ivRandom;
+    private ImageView  ivNoti;
     private LinearLayout llYourLikes;
     private View progressBar;
     private RecyclerView rvPlaylist, rvPlaylistLike, rvAlbum;
@@ -58,9 +58,7 @@ public class HomePageFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_home_page, container, false);
 
         // Ánh xạ view
-//        ivUpload = view.findViewById(R.id.iv_upload);
         ivNoti = view.findViewById(R.id.iv_noti);
-//        ivRandom = view.findViewById(R.id.iv_random);
         llYourLikes = view.findViewById(R.id.ll_your_likes);
         rvPlaylist = view.findViewById(R.id.rv_playlist);
         rvPlaylistLike = view.findViewById(R.id.rv_playlist_like);
@@ -119,9 +117,6 @@ public class HomePageFragment extends Fragment {
     }
     private void fetchCreatedPlaylists() {
         progressBar.setVisibility(View.VISIBLE);
-//        PlaylistApiService apiService = ApiClient.getPlaylistService();
-//        Call<ApiResponse<List<PlaylistResponse>>> call = apiService.getCreatedPlaylists();
-//        call.enqueue(new Callback<ApiResponse<List<PlaylistResponse>>>() {
         ApiClient.getPlaylistService().getCreatedPlaylists().enqueue(new Callback<ApiResponse<List<PlaylistResponse>>>() {
             @Override
             public void onResponse(@NonNull Call<ApiResponse<List<PlaylistResponse>>> call, @NonNull Response<ApiResponse<List<PlaylistResponse>>> response) {
@@ -138,7 +133,7 @@ public class HomePageFragment extends Fragment {
                             Log.d("HomePageFragment", "No created playlists returned");
                         }
                         playListRVAdapter.notifyDataSetChanged();
-                    } else if (apiResponse.getCode() == 1401) {
+                    } else if (apiResponse.getCode() == 103) {
                         String errorMsg = "Unauthorized: Please log in again";
                         Toast.makeText(getContext(), errorMsg, Toast.LENGTH_LONG).show();
                         Log.e("HomePageFragment", errorMsg);
@@ -167,9 +162,6 @@ public class HomePageFragment extends Fragment {
 
     private void fetchLikedPlaylists() {
         progressBar.setVisibility(View.VISIBLE);
-//        PlaylistApiService apiService = ApiClient.getPlaylistService();
-//        Call<ApiResponse<List<PlaylistResponse>>> call = apiService.getLikedPlaylists();
-//        call.enqueue(new Callback<ApiResponse<List<PlaylistResponse>>>() {
         ApiClient.getPlaylistService().getLikedPlaylists().enqueue(new Callback<ApiResponse<List<PlaylistResponse>>>() {
             @Override
             public void onResponse(@NonNull Call<ApiResponse<List<PlaylistResponse>>> call, @NonNull Response<ApiResponse<List<PlaylistResponse>>> response) {
@@ -186,7 +178,7 @@ public class HomePageFragment extends Fragment {
                             Log.d("HomePageFragment", "No liked playlists returned");
                         }
                         likedPlaylistRVAdapter.notifyDataSetChanged();
-                    } else if (apiResponse.getCode() == 1401) {
+                    } else if (apiResponse.getCode() == 103) {
                         String errorMsg = "Unauthorized: Please log in again";
                         Toast.makeText(getContext(), errorMsg, Toast.LENGTH_LONG).show();
                         Log.e("HomePageFragment", errorMsg);
@@ -234,7 +226,7 @@ public class HomePageFragment extends Fragment {
                         likedAlbumResponses.addAll(albums.subList(0, Math.min(8, albums.size())));
                     }
                     albumRVAdapter.notifyDataSetChanged();
-                } else if (response.body() != null && response.body().getCode() == 1401) {
+                } else if (response.body() != null && response.body().getCode() == 103) {
                     Toast.makeText(requireContext(), "Unauthorized: Please log in again", Toast.LENGTH_LONG).show();
                     startActivity(new Intent(requireContext(), SignIn.class));
                     requireActivity().finish();

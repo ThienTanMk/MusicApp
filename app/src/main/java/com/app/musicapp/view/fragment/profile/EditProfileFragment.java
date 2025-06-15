@@ -197,7 +197,7 @@ public class EditProfileFragment extends Fragment {
     }
     private void saveProfile(ProfileUpdateRequest request) {
         if (!isAdded()) return;
-        progressBar.setVisibility(View.VISIBLE); // Hiển thị ProgressBar
+        progressBar.setVisibility(View.VISIBLE);
         Call<ApiResponse<UserProfileResponse>> call = ApiClient.getUserProfileApiService().updateUserProfile(request);
         call.enqueue(new Callback<ApiResponse<UserProfileResponse>>() {
             @Override
@@ -208,8 +208,6 @@ public class EditProfileFragment extends Fragment {
                 if (response.isSuccessful()) {
                     currentDisplayName = request.getDisplayName();
                     hasChanges = false;
-//                    changeAvatar(selectedImageUri);
-//                    changeCover(selectedImageUri);
                     Toast.makeText(getContext(), "Cập nhật hồ sơ thành công", Toast.LENGTH_SHORT).show();
                     if (requireActivity() != null) {
                         requireActivity().getSupportFragmentManager().popBackStack();
@@ -225,7 +223,9 @@ public class EditProfileFragment extends Fragment {
                 if (!isAdded()) return;
                 progressBar.setVisibility(View.GONE);
                 Log.e("EditProfileFragment", "saveProfile error: " + t.getMessage());
-                Toast.makeText(getContext(), "Lỗi cập nhật hồ sơ: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                try {
+                   Toast.makeText(getContext(), "Lỗi cập nhật hồ sơ: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                } catch (Exception e) {}
             }
         });
     }
@@ -259,7 +259,9 @@ public class EditProfileFragment extends Fragment {
                 public void onFailure(@NonNull Call<ApiResponse<UploadCoverResponse>> call, @NonNull Throwable t) {
                     if (!isAdded()) return;
                     Log.e("EditProfileFragment", "uploadCover error: " + t.getMessage());
-                    Toast.makeText(getContext(), "Lỗi cập nhật ảnh bìa: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                    try {
+                        Toast.makeText(getContext(), "Lỗi cập nhật ảnh bìa: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                    } catch (Exception e) {}
                 }
             });
         } catch (Exception e) {
@@ -298,7 +300,9 @@ public class EditProfileFragment extends Fragment {
                 public void onFailure(@NonNull Call<ApiResponse<UploadAvatarResponse>> call, @NonNull Throwable t) {
                     if (!isAdded()) return;
                     Log.e("EditProfileFragment", "uploadAvatar error: " + t.getMessage());
-                    Toast.makeText(getContext(), "Lỗi cập nhật ảnh đại diện: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                   try {
+                       Toast.makeText(getContext(), "Lỗi cập nhật ảnh đại diện: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                   } catch (Exception e) {}
                 }
             });
         } catch (Exception e) {

@@ -54,13 +54,10 @@ public class ManageGenreFragment extends Fragment {
         edGenre = view.findViewById(R.id.ed_genre);
         btnAddGenre = view.findViewById(R.id.btn_add_genre);
         listViewGenre = view.findViewById(R.id.list_genre);
-        // Ánh xạ nút back
         view.findViewById(R.id.image_back).setOnClickListener(v -> back());
 
-        // Ánh xạ nút add
         btnAddGenre.setOnClickListener(v -> addGenre());
 
-        // Setup Adapter dùng chung
         genreAdapter = new ManageListAdapter<>(
                 getContext(),
                 genreList,
@@ -70,7 +67,6 @@ public class ManageGenreFragment extends Fragment {
         );
         listViewGenre.setAdapter(genreAdapter);
 
-        // Load genre ban đầu
         loadGenres();
     }
     private void back() {
@@ -100,7 +96,10 @@ public class ManageGenreFragment extends Fragment {
 
             @Override
             public void onFailure(Call<ApiResponse<GenreResponse>> call, Throwable t) {
-                Toast.makeText(getContext(), "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                try {
+                    Toast.makeText(getContext(), "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                } catch (Exception e) {
+                }
             }
         });
     }
@@ -118,7 +117,10 @@ public class ManageGenreFragment extends Fragment {
 
             @Override
             public void onFailure(Call<ApiResponse<List<GenreResponse>>> call, Throwable t) {
-                Toast.makeText(getContext(), "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                try {
+                    Toast.makeText(getContext(), "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                } catch (Exception e) {
+                }
             }
         });
     }

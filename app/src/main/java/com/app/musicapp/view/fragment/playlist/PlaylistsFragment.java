@@ -125,7 +125,7 @@ public class PlaylistsFragment extends Fragment implements OnLikeChangeListener,
                     playlistAdapter.notifyDataSetChanged();
 
                     Toast.makeText(requireContext(), "Tạo playlist thành công", Toast.LENGTH_SHORT).show();
-                } else if (response.body() != null && response.body().getCode() == 1401) {
+                } else if (response.body() != null && response.body().getCode() == 103) {
                     Toast.makeText(requireContext(), "Vui lòng đăng nhập lại", Toast.LENGTH_SHORT).show();
                     startActivity(new Intent(requireContext(), SignIn.class));
                     requireActivity().finish();

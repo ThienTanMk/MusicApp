@@ -37,32 +37,32 @@
 
     </LinearLayout>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="15dp">
+<!--    <androidx.constraintlayout.widget.ConstraintLayout-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_marginBottom="15dp">-->
 
-        <ImageButton
-            android:id="@+id/btn_play"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:src="@drawable/pause_icon"
-            android:contentDescription="play"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"/>
+<!--        <ImageButton-->
+<!--            android:id="@+id/btn_play"-->
+<!--            android:layout_width="48dp"-->
+<!--            android:layout_height="48dp"-->
+<!--            android:src="@drawable/pause_icon"-->
+<!--            android:contentDescription="play"-->
+<!--            app:layout_constraintTop_toTopOf="parent"-->
+<!--            app:layout_constraintBottom_toBottomOf="parent"-->
+<!--            app:layout_constraintEnd_toEndOf="parent"/>-->
 
-        <ImageButton
-            android:id="@+id/btn_shuffle"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:src="@drawable/shuffle_icon"
-            android:contentDescription="shuffle"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/btn_play"/>
+<!--        <ImageButton-->
+<!--            android:id="@+id/btn_shuffle"-->
+<!--            android:layout_width="48dp"-->
+<!--            android:layout_height="48dp"-->
+<!--            android:src="@drawable/shuffle_icon"-->
+<!--            android:contentDescription="shuffle"-->
+<!--            app:layout_constraintTop_toTopOf="parent"-->
+<!--            app:layout_constraintBottom_toBottomOf="parent"-->
+<!--            app:layout_constraintEnd_toStartOf="@id/btn_play"/>-->
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+<!--    </androidx.constraintlayout.widget.ConstraintLayout>-->
 
     <ListView
         android:id="@+id/lvTrackProfile"

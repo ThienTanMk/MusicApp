@@ -150,7 +150,7 @@ public class VibeDetailFragment extends Fragment {
         apiService.getGenreById(genreId).enqueue(new Callback<ApiResponse<GenreResponse>>() {
             @Override
             public void onResponse(Call<ApiResponse<GenreResponse>> call, Response<ApiResponse<GenreResponse>> response) {
-                if (response.isSuccessful() && response.body() != null && response.body().getCode() == 1000) {
+                if (response.isSuccessful() && response.body() != null ) {
                     String actualGenreId = response.body().getData().getId();
                     fetchDataByGenre(actualGenreId);
                 } else {

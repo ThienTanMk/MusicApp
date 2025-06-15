@@ -30,7 +30,6 @@ import retrofit2.Response;
 public class AllTrackProfileFragment extends Fragment {
     private List<TrackResponse> trackResponse;
     private ImageView ivBack;
-    private ImageButton btnPlay, btnShuffle;
     private TrackAdapter trackAdapter;
     private ListView lvTrack;
     private String userId;
@@ -57,8 +56,6 @@ public class AllTrackProfileFragment extends Fragment {
     }
     private void init(View view){
         ivBack = view.findViewById(R.id.iv_back);
-        btnPlay = view.findViewById(R.id.btn_play);
-        btnShuffle = view.findViewById(R.id.btn_shuffle);
         lvTrack = view.findViewById(R.id.lvTrackProfile);
 
         trackResponse = new ArrayList<>();
@@ -70,13 +67,6 @@ public class AllTrackProfileFragment extends Fragment {
             getActivity().getSupportFragmentManager().popBackStack();
         });
 
-        btnPlay.setOnClickListener(v -> {
-            // TODO: Thêm logic phát nhạc
-        });
-
-        btnShuffle.setOnClickListener(v -> {
-            // TODO: Thêm logic phát ngẫu nhiên
-        });
     }
     private void loadData() {
         if (userId == null) {
